@@ -1,0 +1,11 @@
+.rootVBox {
+    -fx-background-color: linear-gradient(to bottom right, white, blue);
+}
+
+#mainLabel {
+    -fx-font-size: 24px; /* Увеличенный размер шрифта */
+    -fx-font-weight: bold; /* Жирное начертание текста */
+    -fx-text-fill: linear-gradient(from 0% 0% to 100% 100%, #ff6347, #ff4500); /* Градиентный цвет текста */
+  /*  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 2, 2); /* Тень для текста */
+    -fx-padding: 10px; /* Отступы вокруг текста */
+}
