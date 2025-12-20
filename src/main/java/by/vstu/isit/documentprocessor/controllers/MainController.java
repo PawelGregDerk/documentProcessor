@@ -21,7 +21,7 @@ public class MainController {
     @FXML
     private VBox mainVBox;
 
-    public void createFEMA() {
+    public void createDocPackage() {
         loadStage(FEMAController.class, fxWeaver, mainVBox, SAVE_OP_TITLE);
    }
 //

@@ -28,8 +28,7 @@
     <Label fx:id="mainLabel" text="%word.docx" styleClass="label" />
 
     <HBox spacing="30" alignment="CENTER">
-        <Button fx:id="FEMA_Button" text="%create.fema" onAction="#createFEMA" />
-        <Button fx:id="selectOperationButton" text="%select.op" onAction="#onSelectButtonClick" />
+        <Button fx:id="FEMA_Button" text="%create.dox.pack" onAction="#createFEMA" />
     </HBox>
 
 </VBox>
