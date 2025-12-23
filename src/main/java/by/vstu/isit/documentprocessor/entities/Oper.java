@@ -34,7 +34,7 @@ public class Oper implements Serializable {
      * Если idDocPackage = NULL - то эта типовая опрерация, сохранённая для справочника типовых операций
      */
     @Column(name = "idDocPackage")
-    private Integer idDocPackage;
+    private Long idDocPackage;
 
     /**
      * КП-1, Пу-1

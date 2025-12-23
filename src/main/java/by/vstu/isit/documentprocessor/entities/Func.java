@@ -28,7 +28,7 @@ public class Func implements Serializable {
      */
     @Id
     @Column(name = "idFunc", nullable = false)
-    private Integer idFunc;
+    private Long idFunc;
 
     /**
      * ПУ-5

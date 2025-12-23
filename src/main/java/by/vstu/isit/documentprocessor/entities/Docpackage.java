@@ -25,7 +25,7 @@ public class Docpackage implements Serializable {
 
     @Id
     @Column(name = "idDocPackage", nullable = false)
-    private Integer idDocPackage;
+    private Long idDocPackage;
 
     @Column(name = "PackageName", nullable = false)
     private String packageName;

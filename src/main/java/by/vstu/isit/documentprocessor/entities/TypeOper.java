@@ -28,7 +28,7 @@ public class TypeOper implements Serializable {
      */
     @Id
     @Column(name = "idTypeOper", nullable = false)
-    private Integer idTypeOper;
+    private Long idTypeOper;
 
     /**
      * КП-1, Пу-1

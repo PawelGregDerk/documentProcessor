@@ -28,7 +28,7 @@ public class TypeOperFunc implements Serializable {
      */
     @Id
     @Column(name = "idTypeFunc", nullable = false)
-    private Integer idTypeFunc;
+    private Long idTypeFunc;
 
     /**
      * ПУ-5
