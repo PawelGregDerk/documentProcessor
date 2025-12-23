@@ -41,7 +41,7 @@ public class Func implements Serializable {
     private String name;
 
     @Column(name = "idOper", nullable = false)
-    private Integer idOper;
+    private Long idOper;
 
     /**
      * ПУ-8

@@ -28,7 +28,7 @@ public class SborEd implements Serializable {
     private Long id;
 
     @Column(name = "id_docpackage", nullable = false)
-    private Integer idDocpackage;
+    private Long idDocpackage;
 
     @Column(name = "Nazv", nullable = false)
     private String nazv;

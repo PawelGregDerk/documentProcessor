@@ -28,7 +28,7 @@ public class Oper implements Serializable {
      */
     @Id
     @Column(name = "idOper", nullable = false)
-    private Integer idOper;
+    private Long idOper;
 
     /**
      * Если idDocPackage = NULL - то эта типовая опрерация, сохранённая для справочника типовых операций
@@ -53,7 +53,7 @@ public class Oper implements Serializable {
      * Если не NULL то опреация типовая и Раб Инстр генерить не надо
      */
     @Column(name = "idTypeOper")
-    private Integer idTypeOper;
+    private Long idTypeOper;
 
     /**
      * ПУ-3 (всё списком вместе с OstnasInstr) Используемое оборудование
