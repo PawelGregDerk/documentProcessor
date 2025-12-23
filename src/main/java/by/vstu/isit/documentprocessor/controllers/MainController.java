@@ -22,7 +22,7 @@ public class MainController {
     private VBox mainVBox;
 
     public void createDocPackage() {
-        loadStage(FEMAController.class, fxWeaver, mainVBox, SAVE_OP_TITLE);
+        loadStage(TypeOperFuncFormController.class, fxWeaver, mainVBox, SAVE_OP_TITLE);
    }
 //
     public void onSelectButtonClick() {

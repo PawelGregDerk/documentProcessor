@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10"
+      xmlns="http://javafx.com/javafx/23.0.2"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="by.vstu.isit.documentprocessor.controllers.DocpackageFormController">
+
+    <Label text="Пакет документов" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="150"/>
+            <ColumnConstraints minWidth="300"/>
+        </columnConstraints>
+
+        <Label text="ID пакета:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="idField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Название пакета:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="packageNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Путь:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="pathField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="ПУ:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="puNameField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="СХПУ:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="spuNameField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="КП:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="kpNameField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="FMEA:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="fmeaNameField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Вед. инструкции:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="vedINameField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Button text="Сохранить"
+            onAction="#handleSave"
+            maxWidth="Infinity"/>
+</VBox>
+
