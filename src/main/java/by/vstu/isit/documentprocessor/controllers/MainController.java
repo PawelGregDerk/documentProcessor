@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.controllers;
 
+import by.vstu.isit.documentprocessor.repositories.TypeOperRepository;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class MainController {
     private VBox mainVBox;
 
     public void createDocPackage() {
-        loadStage(TypeOperFuncFormController.class, fxWeaver, mainVBox, SAVE_OP_TITLE);
+        loadStage(DocPackageController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
    }
 //
     public void onSelectButtonClick() {

@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.utils;
 
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -21,12 +22,21 @@ public class ResourceHelper {
         Stage previousStage = (Stage) pane.getScene().getWindow(); // или другой FXML-элемент
         previousStage.hide();
         Stage stage = new Stage();
-        stage.setScene(new Scene(fxWeaver.loadView(controller, getBundle()), 600, 400));
+        stage.setScene(new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824));
         addIcon(stage, controller);
         stage.setTitle(getMessage(sceneTitle));
         stage.setResizable(false);
         stage.initOwner(previousStage);
         stage.setOnHidden(e -> previousStage.show());
         stage.show();
+    }
+
+    public <T extends Node> T styled(T node, String... styles) {
+        for (String s : styles) {
+            if (!node.getStyleClass().contains(s)) {
+                node.getStyleClass().add(s);
+            }
+        }
+        return node;
     }
 }

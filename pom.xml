@@ -24,11 +24,11 @@
     </properties>
 
     <repositories>
-        <repository>
+        <!--repository>
             <id>com.e-iceblue</id>
             <name>e-iceblue</name>
             <url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>
-        </repository>
+        </repository-->
         <repository>
             <id>central</id>
             <name>Central Repository</name>

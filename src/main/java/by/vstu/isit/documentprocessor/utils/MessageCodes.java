@@ -18,7 +18,8 @@ public enum MessageCodes {
     SAVE_TITLE("save.title"),
     SAVE_PATH("save.path"),
     SELECT_DOC_TITLE("select.doc"),
-    EDIT_DOC("edit.doc"),;
+    EDIT_DOC("edit.doc"),
+    NEW_DOC_PACKAGE("new.doc.package");
 
     @Getter
     private final String code;

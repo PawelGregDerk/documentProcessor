@@ -9,3 +9,132 @@
   /*  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 2, 2); /* Тень для текста */
     -fx-padding: 10px; /* Отступы вокруг текста */
 }
+
+.newButton {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+}
+
+.delButton {
+    -fx-background-color: #800000;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+}
+
+.labelFont {
+    -fx-font-weight: bold;
+}
+
+.operationBlock {
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.funcsContainer {
+    -fx-padding: 10 0 0 20;
+}
+
+/* ===== базовые поля ===== */
+
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #c5c9d6;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 6 8;
+    -fx-font-size: 13px;
+    -fx-pref-height: 28;
+}
+
+.text-field:focused {
+    -fx-border-color: #4a63ff;
+    -fx-border-width: 1.5;
+}
+
+/* ===== компактные ===== */
+
+.text-field.compact {
+    -fx-pref-width: 90;
+}
+
+.text-field.no-compact {
+    -fx-pref-width: 190;
+}
+
+/* ===== заголовочные ===== */
+
+.header-input {
+    -fx-font-size: 14px;
+    -fx-pref-height: 32;
+}
+
+/* ===== таблица ===== */
+
+.table-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.table-header-row {
+    -fx-padding: 6 0;
+    -fx-border-color: #4a63ff;
+    -fx-border-width: 0 0 2 0;
+}
+
+/* ===== операции ===== */
+
+.operation-block {
+    -fx-padding: 8;
+    -fx-border-color: #d0d4e8;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.operation-row {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ===== функции ===== */
+
+.functions-container {
+    -fx-padding: 6 0 0 20;
+}
+
+.function-header {
+    -fx-padding: 4 0;
+}
+
+.function-row {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ===== кнопки ===== */
+
+.btn-primary {
+    -fx-background-color: #3f51b5;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 6 14;
+}
+
+.btn-danger {
+    -fx-background-color: #8b0000;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 6 14;
+}
+
+.btn-small {
+    -fx-font-size: 12px;
+    -fx-padding: 5 10;
+}
+
+/* ===== секции ===== */
+
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
