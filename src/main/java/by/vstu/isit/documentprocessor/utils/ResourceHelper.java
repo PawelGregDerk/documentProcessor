@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.utils;
 
+import io.vavr.control.Option;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -14,22 +15,6 @@ import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.*;
 
 @UtilityClass
 public class ResourceHelper {
-    public <T> void addIcon(Stage stage, Class<T> tClass) {
-        stage.getIcons().add(new Image(Objects.requireNonNull(tClass.getResourceAsStream("/images/logo.png"))));
-    }
-
-    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, Pane pane, MessageCodes sceneTitle) {
-        Stage previousStage = (Stage) pane.getScene().getWindow(); // или другой FXML-элемент
-        previousStage.hide();
-        Stage stage = new Stage();
-        stage.setScene(new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824));
-        addIcon(stage, controller);
-        stage.setTitle(getMessage(sceneTitle));
-        stage.setResizable(false);
-        stage.initOwner(previousStage);
-        stage.setOnHidden(e -> previousStage.show());
-        stage.show();
-    }
 
     public <T extends Node> T styled(T node, String... styles) {
         for (String s : styles) {
@@ -38,5 +23,45 @@ public class ResourceHelper {
             }
         }
         return node;
+    }
+
+    public static <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle,
+                                     Stage primaryStage) {
+        configureAndShow(primaryStage, controller, fxWeaver, sceneTitle);
+    }
+
+    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, Pane pane, MessageCodes sceneTitle) {
+        Stage stage = resolveChildStage(pane).getOrElse(Stage::new);
+        configureAndShow(stage, controller, fxWeaver, sceneTitle);
+    }
+
+    private Option<Stage> resolveChildStage(Pane pane) {
+        return Option.of(pane)
+                .map(Pane::getScene)
+                .map(Scene::getWindow)
+                .filter(Stage.class::isInstance)
+                .map(Stage.class::cast)
+                .map(parentStage -> {
+                    parentStage.hide();
+                    Stage childStage = new Stage();
+                    childStage.initOwner(parentStage);
+                    childStage.setOnHidden(e -> parentStage.show());
+                    return childStage;
+                });
+    }
+
+    private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver,
+                                      MessageCodes sceneTitle) {
+        Scene scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824);
+        stage.setScene(scene);
+        stage.setTitle(getMessage(sceneTitle));
+        stage.setResizable(false);
+        addIcon(stage, controller);
+        stage.show();
+    }
+
+    private <T> void addIcon(Stage stage, Class<T> tClass) {
+        stage.getIcons()
+                .add(new Image(Objects.requireNonNull(tClass.getResourceAsStream("/images/logo.png"))));
     }
 }

@@ -25,12 +25,4 @@ public class MainController {
     public void createDocPackage() {
         loadStage(DocPackageController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
    }
-//
-    public void onSelectButtonClick() {
-//        loadStage(OperationToDocxController.class, fxWeaver, mainVBox, SELECT_OP_TITLE);
-    }
-//
-    public void onEditButtonClick() {
-//        loadStage(SelectDocController.class, fxWeaver, mainVBox, SELECT_DOC_TITLE);
-    }
 }
