@@ -25,13 +25,13 @@ public class ResourceHelper {
         return node;
     }
 
-    public static <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle,
+    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle,
                                      Stage primaryStage) {
         configureAndShow(primaryStage, controller, fxWeaver, sceneTitle);
     }
 
     public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, Pane pane, MessageCodes sceneTitle) {
-        Stage stage = resolveChildStage(pane).getOrElse(Stage::new);
+        var stage = resolveChildStage(pane).getOrElse(Stage::new);
         configureAndShow(stage, controller, fxWeaver, sceneTitle);
     }
 
@@ -52,7 +52,7 @@ public class ResourceHelper {
 
     private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver,
                                       MessageCodes sceneTitle) {
-        Scene scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824);
+        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824);
         stage.setScene(scene);
         stage.setTitle(getMessage(sceneTitle));
         stage.setResizable(false);
