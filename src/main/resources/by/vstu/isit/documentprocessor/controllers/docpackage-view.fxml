@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/23.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="@/css/mainStyle.css"
+      styleClass="rootVBox"
+      fx:controller="by.vstu.isit.documentprocessor.controllers.DocPackageController"
+      spacing="10">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Название пакета -->
+    <Label text="Наименование" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="labelFont"/>
+    <TextField fx:id="packageNameField"
+               promptText="Название пакета документов"
+               maxWidth="400"/>
+
+    <!-- Названия документов -->
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="30"/>
+            <ColumnConstraints percentWidth="70"/>
+        </columnConstraints>
+
+        <Label text="ПУ:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="puField" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="labelFont"/>
+
+        <Label text="СХПУ:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="spuField" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="labelFont"/>
+
+        <Label text="КП:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="kpField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="labelFont"/>
+
+        <Label text="FMEA:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="fmeaField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Вед. инструкции:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="vedInstrField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- Кнопка добавления операции -->
+    <Button text="Добавить операцию"
+            onAction="#onAddOperation"
+            styleClass="newButton"
+            maxWidth="200"/>
+
+    <HBox spacing="20" style="-fx-font-weight: bold;">
+        <Label text="№ опер." prefWidth="80"/>
+        <Label text="№ инструкции" prefWidth="110"/>
+        <Label text="Оборудование" prefWidth="120"/>
+        <Label text="Оснастка / Инстр." prefWidth="140"/>
+        <Label text="Наименование" prefWidth="140"/>
+        <Label text="Шифр" prefWidth="80"/>
+        <Label text="Цех" prefWidth="60"/>
+        <Label text=""/>
+        <Label text=""/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Контейнер операций -->
+    <ScrollPane fitToWidth="true" prefHeight="350">
+        <content>
+            <VBox fx:id="operationsContainer" spacing="10"/>
+        </content>
+    </ScrollPane>
+
+    <!-- Сохранить -->
+    <Button text="Сохранить"
+            onAction="#onSave"
+            styleClass="newButton"
+            maxWidth="200"/>
+
+</VBox>
