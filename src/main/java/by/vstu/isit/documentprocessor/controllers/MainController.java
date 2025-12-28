@@ -1,6 +1,5 @@
 package by.vstu.isit.documentprocessor.controllers;
 
-import by.vstu.isit.documentprocessor.repositories.TypeOperRepository;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,7 @@
 package by.vstu.isit.documentprocessor;
 
-import by.vstu.isit.documentprocessor.controllers.DocPackageController;
 import by.vstu.isit.documentprocessor.controllers.MainController;
-import by.vstu.isit.documentprocessor.utils.MessageCodes;
 import javafx.application.Application;
-import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.boot.SpringApplication;
