@@ -29,7 +29,7 @@ public class SborEd implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "id_docpackage", nullable = false)
+    @Column(name = "id_docpackage", nullable = false, insertable = false, updatable = false)
     private Long idDocpackage;
 
     @Column(name = "Nazv", nullable = false)

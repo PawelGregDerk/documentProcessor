@@ -42,7 +42,7 @@ public class Func implements Serializable {
     @Column(name = "Name", nullable = false)
     private String name;
 
-    @Column(name = "idOper", nullable = false)
+    @Column(name = "idOper", nullable = false, insertable = false, updatable = false)
     private Long idOper;
 
     /**

@@ -228,6 +228,10 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>by.vstu.isit.documentprocessor.Main</mainClass>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.fxml</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

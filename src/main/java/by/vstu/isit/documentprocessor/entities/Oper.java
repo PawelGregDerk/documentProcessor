@@ -37,7 +37,7 @@ public class Oper implements Serializable {
     /**
      * Если idDocPackage = NULL - то эта типовая опрерация, сохранённая для справочника типовых операций
      */
-    @Column(name = "idDocPackage")
+    @Column(name = "idDocPackage", insertable = false, updatable = false)
     private Long idDocPackage;
 
     /**
@@ -56,7 +56,7 @@ public class Oper implements Serializable {
     /**
      * Если не NULL то опреация типовая и Раб Инстр генерить не надо
      */
-    @Column(name = "idTypeOper")
+    @Column(name = "idTypeOper", insertable = false, updatable = false)
     private Long idTypeOper;
 
     /**

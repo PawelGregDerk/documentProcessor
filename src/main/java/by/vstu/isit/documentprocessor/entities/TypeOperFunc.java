@@ -42,7 +42,7 @@ public class TypeOperFunc implements Serializable {
     @Column(name = "Name", nullable = false)
     private String name;
 
-    @Column(name = "idTypeOper", nullable = false)
+    @Column(name = "idTypeOper", nullable = false, insertable = false, updatable = false)
     private Long idTypeOper;
 
     /**
