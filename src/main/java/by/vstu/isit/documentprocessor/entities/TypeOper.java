@@ -3,7 +3,9 @@ package by.vstu.isit.documentprocessor.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -76,5 +78,13 @@ public class TypeOper implements Serializable {
      */
     @Column(name = "NumZech")
     private String numZech;
+
+    @OneToMany(mappedBy = "typeOper")
+    @ToString.Exclude
+    private List<Oper> opers;
+
+    @OneToMany(mappedBy = "typeOper")
+    @ToString.Exclude
+    private List<TypeOperFunc> typeOperFuncs;
 
 }

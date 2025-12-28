@@ -3,6 +3,8 @@ package by.vstu.isit.documentprocessor.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,5 +69,9 @@ public class TypeOperFunc implements Serializable {
      */
     @Column(name = "SpecCharakt")
     private String specCharakt;
+
+    @ManyToOne
+    @JoinColumn(name = "idTypeOper")
+    private TypeOper typeOper;
 
 }

@@ -3,7 +3,11 @@ package by.vstu.isit.documentprocessor.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -88,5 +92,17 @@ public class Oper implements Serializable {
      */
     @Column(name = "NumZech")
     private String numZech;
+
+    @ManyToOne
+    @JoinColumn(name = "idDocPackage")
+    private Docpackage docpackage;
+
+    @ManyToOne
+    @JoinColumn(name = "idTypeOper")
+    private TypeOper typeOper;
+
+    @OneToMany(mappedBy = "oper")
+    @ToString.Exclude
+    private List<Func> funcs;
 
 }

@@ -3,6 +3,8 @@ package by.vstu.isit.documentprocessor.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,5 +37,9 @@ public class SborEd implements Serializable {
 
     @Column(name = "Oboznach", nullable = false)
     private String oboznach;
+
+    @ManyToOne
+    @JoinColumn(name = "id_docpackage")
+    private Docpackage docpackage;
 
 }
