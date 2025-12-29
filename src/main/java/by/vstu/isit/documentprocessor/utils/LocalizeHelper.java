@@ -15,8 +15,7 @@ public class LocalizeHelper {
         return ResourceBundle.getBundle("i18n.messages", CURRENT_LOCALE);
     }
 
-    @SafeVarargs
-    public <T> String getMessage(MessageCodes code, T... args) {
+    public String getMessage(MessageCodes code, Object... args) {
         return args.length == 0
                 ? getBundle().getString(code.getCode())
                 : format(getBundle().getString(code.getCode()), args);
