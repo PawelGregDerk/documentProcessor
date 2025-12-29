@@ -110,6 +110,10 @@
     -fx-alignment: CENTER_LEFT;
 }
 
+.function-data-row:hover {
+    -fx-background-color: #f6f8fa;
+}
+
 /* ===== кнопки ===== */
 
 .btn-primary {

@@ -86,6 +86,7 @@ public class DocPackageController {
         // если первая функция — добавляем шапку
         if (funcsContainer.getChildren().isEmpty()) {
             HBox header = styled(new HBox(6), "function-header");
+            header.getStyleClass().add("function-header-row");
             header.getChildren().addAll(
                     styled(new Label("Описание функции"), "table-header"),
                     styled( new Label("Параметры / Требования"), "table-header"),
@@ -96,6 +97,7 @@ public class DocPackageController {
         }
 
         HBox funcRow = styled(new HBox(6), "function-row");
+        funcRow.getStyleClass().add("function-data-row");
         funcRow.setAlignment(Pos.CENTER_LEFT);
 
         TextField name = styled(new TextField(), "compact");
@@ -110,7 +112,17 @@ public class DocPackageController {
         spec.setPromptText("Спец. характеристики");
 
         Button delBtn = styled(new Button("Удалить"), "delButton");
-        delBtn.setOnAction(e -> funcsContainer.getChildren().remove(funcRow));
+        delBtn.setOnAction(e -> {
+            funcsContainer.getChildren().remove(funcRow);
+
+            // если больше нет строк функций — удаляем шапку
+            boolean hasDataRows = funcsContainer.getChildren().stream()
+                    .anyMatch(n -> n.getStyleClass().contains("function-data-row"));
+
+            if (!hasDataRows) {
+                funcsContainer.getChildren().removeIf(n -> n.getStyleClass().contains("function-header-row"));
+            }
+        });
 
         funcRow.getChildren().addAll(name, param, isProd, spec, delBtn);
         funcsContainer.getChildren().add(funcRow);
