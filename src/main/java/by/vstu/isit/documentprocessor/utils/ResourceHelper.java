@@ -61,7 +61,8 @@ public class ResourceHelper {
     }
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {
+        String iconPath = GlobalConsts.getICON_PATH();
         stage.getIcons()
-                .add(new Image(Objects.requireNonNull(tClass.getResourceAsStream("/images/logo.png"))));
+                .add(new Image(Objects.requireNonNull(tClass.getResourceAsStream(iconPath))));
     }
 }
