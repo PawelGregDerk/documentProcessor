@@ -31,7 +31,7 @@ public class Main extends Application {
         springContext.close();
     }
 
-    static void main(String[] args) {
+    static void main(String... args) {
         launch(Main.class, args);
     }
 }

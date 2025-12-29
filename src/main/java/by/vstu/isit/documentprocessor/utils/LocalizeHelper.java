@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 import static java.text.MessageFormat.format;
 
 @UtilityClass
-public final class LocalizeHelper {
+public class LocalizeHelper {
     private final Locale CURRENT_LOCALE = Locale.getDefault();
 
     public ResourceBundle getBundle() {

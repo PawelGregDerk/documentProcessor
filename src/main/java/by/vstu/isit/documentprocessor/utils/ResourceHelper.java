@@ -17,7 +17,7 @@ import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.*;
 public class ResourceHelper {
 
     public <T extends Node> T styled(T node, String... styles) {
-        for (String s : styles) {
+        for ( var s : styles) {
             if (!node.getStyleClass().contains(s)) {
                 node.getStyleClass().add(s);
             }
@@ -61,7 +61,7 @@ public class ResourceHelper {
     }
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {
-        String iconPath = GlobalConsts.getICON_PATH();
+        var iconPath = GlobalConsts.getICON_PATH();
         stage.getIcons()
                 .add(new Image(Objects.requireNonNull(tClass.getResourceAsStream(iconPath))));
     }
