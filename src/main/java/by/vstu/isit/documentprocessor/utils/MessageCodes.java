@@ -19,7 +19,8 @@ public enum MessageCodes {
     SAVE_PATH("save.path"),
     SELECT_DOC_TITLE("select.doc"),
     EDIT_DOC("edit.doc"),
-    NEW_DOC_PACKAGE("new.doc.package");
+    NEW_DOC_PACKAGE("new.doc.package"),
+    DATA_NOT_FOUND("data.not.found"),;
 
     @Getter
     private final String code;

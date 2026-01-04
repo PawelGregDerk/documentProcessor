@@ -28,20 +28,29 @@
             <ColumnConstraints percentWidth="70"/>
         </columnConstraints>
 
-        <Label text="ПУ:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="puField" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="labelFont"/>
+        <!-- Доп. поле -->
+        <Label text="Доп. поле:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="extraField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="СХПУ:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="spuField" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="labelFont"/>
+        <!-- ПУ -->
+        <Label text="ПУ:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="puField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="КП:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="kpField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="labelFont"/>
+        <!-- СХПУ -->
+        <Label text="СХПУ:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="spuField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="FMEA:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="fmeaField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <!-- КП -->
+        <Label text="КП:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="kpField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Вед. инструкции:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="vedInstrField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <!-- FMEA -->
+        <Label text="FMEA:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="fmeaField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <!-- Вед. инструкции -->
+        <Label text="Вед. инструкции:" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="labelFont"/>
+        <TextField fx:id="vedInstrField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
     </GridPane>
 
     <!-- Кнопка добавления операции -->
