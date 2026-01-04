@@ -21,7 +21,7 @@ public interface Service<
     default T getById(ID id) {
         return getRepository()
                 .findById(id)
-                .orElseThrow(() -> new DataNotFoundException());
+                .orElseThrow(DataNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
