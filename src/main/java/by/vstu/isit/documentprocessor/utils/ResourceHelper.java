@@ -25,8 +25,7 @@ public class ResourceHelper {
         return node;
     }
 
-    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle,
-                                     Stage primaryStage) {
+    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle, Stage primaryStage) {
         configureAndShow(primaryStage, controller, fxWeaver, sceneTitle);
     }
 
@@ -50,9 +49,8 @@ public class ResourceHelper {
                 });
     }
 
-    private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver,
-                                      MessageCodes sceneTitle) {
-        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1152, 824);
+    private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle) {
+        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1280, 920);
         stage.setScene(scene);
         stage.setTitle(getMessage(sceneTitle));
         stage.setResizable(false);
@@ -62,7 +60,6 @@ public class ResourceHelper {
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {
         var iconPath = GlobalConsts.getICON_PATH();
-        stage.getIcons()
-                .add(new Image(Objects.requireNonNull(tClass.getResourceAsStream(iconPath))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(tClass.getResourceAsStream(iconPath))));
     }
 }

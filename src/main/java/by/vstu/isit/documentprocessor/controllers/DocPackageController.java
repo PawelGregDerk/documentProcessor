@@ -64,8 +64,7 @@ public class DocPackageController {
         delOperBtn.setPrefWidth(90);
 
         operRow.getChildren().addAll(
-                numOper, nomInstr, oborud, ostnas, name, shifr, zech,
-                addFuncBtn, delOperBtn
+                numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
         );
 
         // --- контейнер функций ---
