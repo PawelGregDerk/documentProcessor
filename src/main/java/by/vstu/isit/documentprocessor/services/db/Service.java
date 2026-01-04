@@ -1,7 +1,6 @@
 package by.vstu.isit.documentprocessor.services.db;
 
 import by.vstu.isit.documentprocessor.excepts.DataNotFoundException;
-import lombok.SneakyThrows;
 import by.vstu.isit.documentprocessor.entities.AbstractEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,15 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
+
 public interface Service<
-        T extends AbstractEntity,
+        T extends AbstractEntity<ID>,
         ID extends Serializable,
         R extends JpaRepository<T, ID>> {
 
     R getRepository();
 
     @Transactional(readOnly = true)
-    default T getById(ID id) throws DataNotFoundException {
+    default T getById(ID id) {
         return getRepository()
                 .findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Entity not found: " + id));
@@ -34,15 +35,22 @@ public interface Service<
     }
 
     @Transactional
-    default void delete(T entity) {
-        getRepository().delete(entity);
-    }
-
-    @Transactional
-    default void delete(ID id) throws DataNotFoundException {
+    default void delete(ID id) {
         if (!getRepository().existsById(id)) {
             throw new DataNotFoundException("Entity not found: " + id);
         }
+
         getRepository().deleteById(id);
+    }
+
+    default void delete(T entity) throws DataNotFoundException {
+        requireNonNull(entity, "Entity must not be null");
+
+        ID id = entity.getId();
+        if (id == null) {
+            throw new IllegalArgumentException("Entity id must not be null");
+        }
+
+        delete(id);
     }
 }

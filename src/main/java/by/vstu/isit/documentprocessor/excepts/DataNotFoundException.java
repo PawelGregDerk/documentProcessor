@@ -1,6 +1,6 @@
 package by.vstu.isit.documentprocessor.excepts;
 
-public class DataNotFoundException extends Exception {
+public class DataNotFoundException extends RuntimeException {
     public DataNotFoundException(String msg) {
         super(msg);
     }
