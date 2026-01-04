@@ -21,7 +21,7 @@ public interface Service<
     default T getById(ID id) {
         return getRepository()
                 .findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Entity not found: " + id));
+                .orElseThrow(() -> new DataNotFoundException());
     }
 
     @Transactional(readOnly = true)
@@ -37,13 +37,13 @@ public interface Service<
     @Transactional
     default void delete(ID id) {
         if (!getRepository().existsById(id)) {
-            throw new DataNotFoundException("Entity not found: " + id);
+            throw new DataNotFoundException();
         }
 
         getRepository().deleteById(id);
     }
 
-    default void delete(T entity) throws DataNotFoundException {
+    default void delete(T entity) {
         requireNonNull(entity, "Entity must not be null");
 
         ID id = entity.getId();
