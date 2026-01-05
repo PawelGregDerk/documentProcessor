@@ -1,42 +1,22 @@
-package by.vstu.isit.documentprocessor.entities;
+package by.vstu.isit.documentprocessor.entities.db;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.util.List;
 
-import org.checkerframework.checker.units.qual.C;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-
-import java.io.Serializable;
-
-//@Entity
+@Entity
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
 @Table(name = "docpackage")
-public class Docpackage implements Serializable {
+@AttributeOverride(name = "id", column = @Column(name = "idDocPackage"))
+public class Docpackage extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idDocPackage", nullable = false)
-    private Long idDocPackage;
 
     @Column(name = "PackageName", nullable = false)
     private String packageName;

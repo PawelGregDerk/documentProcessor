@@ -12,39 +12,39 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor
-public class OperServiceImpl implements OperService {
+//@Service
+//@RequiredArgsConstructor
+public class OperServiceImpl /*implements OperService*/ {
 
-    private final OperRepository operRepository;
-
-    @Override
-    @Transactional
-    public Oper saveOper(Oper oper) {
-        return operRepository.save(oper);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Oper> findAllOpers() {
-        return operRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Oper> findOperById(Long id) {
-        return operRepository.findById(id);
-    }
-
-    @Override
-    @Transactional
-    public Oper updateOper(Oper oper) {
-        return operRepository.save(oper);
-    }
-
-    @Override
-    @Transactional
-    public void deleteOper(Long id) {
-        operRepository.deleteById(id);
-    }
+//    private final OperRepository operRepository;
+//
+//    @Override
+//    @Transactional
+//    public Oper saveOper(Oper oper) {
+//        return operRepository.save(oper);
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<Oper> findAllOpers() {
+//        return operRepository.findAll();
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Optional<Oper> findOperById(Long id) {
+//        return operRepository.findById(id);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public Oper updateOper(Oper oper) {
+//        return operRepository.save(oper);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteOper(Long id) {
+//        operRepository.deleteById(id);
+//    }
 }

@@ -1,35 +1,21 @@
-package by.vstu.isit.documentprocessor.entities;
+package by.vstu.isit.documentprocessor.entities.db;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import java.util.List;
-
-import org.checkerframework.checker.units.qual.C;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 
-//@Entity
+@Entity
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @SuperBuilder
 @NoArgsConstructor
-@Table(name = "type_oper")
-public class TypeOper implements Serializable {
+@Table(name = "oper")
+public class Oper implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,8 +24,14 @@ public class TypeOper implements Serializable {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idTypeOper", nullable = false)
-    private Long idTypeOper;
+    @Column(name = "idOper", nullable = false)
+    private Long idOper;
+
+    /**
+     * Если idDocPackage = NULL - то эта типовая опрерация, сохранённая для справочника типовых операций
+     */
+    @Column(name = "idDocPackage", insertable = false, updatable = false)
+    private Long idDocPackage;
 
     /**
      * КП-1, Пу-1
@@ -53,6 +45,12 @@ public class TypeOper implements Serializable {
      */
     @Column(name = "NomInstr", nullable = false)
     private String nomInstr;
+
+    /**
+     * Если не NULL то опреация типовая и Раб Инстр генерить не надо
+     */
+    @Column(name = "idTypeOper", insertable = false, updatable = false)
+    private Long idTypeOper;
 
     /**
      * ПУ-3 (всё списком вместе с OstnasInstr) Используемое оборудование
@@ -88,12 +86,16 @@ public class TypeOper implements Serializable {
     @Column(name = "NumZech")
     private String numZech;
 
-    @OneToMany(mappedBy = "typeOper", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Oper> opers;
+    @ManyToOne
+    @JoinColumn(name = "idDocPackage")
+    private Docpackage docpackage;
 
-    @OneToMany(mappedBy = "typeOper", cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "idTypeOper")
+    private TypeOper typeOper;
+
+    @OneToMany(mappedBy = "oper", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<TypeOperFunc> typeOperFuncs;
+    private List<Func> funcs;
 
 }

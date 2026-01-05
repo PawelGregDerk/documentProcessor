@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
-@Entity
+//@Entity
 @Getter
 @Setter
 @ToString

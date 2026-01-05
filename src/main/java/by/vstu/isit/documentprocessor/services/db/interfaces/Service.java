@@ -1,9 +1,11 @@
-package by.vstu.isit.documentprocessor.services.db;
+package by.vstu.isit.documentprocessor.services.db.interfaces;
 
 import by.vstu.isit.documentprocessor.excepts.DataNotFoundException;
-import by.vstu.isit.documentprocessor.entities.AbstractEntity;
+import by.vstu.isit.documentprocessor.entities.db.AbstractEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,6 +16,10 @@ public interface Service<
         T extends AbstractEntity<ID>,
         ID extends Serializable,
         R extends JpaRepository<T, ID>> {
+
+    final class LogHolder {
+        static final Logger log = LoggerFactory.getLogger(Service.class);
+    }
 
     R getRepository();
 

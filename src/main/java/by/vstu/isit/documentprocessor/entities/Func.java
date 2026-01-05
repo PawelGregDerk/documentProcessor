@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 import org.checkerframework.checker.units.qual.C;
 
-@Entity
+//@Entity
 @Getter
 @Setter
 @ToString

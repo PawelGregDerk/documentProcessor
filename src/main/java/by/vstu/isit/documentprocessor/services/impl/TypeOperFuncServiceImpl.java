@@ -12,39 +12,39 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor
-public class TypeOperFuncServiceImpl implements TypeOperFuncService {
+//@Service
+//@RequiredArgsConstructor
+public class TypeOperFuncServiceImpl /*implements TypeOperFuncService*/ {
 
-    private final TypeOperFuncRepository typeOperFuncRepository;
-
-    @Override
-    @Transactional
-    public TypeOperFunc saveTypeOperFunc(TypeOperFunc typeOperFunc) {
-        return typeOperFuncRepository.save(typeOperFunc);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TypeOperFunc> findAllTypeOperFuncs() {
-        return typeOperFuncRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<TypeOperFunc> findTypeOperFuncById(Long id) {
-        return typeOperFuncRepository.findById(id);
-    }
-
-    @Override
-    @Transactional
-    public TypeOperFunc updateTypeOperFunc(TypeOperFunc typeOperFunc) {
-        return typeOperFuncRepository.save(typeOperFunc);
-    }
-
-    @Override
-    @Transactional
-    public void deleteTypeOperFunc(Long id) {
-        typeOperFuncRepository.deleteById(id);
-    }
+//    private final TypeOperFuncRepository typeOperFuncRepository;
+//
+//    @Override
+//    @Transactional
+//    public TypeOperFunc saveTypeOperFunc(TypeOperFunc typeOperFunc) {
+//        return typeOperFuncRepository.save(typeOperFunc);
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<TypeOperFunc> findAllTypeOperFuncs() {
+//        return typeOperFuncRepository.findAll();
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Optional<TypeOperFunc> findTypeOperFuncById(Long id) {
+//        return typeOperFuncRepository.findById(id);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public TypeOperFunc updateTypeOperFunc(TypeOperFunc typeOperFunc) {
+//        return typeOperFuncRepository.save(typeOperFunc);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteTypeOperFunc(Long id) {
+//        typeOperFuncRepository.deleteById(id);
+//    }
 }

@@ -12,39 +12,39 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor
-public class TypeOperServiceImpl implements TypeOperService {
+//@Service
+//@RequiredArgsConstructor
+public class TypeOperServiceImpl /*implements TypeOperService*/ {
 
-    private final TypeOperRepository typeOperRepository;
-
-    @Override
-    @Transactional
-    public TypeOper saveTypeOper(TypeOper typeOper) {
-        return typeOperRepository.save(typeOper);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TypeOper> findAllTypeOpers() {
-        return typeOperRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<TypeOper> findTypeOperById(Long id) {
-        return typeOperRepository.findById(id);
-    }
-
-    @Override
-    @Transactional
-    public TypeOper updateTypeOper(TypeOper typeOper) {
-        return typeOperRepository.save(typeOper);
-    }
-
-    @Override
-    @Transactional
-    public void deleteTypeOper(Long id) {
-        typeOperRepository.deleteById(id);
-    }
+//    private final TypeOperRepository typeOperRepository;
+//
+//    @Override
+//    @Transactional
+//    public TypeOper saveTypeOper(TypeOper typeOper) {
+//        return typeOperRepository.save(typeOper);
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<TypeOper> findAllTypeOpers() {
+//        return typeOperRepository.findAll();
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Optional<TypeOper> findTypeOperById(Long id) {
+//        return typeOperRepository.findById(id);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public TypeOper updateTypeOper(TypeOper typeOper) {
+//        return typeOperRepository.save(typeOper);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteTypeOper(Long id) {
+//        typeOperRepository.deleteById(id);
+//    }
 }
