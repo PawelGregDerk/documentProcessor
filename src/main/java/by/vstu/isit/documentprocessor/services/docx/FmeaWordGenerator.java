@@ -3,9 +3,10 @@ package by.vstu.isit.documentprocessor.services.docx;
 import by.vstu.isit.documentprocessor.dto.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
-
+import com.deepoove.poi.XWPFTemplate;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Map;
 
 public class FmeaWordGenerator {
 
@@ -43,8 +44,12 @@ public class FmeaWordGenerator {
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
-
+                fillExtraCell(
+                        table.getRow(startRow).getCell(2),
+                        oper.extra()
+                );
                 // ⚠ первые 2 столбца НЕ объединяем
+                mergeVertical(table, startRow, endRow, 2);
                 mergeVertical(table, startRow, endRow, 3);
                 mergeVertical(table, startRow, endRow, 4);
                 mergeVertical(table, startRow, endRow, 5);
@@ -54,6 +59,9 @@ public class FmeaWordGenerator {
             try (FileOutputStream out = new FileOutputStream(outPath)) {
                 doc.write(out);
             }
+
+            new ColontitulHandler(dto.getFirst().extra(), dto.fmeaName())
+                    .fillHeaderColontitul(outPath, "C:/Users/UserX/IdeaProjects/_vzep/FMEA_1.docx");
         }
     }
 
@@ -90,6 +98,13 @@ public class FmeaWordGenerator {
         }
     }
 
+    private void fillExtraCell(XWPFTableCell cell, String value) {
+        cell.removeParagraph(0);
+        XWPFParagraph p = cell.addParagraph();
+        XWPFRun r = p.createRun();
+        r.setText(value);
+    }
+
     /* =========================================================
        Гарантия 25 ячеек
        ========================================================= */
@@ -111,6 +126,21 @@ public class FmeaWordGenerator {
                         r.setText(value, 0);
                     }
                 });
+            }
+        }
+    }
+
+    private record ColontitulHandler(String extra, String fmeaName) {
+        public void fillHeaderColontitul(String templatePath, String outPath) throws Exception {
+            try (FileInputStream in = new FileInputStream(templatePath);
+                 XWPFTemplate template = XWPFTemplate.compile(in)
+                         .render(Map.of(
+                                 "d", extra,
+                                 "n", fmeaName
+                         ));
+                 FileOutputStream out = new FileOutputStream(outPath)) {
+
+                template.write(out);
             }
         }
     }

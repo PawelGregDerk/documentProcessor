@@ -10,6 +10,7 @@ public record OperDto(
         String name,
         String shifr,
         String numZech,
+        String extra,
         List<FuncDto> funcs
 ) {
 }

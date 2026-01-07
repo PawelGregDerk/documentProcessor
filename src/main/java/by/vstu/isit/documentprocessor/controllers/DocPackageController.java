@@ -193,6 +193,7 @@ public class DocPackageController {
                     getText(operRow, 4),
                     getText(operRow, 5),
                     getText(operRow, 6),
+                    extraField.getText(),
                     funcs
             ));
         }
