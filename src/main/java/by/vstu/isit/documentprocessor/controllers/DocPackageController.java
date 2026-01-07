@@ -74,7 +74,7 @@ public class DocPackageController {
         );
 
         // --- контейнер функций ---
-        VBox funcsContainer = styled(new VBox(4), "functions-container");
+        VBox funcsContainer = styled(new VBox(4), "funcs-container");
 
         addFuncBtn.setOnAction(e -> addFunctionRow(funcsContainer));
         delOperBtn.setOnAction(e -> operationsContainer.getChildren().remove(operationBlock));
@@ -139,7 +139,7 @@ public class DocPackageController {
     private void onSave() {
 
         try {
-            FmeaDto dto = collectDtoFromGui();
+            DockPackageDto dto = collectDtoFromGui();
 
             new FmeaWordGenerator().generate(
                     dto,
@@ -158,9 +158,9 @@ public class DocPackageController {
     /* =======================
        GUI → DTO
        ======================= */
-    private FmeaDto collectDtoFromGui() {
+    private DockPackageDto collectDtoFromGui() {
 
-        List<FmeaOperDto> operations = new ArrayList<>();
+        List<OperDto> operations = new ArrayList<>();
 
         for (Node opNode : operationsContainer.getChildren()) {
 
@@ -168,7 +168,7 @@ public class DocPackageController {
             HBox operRow = (HBox) operBlock.getChildren().get(0);
             VBox funcsBox = (VBox) operBlock.getChildren().get(1);
 
-            List<FmeaFuncDto> funcs = new ArrayList<>();
+            List<FuncDto> funcs = new ArrayList<>();
 
             for (Node fn : funcsBox.getChildren()) {
                 if (!fn.getStyleClass().contains("function-data-row")) {
@@ -177,7 +177,7 @@ public class DocPackageController {
 
                 HBox fr = (HBox) fn;
 
-                funcs.add(new FmeaFuncDto(
+                funcs.add(new FuncDto(
                         ((TextField) fr.getChildren().get(0)).getText(),
                         ((TextField) fr.getChildren().get(1)).getText(),
                         ((CheckBox) fr.getChildren().get(2)).isSelected(),
@@ -185,7 +185,7 @@ public class DocPackageController {
                 ));
             }
 
-            operations.add(new FmeaOperDto(
+            operations.add(new OperDto(
                     getText(operRow, 0),
                     getText(operRow, 1),
                     getText(operRow, 2),
@@ -197,7 +197,7 @@ public class DocPackageController {
             ));
         }
 
-        return new FmeaDto(
+        return new DockPackageDto(
                 packageNameField.getText(),
                 puField.getText(),
                 spuField.getText(),

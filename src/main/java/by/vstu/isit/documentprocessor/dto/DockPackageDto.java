@@ -2,13 +2,13 @@ package by.vstu.isit.documentprocessor.dto;
 
 import java.util.List;
 
-public record FmeaDto(
+public record DockPackageDto(
         String packageName,
         String puName,
         String spuName,
         String kpName,
         String fmeaName,
-        String vedInstrName,
-        List<FmeaOperDto> operations
+        String vedIName,
+        List<OperDto> opers
 ) {
 }

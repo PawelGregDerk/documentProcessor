@@ -12,20 +12,20 @@ public class FmeaWordGenerator {
     private static final int COLUMN_COUNT = 25;
     private static final int DATA_START_ROW = 2;
 
-    public void generate(FmeaDto dto, String templatePath, String outPath) throws Exception {
+    public void generate(DockPackageDto dto, String templatePath, String outPath) throws Exception {
 
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(templatePath))) {
 
             fillHeaderFromSecondPage(doc, dto.fmeaName());
 
-            XWPFTable table = doc.getTables().get(0);
+            XWPFTable table = doc.getTables().getFirst();
 
-            for (FmeaOperDto oper : dto.operations()) {
+            for (OperDto oper : dto.opers()) {
 
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
 
                 // ===== если функций нет — одна строка =====
-                if (oper.functions().isEmpty()) {
+                if (oper.funcs().isEmpty()) {
                     XWPFTableRow row = table.createRow();
                     ensureCells(row);
                     fillOperCell(row.getCell(3), oper);
@@ -33,13 +33,13 @@ public class FmeaWordGenerator {
                 }
 
                 // ===== если функции есть =====
-                for (FmeaFuncDto func : oper.functions()) {
+                for (FuncDto func : oper.funcs()) {
                     XWPFTableRow row = table.createRow();
                     ensureCells(row);
 
                     fillOperCell(row.getCell(3), oper);
                     row.getCell(7).setText(func.name());
-                    row.getCell(17).setText(func.spec());
+                    row.getCell(17).setText(func.specCharakt());
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
@@ -60,7 +60,7 @@ public class FmeaWordGenerator {
     /* =========================================================
        Заполнение 4-й ячейки (операция)
        ========================================================= */
-    private void fillOperCell(XWPFTableCell cell, FmeaOperDto oper) {
+    private void fillOperCell(XWPFTableCell cell, OperDto oper) {
         cell.removeParagraph(0);
         XWPFParagraph p = cell.addParagraph();
 
@@ -69,7 +69,7 @@ public class FmeaWordGenerator {
         r1.setText(oper.numOper());
 
         XWPFRun r2 = p.createRun();
-        r2.setText(" " + oper.name() + " Цех " + oper.zech());
+        r2.setText(" " + oper.name() + " Цех " + oper.numZech());
     }
 
     /* =========================================================
