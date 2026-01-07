@@ -1,4 +1,4 @@
-package by.vstu.isit.documentprocessor.entities.db;
+package by.vstu.isit.documentprocessor.entities;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

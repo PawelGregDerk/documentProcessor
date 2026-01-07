@@ -1,7 +1,7 @@
 package by.vstu.isit.documentprocessor.services.db.interfaces;
 
 import by.vstu.isit.documentprocessor.excepts.DataNotFoundException;
-import by.vstu.isit.documentprocessor.entities.db.AbstractEntity;
+import by.vstu.isit.documentprocessor.entities.AbstractEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
