@@ -135,7 +135,7 @@ public class DocPackageController {
         try {
             DockPackageDto dto = collectDtoFromGui();
 
-            new FmeaWordGenerator().generate(dto);
+            fmeadGenerator.generate(dto);
 
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
 
