@@ -16,6 +16,22 @@
     -fx-background-radius: 5px;
 }
 
+.buttonSave {
+    -fx-background-color: #3b82f6;      /* синий */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 18 8 18;
+}
+
+.newButton:hover, .buttonSave:hover  {
+    -fx-background-color: #2563eb;      /* потемнее при наведении */
+}
+
+.newButton:pressed, .buttonSave:pressed {
+    -fx-background-color: #1d4ed8;      /* ещё темнее при нажатии */
+}
+
 .delButton {
     -fx-background-color: #800000;
     -fx-text-fill: white;

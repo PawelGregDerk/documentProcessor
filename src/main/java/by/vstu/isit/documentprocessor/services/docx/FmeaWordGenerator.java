@@ -5,6 +5,7 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import com.deepoove.poi.XWPFTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -20,7 +21,7 @@ public class FmeaWordGenerator {
     private static final int COLUMN_COUNT = 25;
     private static final int DATA_START_ROW = 2;
     @Value("${inp.fmea.path}")
-    private String inpFmeaPath;
+    private Resource inpFmeaPath;
     @Value("${tmp.out.fmea.path}")
     private String tmpOutFmeaPath;
     @Value("${out.fmea.path}")
@@ -28,7 +29,8 @@ public class FmeaWordGenerator {
 
     public void generate(DockPackageDto dto) throws Exception {
 
-        try (XWPFDocument doc = new XWPFDocument(new FileInputStream(inpFmeaPath))) {
+        try (var inp = inpFmeaPath.getInputStream();
+        XWPFDocument doc = new XWPFDocument(inp)) {
 
             fillHeaderFromSecondPage(doc, dto.fmeaName());
 
