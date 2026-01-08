@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import static java.text.MessageFormat.format;
@@ -40,6 +42,7 @@ public class FmeaWordGenerator {
                 if (oper.funcs().isEmpty()) {
                     XWPFTableRow row = table.createRow();
                     ensureCells(row);
+                    fillExtraCell(row.getCell(2), oper.extra());
                     fillOperCell(row.getCell(3), oper);
                     continue;
                 }
@@ -71,14 +74,19 @@ public class FmeaWordGenerator {
                 doc.write(out);
             }
 
-            new ColontitulHandler(dto.getFirst().extra(), dto.fmeaName())
-                    .fillHeaderColontitul(tmpOutFmeaPath, format(outFmeaPath, dto.fmeaName()));
+            try (FileInputStream in = new FileInputStream(tmpOutFmeaPath);
+                 XWPFTemplate template = XWPFTemplate.compile(in)
+                         .render(Map.of(
+                                 "d", dto.getFirst().extra(),
+                                 "n", dto.fmeaName()
+                         ));
+                 FileOutputStream out = new FileOutputStream(format(outFmeaPath, dto.fmeaName()))) {
+                template.write(out);
+            }
+            Files.deleteIfExists(Path.of(tmpOutFmeaPath));
         }
     }
 
-    /* =========================================================
-       Заполнение 4-й ячейки (операция)
-       ========================================================= */
     private void fillOperCell(XWPFTableCell cell, OperDto oper) {
         cell.removeParagraph(0);
         XWPFParagraph p = cell.addParagraph();
@@ -91,9 +99,6 @@ public class FmeaWordGenerator {
         r2.setText(" " + oper.name() + " Цех " + oper.numZech());
     }
 
-    /* =========================================================
-       Вертикальное объединение (без текста)
-       ========================================================= */
     private void mergeVertical(XWPFTable table, int start, int end, int col) {
         for (int r = start; r <= end; r++) {
             XWPFTableCell cell = table.getRow(r).getCell(col);
@@ -116,18 +121,12 @@ public class FmeaWordGenerator {
         r.setText(value);
     }
 
-    /* =========================================================
-       Гарантия 25 ячеек
-       ========================================================= */
     private void ensureCells(XWPFTableRow row) {
         while (row.getTableCells().size() < COLUMN_COUNT) {
             row.createCell();
         }
     }
 
-    /* =========================================================
-       Заполнение колонтитула со 2-й страницы
-       ========================================================= */
     private void fillHeaderFromSecondPage(XWPFDocument doc, String value) {
         if (doc.getHeaderList().size() > 1) {
             XWPFHeader header = doc.getHeaderList().get(1);
@@ -137,21 +136,6 @@ public class FmeaWordGenerator {
                         r.setText(value, 0);
                     }
                 });
-            }
-        }
-    }
-
-    private record ColontitulHandler(String extra, String fmeaName) {
-        public void fillHeaderColontitul(String templatePath, String outPath) throws Exception {
-            try (FileInputStream in = new FileInputStream(templatePath);
-                 XWPFTemplate template = XWPFTemplate.compile(in)
-                         .render(Map.of(
-                                 "d", extra,
-                                 "n", fmeaName
-                         ));
-                 FileOutputStream out = new FileOutputStream(outPath)) {
-
-                template.write(out);
             }
         }
     }
