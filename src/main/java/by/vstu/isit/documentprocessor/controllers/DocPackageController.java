@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import static by.vstu.isit.documentprocessor.utils.ResourceHelper.*;
 @Slf4j
 @Controller
 @FxmlView("docpackage-view.fxml")
+@RequiredArgsConstructor
 public class DocPackageController {
     @FXML private TextField packageNameField;
     @FXML private TextField extraField;
@@ -28,17 +30,12 @@ public class DocPackageController {
     @FXML private TextField kpField;
     @FXML private TextField fmeaField;
     @FXML private TextField vedInstrField;
-
     @FXML private VBox operationsContainer;
+    private final FmeaWordGenerator fmeadGenerator;
 
-    // ======================
-    // Добавление операции
-    // ======================
     @FXML
     private void onAddOperation() {
-
         VBox operationBlock = styled(new VBox(5), "operation-block");
-
         // --- строка операции ---
         HBox operRow = styled(new HBox(6), "operation-row");
         operRow.setAlignment(Pos.CENTER_LEFT);
@@ -83,9 +80,6 @@ public class DocPackageController {
         operationsContainer.getChildren().add(operationBlock);
     }
 
-    // ======================
-    // Добавление функции
-    // ======================
     private void addFunctionRow(VBox funcsContainer) {
 
         // если первая функция — добавляем шапку
@@ -141,11 +135,7 @@ public class DocPackageController {
         try {
             DockPackageDto dto = collectDtoFromGui();
 
-            new FmeaWordGenerator().generate(
-                    dto,
-                    "C:/Users/UserX/IdeaProjects/_vzep/FMEA.docx",
-                    "C:/Users/UserX/IdeaProjects/_vzep/FMEA_filled.docx"
-            );
+            new FmeaWordGenerator().generate(dto);
 
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
 

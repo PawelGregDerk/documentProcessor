@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalConsts {
     @Getter
-    private static String ICON_PATH ;
+    private static String ICON_PATH;
 
     @Value("${path.to.icon}")
     private String iconPath;

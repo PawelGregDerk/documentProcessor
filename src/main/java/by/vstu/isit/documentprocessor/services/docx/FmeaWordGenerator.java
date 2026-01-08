@@ -4,18 +4,29 @@ import by.vstu.isit.documentprocessor.dto.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import com.deepoove.poi.XWPFTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Map;
 
-public class FmeaWordGenerator {
+import static java.text.MessageFormat.format;
 
+@Service
+public class FmeaWordGenerator {
     private static final int COLUMN_COUNT = 25;
     private static final int DATA_START_ROW = 2;
+    @Value("${inp.fmea.path}")
+    private String inpFmeaPath;
+    @Value("${tmp.out.fmea.path}")
+    private String tmpOutFmeaPath;
+    @Value("${out.fmea.path}")
+    private String outFmeaPath;
 
-    public void generate(DockPackageDto dto, String templatePath, String outPath) throws Exception {
+    public void generate(DockPackageDto dto) throws Exception {
 
-        try (XWPFDocument doc = new XWPFDocument(new FileInputStream(templatePath))) {
+        try (XWPFDocument doc = new XWPFDocument(new FileInputStream(inpFmeaPath))) {
 
             fillHeaderFromSecondPage(doc, dto.fmeaName());
 
@@ -56,12 +67,12 @@ public class FmeaWordGenerator {
                 mergeVertical(table, startRow, endRow, 6);
             }
 
-            try (FileOutputStream out = new FileOutputStream(outPath)) {
+            try (FileOutputStream out = new FileOutputStream(tmpOutFmeaPath)) {
                 doc.write(out);
             }
 
             new ColontitulHandler(dto.getFirst().extra(), dto.fmeaName())
-                    .fillHeaderColontitul(outPath, "C:/Users/UserX/IdeaProjects/_vzep/FMEA_1.docx");
+                    .fillHeaderColontitul(tmpOutFmeaPath, format(outFmeaPath, dto.fmeaName()));
         }
     }
 
