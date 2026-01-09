@@ -3,7 +3,6 @@ package by.vstu.isit.documentprocessor.mappers;
 import by.vstu.isit.documentprocessor.controllers.form.DockPackageFormState;
 import by.vstu.isit.documentprocessor.controllers.form.FuncFormState;
 import by.vstu.isit.documentprocessor.controllers.form.OperFormState;
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -27,15 +26,16 @@ public class DockPackageFormMapper {
     ) {
         List<OperFormState> operations = new ArrayList<>();
 
-        for (Node node : operationsContainer.getChildren()) {
+        for (var node : operationsContainer.getChildren()) {
             VBox operBlock = (VBox) node;
             HBox operRow = (HBox) operBlock.getChildren().get(0);
             VBox funcsBox = (VBox) operBlock.getChildren().get(1);
 
             List<FuncFormState> funcs = new ArrayList<>();
-
-            for (Node fn : funcsBox.getChildren()) {
-                if (!fn.getStyleClass().contains("function-data-row")) continue;
+            for (var fn : funcsBox.getChildren()) {
+                if (!fn.getStyleClass().contains("function-data-row")) {
+                    continue;
+                }
 
                 HBox fr = (HBox) fn;
                 funcs.add(new FuncFormState(

@@ -1,8 +1,6 @@
 
 package by.vstu.isit.documentprocessor.controllers;
 
-import by.vstu.isit.documentprocessor.controllers.form.DockPackageFormState;
-import by.vstu.isit.documentprocessor.dto.*;
 import by.vstu.isit.documentprocessor.mappers.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.mappers.dto.DockPackageDtoMapper;
 import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
@@ -48,25 +46,18 @@ public class DocPackageController {
         // --- строка операции ---
         HBox operRow = styled(new HBox(6), "operation-row");
         operRow.setAlignment(Pos.CENTER_LEFT);
-
         TextField numOper = styled(new TextField(), "compact");
         numOper.setPromptText("№ операции");
-
         TextField nomInstr = styled(new TextField(), "compact");
         nomInstr.setPromptText("№ инструкции");
-
         TextField oborud = new TextField();
         oborud.setPromptText("Оборудование");
-
         TextField ostnas = new TextField();
         ostnas.setPromptText("Оснастка / Инструмент");
-
         TextField name = new TextField();
         name.setPromptText("Наименование");
-
         TextField shifr = styled(new TextField(), "compact");
         shifr.setPromptText("Шифр");
-
         TextField zech = styled(new TextField(), "compact");
         zech.setPromptText("Цех");
 
@@ -84,13 +75,11 @@ public class DocPackageController {
 
         addFuncBtn.setOnAction(e -> addFunctionRow(funcsContainer));
         delOperBtn.setOnAction(e -> operationsContainer.getChildren().remove(operationBlock));
-
         operationBlock.getChildren().addAll(operRow, funcsContainer);
         operationsContainer.getChildren().add(operationBlock);
     }
 
     private void addFunctionRow(VBox funcsContainer) {
-
         // если первая функция — добавляем шапку
         if (funcsContainer.getChildren().isEmpty()) {
             HBox header = styled(new HBox(6), "function-header");
@@ -110,19 +99,15 @@ public class DocPackageController {
 
         TextField name = styled(new TextField(), "compact");
         name.setPromptText("Описание");
-
         TextField param = styled(new TextField(), "no-compact");
         param.setPromptText("Параметры");
-
         CheckBox isProd = new CheckBox();
-
         TextField spec = styled(new TextField(), "compact");
         spec.setPromptText("Спец. характеристики");
 
         Button delBtn = styled(new Button("Удалить"), "delButton");
         delBtn.setOnAction(e -> {
             funcsContainer.getChildren().remove(funcRow);
-
             // если больше нет строк функций — удаляем шапку
             boolean hasDataRows = funcsContainer.getChildren().stream()
                     .anyMatch(n -> n.getStyleClass().contains("function-data-row"));
@@ -141,7 +126,7 @@ public class DocPackageController {
     @FXML
     private void onSave() {
         try {
-            DockPackageFormState form = formMapper.fromGui(
+            var form = formMapper.fromGui(
                     packageNameField,
                     puField,
                     spuField,
@@ -151,7 +136,7 @@ public class DocPackageController {
                     extraField,
                     operationsContainer
             );
-            DockPackageDto dto = dtoMapper.toDto(form);
+            var dto = dtoMapper.toDto(form);
             fmeaGenerator.generate(dto);
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
         } catch (Exception ex) {
