@@ -1,20 +1,19 @@
 
 package by.vstu.isit.documentprocessor.controllers;
 
+import by.vstu.isit.documentprocessor.controllers.form.DockPackageFormState;
 import by.vstu.isit.documentprocessor.dto.*;
+import by.vstu.isit.documentprocessor.mappers.DockPackageFormMapper;
+import by.vstu.isit.documentprocessor.mappers.dto.DockPackageDtoMapper;
 import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static by.vstu.isit.documentprocessor.utils.ResourceHelper.*;
 
@@ -23,15 +22,25 @@ import static by.vstu.isit.documentprocessor.utils.ResourceHelper.*;
 @FxmlView("docpackage-view.fxml")
 @RequiredArgsConstructor
 public class DocPackageController {
-    @FXML private TextField packageNameField;
-    @FXML private TextField extraField;
-    @FXML private TextField puField;
-    @FXML private TextField spuField;
-    @FXML private TextField kpField;
-    @FXML private TextField fmeaField;
-    @FXML private TextField vedInstrField;
-    @FXML private VBox operationsContainer;
-    private final FmeaWordGenerator fmeadGenerator;
+    @FXML
+    private TextField packageNameField;
+    @FXML
+    private TextField extraField;
+    @FXML
+    private TextField puField;
+    @FXML
+    private TextField spuField;
+    @FXML
+    private TextField kpField;
+    @FXML
+    private TextField fmeaField;
+    @FXML
+    private TextField vedInstrField;
+    @FXML
+    private VBox operationsContainer;
+    private final DockPackageFormMapper formMapper;
+    private final DockPackageDtoMapper dtoMapper;
+    private final FmeaWordGenerator fmeaGenerator;
 
     @FXML
     private void onAddOperation() {
@@ -88,7 +97,7 @@ public class DocPackageController {
             header.getStyleClass().add("function-header-row");
             header.getChildren().addAll(
                     styled(new Label("Описание функции"), "table-header"),
-                    styled( new Label("Параметры / Требования"), "table-header"),
+                    styled(new Label("Параметры / Требования"), "table-header"),
                     styled(new Label("Продукт"), "table-header"),
                     styled(new Label("Спец. характеристики"), "table-header")
             );
@@ -131,75 +140,23 @@ public class DocPackageController {
 
     @FXML
     private void onSave() {
-
         try {
-            DockPackageDto dto = collectDtoFromGui();
-
-            fmeadGenerator.generate(dto);
-
+            DockPackageFormState form = formMapper.fromGui(
+                    packageNameField,
+                    puField,
+                    spuField,
+                    kpField,
+                    fmeaField,
+                    vedInstrField,
+                    extraField,
+                    operationsContainer
+            );
+            DockPackageDto dto = dtoMapper.toDto(form);
+            fmeaGenerator.generate(dto);
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
-
         } catch (Exception ex) {
-            log.error("Ошибка генерации FEMA", ex);
+            log.error("Ошибка генерации FMEA", ex);
             new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
-    }
-
-    /* =======================
-       GUI → DTO
-       ======================= */
-    private DockPackageDto collectDtoFromGui() {
-
-        List<OperDto> operations = new ArrayList<>();
-
-        for (Node opNode : operationsContainer.getChildren()) {
-
-            VBox operBlock = (VBox) opNode;
-            HBox operRow = (HBox) operBlock.getChildren().get(0);
-            VBox funcsBox = (VBox) operBlock.getChildren().get(1);
-
-            List<FuncDto> funcs = new ArrayList<>();
-
-            for (Node fn : funcsBox.getChildren()) {
-                if (!fn.getStyleClass().contains("function-data-row")) {
-                    continue;
-                }
-
-                HBox fr = (HBox) fn;
-
-                funcs.add(new FuncDto(
-                        ((TextField) fr.getChildren().get(0)).getText(),
-                        ((TextField) fr.getChildren().get(1)).getText(),
-                        ((CheckBox) fr.getChildren().get(2)).isSelected(),
-                        ((TextField) fr.getChildren().get(3)).getText()
-                ));
-            }
-
-            operations.add(new OperDto(
-                    getText(operRow, 0),
-                    getText(operRow, 1),
-                    getText(operRow, 2),
-                    getText(operRow, 3),
-                    getText(operRow, 4),
-                    getText(operRow, 5),
-                    getText(operRow, 6),
-                    extraField.getText(),
-                    funcs
-            ));
-        }
-
-        return new DockPackageDto(
-                packageNameField.getText(),
-                puField.getText(),
-                spuField.getText(),
-                kpField.getText(),
-                fmeaField.getText(),
-                vedInstrField.getText(),
-                operations
-        );
-    }
-
-    private String getText(HBox box, int index) {
-        return ((TextField) box.getChildren().get(index)).getText();
     }
 }
