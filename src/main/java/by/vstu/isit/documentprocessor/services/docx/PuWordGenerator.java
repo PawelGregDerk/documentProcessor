@@ -98,12 +98,8 @@ public class PuWordGenerator {
     private void fillOperCell(XWPFTableCell cell, OperDto oper) {
         cell.removeParagraph(0);
         var p = cell.addParagraph();
-        var r1 = p.createRun();
-        r1.setBold(true);
-        r1.setText(oper.numOper());
-
-        var r2 = p.createRun();
-        r2.setText(" " + oper.name() + " Цех " + oper.numZech());
+        var r = p.createRun();
+        r.setText(oper.oborud() + " " + oper.ostnasInstr());
     }
 
     private void mergeHorizontal(XWPFTableRow row, int col) {

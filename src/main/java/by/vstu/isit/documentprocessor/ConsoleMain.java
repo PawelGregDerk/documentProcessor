@@ -1,7 +1,6 @@
 package by.vstu.isit.documentprocessor;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
-//import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.PuWordGenerator;
 import by.vstu.isit.documentprocessor.test.TestDockPackageFactory;
