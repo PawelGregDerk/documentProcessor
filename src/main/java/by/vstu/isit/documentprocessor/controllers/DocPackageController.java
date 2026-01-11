@@ -2,7 +2,6 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.DockPackageFormMapper;
-import by.vstu.isit.documentprocessor.mappers.dto.DockPackageDtoMapper;
 import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -37,7 +36,6 @@ public class DocPackageController {
     @FXML
     private VBox operationsContainer;
     private final DockPackageFormMapper formMapper;
-    private final DockPackageDtoMapper dtoMapper;
     private final FmeaWordGenerator fmeaGenerator;
 
     @FXML
@@ -126,7 +124,7 @@ public class DocPackageController {
     @FXML
     private void onSave() {
         try {
-            var form = formMapper.fromGui(
+            var dto = formMapper.fromGui(
                     packageNameField,
                     puField,
                     spuField,
@@ -136,7 +134,6 @@ public class DocPackageController {
                     extraField,
                     operationsContainer
             );
-            var dto = dtoMapper.toDto(form);
             fmeaGenerator.generate(dto);
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
         } catch (Exception ex) {

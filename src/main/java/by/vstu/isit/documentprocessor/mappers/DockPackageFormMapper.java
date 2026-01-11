@@ -1,8 +1,8 @@
 package by.vstu.isit.documentprocessor.mappers;
 
-import by.vstu.isit.documentprocessor.controllers.form.DockPackageFormState;
-import by.vstu.isit.documentprocessor.controllers.form.FuncFormState;
-import by.vstu.isit.documentprocessor.controllers.form.OperFormState;
+import by.vstu.isit.documentprocessor.dto.DockPackageDto;
+import by.vstu.isit.documentprocessor.dto.FuncDto;
+import by.vstu.isit.documentprocessor.dto.OperDto;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 public class DockPackageFormMapper {
-    public DockPackageFormState fromGui(
+    public DockPackageDto fromGui(
             TextField packageName,
             TextField pu,
             TextField spu,
@@ -24,21 +24,21 @@ public class DockPackageFormMapper {
             TextField extra,
             VBox operationsContainer
     ) {
-        List<OperFormState> operations = new ArrayList<>();
+        List<OperDto> operations = new ArrayList<>();
 
         for (var node : operationsContainer.getChildren()) {
             VBox operBlock = (VBox) node;
             HBox operRow = (HBox) operBlock.getChildren().get(0);
             VBox funcsBox = (VBox) operBlock.getChildren().get(1);
 
-            List<FuncFormState> funcs = new ArrayList<>();
+            List<FuncDto> funcs = new ArrayList<>();
             for (var fn : funcsBox.getChildren()) {
                 if (!fn.getStyleClass().contains("function-data-row")) {
                     continue;
                 }
 
                 HBox fr = (HBox) fn;
-                funcs.add(new FuncFormState(
+                funcs.add(new FuncDto(
                         text(fr, 0),
                         text(fr, 1),
                         ((CheckBox) fr.getChildren().get(2)).isSelected(),
@@ -46,7 +46,7 @@ public class DockPackageFormMapper {
                 ));
             }
 
-            operations.add(new OperFormState(
+            operations.add(new OperDto(
                     text(operRow, 0),
                     text(operRow, 1),
                     text(operRow, 2),
@@ -54,18 +54,18 @@ public class DockPackageFormMapper {
                     text(operRow, 4),
                     text(operRow, 5),
                     text(operRow, 6),
-                    extra.getText(),
                     funcs
             ));
         }
 
-        return new DockPackageFormState(
+        return new DockPackageDto(
                 packageName.getText(),
                 pu.getText(),
                 spu.getText(),
                 kp.getText(),
                 fmea.getText(),
                 vedInstr.getText(),
+                extra.getText(),
                 operations
         );
     }

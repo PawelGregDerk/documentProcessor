@@ -43,6 +43,7 @@ public final class TestDockPackageFactory {
                 "КП-0001",
                 "FMEA-0001",
                 "15-132",
+                "Доп. поле пакета ",
                 operations
         );
     }
@@ -67,7 +68,6 @@ public final class TestDockPackageFactory {
                 "Операция " + index,
                 "Ш" + index,
                 "15",
-                "Доп. поле операции " + index,
                 funcs
         );
     }

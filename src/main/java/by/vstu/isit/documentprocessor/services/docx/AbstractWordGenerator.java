@@ -108,8 +108,8 @@ public abstract class AbstractWordGenerator {
     protected void postProcess(DockPackageDto dto, String name) throws Exception {
         try (var in = new FileInputStream(tmpOut);
              var template = XWPFTemplate.compile(in).render(
-                     Map.of("d", dto.getFirst().extra(),
-                             "n", dto.fmeaName()));
+                     Map.of("d", dto.extra(),
+                             "n", name));
              var out = new FileOutputStream(format(outPath, name))) {
 
             template.write(out);
