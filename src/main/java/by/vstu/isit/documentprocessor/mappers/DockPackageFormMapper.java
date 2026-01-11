@@ -9,7 +9,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -37,11 +36,10 @@ public class DockPackageFormMapper {
     }
 
     private List<OperDto> mapOperations(VBox container) {
-        List<OperDto> result = new ArrayList<>();
-        for (var node : container.getChildren()) {
-            result.add(mapOperation((VBox) node));
-        }
-        return result;
+        return container.getChildren().stream()
+                .map(VBox.class::cast)
+                .map(this::mapOperation)
+                .toList();
     }
 
     private OperDto mapOperation(VBox operBlock) {
@@ -60,14 +58,11 @@ public class DockPackageFormMapper {
     }
 
     private List<FuncDto> mapFunctions(VBox funcsBox) {
-        List<FuncDto> result = new ArrayList<>();
-        for (var node : funcsBox.getChildren()) {
-            if (node.getStyleClass().contains("function-data-row")) {
-                result.add(mapFunction((HBox) node));
-            }
-
-        }
-        return result;
+        return funcsBox.getChildren().stream()
+                .filter(n -> n.getStyleClass().contains("function-data-row"))
+                .map(HBox.class::cast)
+                .map(this::mapFunction)
+                .toList();
     }
 
     private FuncDto mapFunction(HBox row) {
