@@ -24,40 +24,6 @@ public class DockPackageFormMapper {
             TextField extra,
             VBox operationsContainer
     ) {
-        List<OperDto> operations = new ArrayList<>();
-
-        for (var node : operationsContainer.getChildren()) {
-            VBox operBlock = (VBox) node;
-            HBox operRow = (HBox) operBlock.getChildren().get(0);
-            VBox funcsBox = (VBox) operBlock.getChildren().get(1);
-
-            List<FuncDto> funcs = new ArrayList<>();
-            for (var fn : funcsBox.getChildren()) {
-                if (!fn.getStyleClass().contains("function-data-row")) {
-                    continue;
-                }
-
-                HBox fr = (HBox) fn;
-                funcs.add(new FuncDto(
-                        text(fr, 0),
-                        text(fr, 1),
-                        ((CheckBox) fr.getChildren().get(2)).isSelected(),
-                        text(fr, 3)
-                ));
-            }
-
-            operations.add(new OperDto(
-                    text(operRow, 0),
-                    text(operRow, 1),
-                    text(operRow, 2),
-                    text(operRow, 3),
-                    text(operRow, 4),
-                    text(operRow, 5),
-                    text(operRow, 6),
-                    funcs
-            ));
-        }
-
         return new DockPackageDto(
                 packageName.getText(),
                 pu.getText(),
@@ -66,7 +32,50 @@ public class DockPackageFormMapper {
                 fmea.getText(),
                 vedInstr.getText(),
                 extra.getText(),
-                operations
+                mapOperations(operationsContainer)
+        );
+    }
+
+    private List<OperDto> mapOperations(VBox container) {
+        List<OperDto> result = new ArrayList<>();
+        for (var node : container.getChildren()) {
+            result.add(mapOperation((VBox) node));
+        }
+        return result;
+    }
+
+    private OperDto mapOperation(VBox operBlock) {
+        HBox operRow = (HBox) operBlock.getChildren().get(0);
+        VBox funcsBox = (VBox) operBlock.getChildren().get(1);
+        return new OperDto(
+                text(operRow, 0),
+                text(operRow, 1),
+                text(operRow, 2),
+                text(operRow, 3),
+                text(operRow, 4),
+                text(operRow, 5),
+                text(operRow, 6),
+                mapFunctions(funcsBox)
+        );
+    }
+
+    private List<FuncDto> mapFunctions(VBox funcsBox) {
+        List<FuncDto> result = new ArrayList<>();
+        for (var node : funcsBox.getChildren()) {
+            if (node.getStyleClass().contains("function-data-row")) {
+                result.add(mapFunction((HBox) node));
+            }
+
+        }
+        return result;
+    }
+
+    private FuncDto mapFunction(HBox row) {
+        return new FuncDto(
+                text(row, 0),
+                text(row, 1),
+                ((CheckBox) row.getChildren().get(2)).isSelected(),
+                text(row, 3)
         );
     }
 
@@ -74,4 +83,3 @@ public class DockPackageFormMapper {
         return ((TextField) box.getChildren().get(idx)).getText();
     }
 }
-
