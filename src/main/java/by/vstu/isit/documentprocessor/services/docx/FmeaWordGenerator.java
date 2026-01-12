@@ -3,7 +3,9 @@ package by.vstu.isit.documentprocessor.services.docx;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -31,16 +33,13 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
-                    var row = table.createRow();
-                    ensureCells(row, COLUMN_COUNT);
+                    var row = createRow(table, oper);
                     fillTextCell(row.getCell(2), dto.extra());
-                    fillOperCellFmea(row.getCell(3), oper);
                     continue;
                 }
+
                 for (var func : oper.funcs()) {
-                    var row = table.createRow();
-                    ensureCells(row, COLUMN_COUNT);
-                    fillOperCellFmea(row.getCell(3), oper);
+                    var row = createRow(table, oper);
                     row.getCell(7).setText(func.name());
                     row.getCell(17).setText(func.specCharakt());
                 }
@@ -60,6 +59,13 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
         }
 
         postProcess(dto, dto.fmeaName());
+    }
+
+    private XWPFTableRow createRow(XWPFTable table, OperDto oper) {
+        var row = table.createRow();
+        ensureCells(row, COLUMN_COUNT);
+        fillOperCellFmea(row.getCell(3), oper);
+        return row;
     }
 
     private void fillOperCellFmea(XWPFTableCell cell, OperDto oper) {
