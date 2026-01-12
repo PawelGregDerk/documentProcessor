@@ -65,6 +65,7 @@ public abstract class AbstractWordGenerator {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected void mergeHorizontal(XWPFTableRow row, int col, int span) {
         var cell = row.getCell(col);
         if (cell == null) {
