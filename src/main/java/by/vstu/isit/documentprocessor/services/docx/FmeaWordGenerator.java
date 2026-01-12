@@ -33,8 +33,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
-                    var row = createRow(table, oper);
-                    row.getCell(2).setText(dto.extra());
+                    createRow(table, oper);
                     continue;
                 }
 
