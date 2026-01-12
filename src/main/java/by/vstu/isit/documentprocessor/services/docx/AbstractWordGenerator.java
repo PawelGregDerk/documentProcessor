@@ -100,11 +100,6 @@ public abstract class AbstractWordGenerator {
         }
     }
 
-    protected void fillTextCell(XWPFTableCell cell, String value) {
-        clearCell(cell);
-        cell.addParagraph().createRun().setText(value);
-    }
-
     protected void postProcess(DockPackageDto dto, String name) throws Exception {
         try (var in = new FileInputStream(tmpOut);
              var template = XWPFTemplate.compile(in).render(

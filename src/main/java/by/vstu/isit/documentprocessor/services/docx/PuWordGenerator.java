@@ -4,7 +4,6 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -70,16 +69,9 @@ public class PuWordGenerator extends AbstractWordGenerator {
         ensureCells(row, COLUMN_COUNT);
         row.getCell(0).setText(oper.numOper());
         row.getCell(1).setText(oper.name());
-        fillOperCellPu(row.getCell(2), oper);
+        row.getCell(2).setText(oper.oborud() + " " + oper.ostnasInstr());
         mergeHorizontal(row, 2, 2);
         mergeHorizontal(row, 9, 2);
         return row;
-    }
-
-    private void fillOperCellPu(XWPFTableCell cell, OperDto oper) {
-        clearCell(cell);
-        cell.addParagraph()
-                .createRun()
-                .setText(oper.oborud() + " " + oper.ostnasInstr());
     }
 }

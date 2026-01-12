@@ -34,7 +34,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
                     var row = createRow(table, oper);
-                    fillTextCell(row.getCell(2), dto.extra());
+                    row.getCell(2).setText(dto.extra());
                     continue;
                 }
 
@@ -45,7 +45,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
-                fillTextCell(table.getRow(startRow).getCell(2), dto.extra());
+                table.getRow(startRow).getCell(2).setText(dto.extra());
                 mergeVertical(table, startRow, endRow, 2);
                 mergeVertical(table, startRow, endRow, 3);
                 mergeVertical(table, startRow, endRow, 4);
@@ -64,13 +64,13 @@ public class FmeaWordGenerator extends AbstractWordGenerator {
     private XWPFTableRow createRow(XWPFTable table, OperDto oper) {
         var row = table.createRow();
         ensureCells(row, COLUMN_COUNT);
-        fillOperCellFmea(row.getCell(3), oper);
+        fillOperCell(row.getCell(3), oper);
         return row;
     }
 
-    private void fillOperCellFmea(XWPFTableCell cell, OperDto oper) {
+    private void fillOperCell(XWPFTableCell cell, OperDto oper) {
         clearCell(cell);
-        var p = cell.addParagraph();
+        var p = cell.getParagraphs().getFirst();
         var r1 = p.createRun();
         r1.setBold(true);
         r1.setText(oper.numOper());
