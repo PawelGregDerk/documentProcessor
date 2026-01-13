@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
+import java.util.Map;
 
 @Service
 public class FmeaWordGenerator extends AbstractWordGenerator implements VerticalMerger {
@@ -59,7 +60,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             }
         }
 
-        postProcess(dto, dto.fmeaName());
+        postProcess(dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
     }
 
     private XWPFTableRow createRow(XWPFTable table, OperDto oper) {

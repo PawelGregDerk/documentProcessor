@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
+import java.util.Map;
 
 @Service
 public class PuWordGenerator extends AbstractWordGenerator implements HorizontMerger, VerticalMerger {
@@ -64,7 +65,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
             }
         }
 
-        postProcess(dto, dto.puName());
+        postProcess(dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
     }
 
     private XWPFTableRow createRow(XWPFTable table, OperDto oper) {

@@ -14,6 +14,7 @@ import static org.apache.commons.lang3.stream.LangCollectors.joining;
 
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class KpWordGenerator extends AbstractWordGenerator {
@@ -54,7 +55,7 @@ public class KpWordGenerator extends AbstractWordGenerator {
             }
         }
 
-        postProcess(dto, dto.kpName());
+        postProcess(dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
     }
 
     private String fillFuncCell(List<FuncDto> funcs, boolean isProd) {
