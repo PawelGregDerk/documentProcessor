@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
 import java.util.Map;
 
 @Service
@@ -54,11 +53,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 mergeVertical(table, startRow, endRow, 6);
             }
 
-            try (var out = new FileOutputStream(tmpOut)) {
-                doc.write(out);
-            }
-
-            postProcess(dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
+            postProcess(doc, dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
         }
     }
 

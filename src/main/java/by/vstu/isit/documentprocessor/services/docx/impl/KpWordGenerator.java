@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.stream.LangCollectors.joining;
 
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +48,8 @@ public class KpWordGenerator extends AbstractWordGenerator {
                 row.getCell(10).setText(funcProc);
 
             }
-            try (var out = new FileOutputStream(tmpOut)) {
-                doc.write(out);
-            }
 
-            postProcess(dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
+            postProcess(doc, dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
         }
     }
 

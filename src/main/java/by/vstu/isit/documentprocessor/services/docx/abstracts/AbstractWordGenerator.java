@@ -32,7 +32,11 @@ public abstract class AbstractWordGenerator {
         }
     }
 
-    protected void postProcess(String name, Map<String, String> colData) throws Exception {
+    protected void postProcess(XWPFDocument doc, String name, Map<String, String> colData) throws Exception {
+        try (var out = new FileOutputStream(tmpOut)) {
+            doc.write(out);
+        }
+
         try (var in = new FileInputStream(tmpOut);
              var template = XWPFTemplate.compile(in).render(colData);
              var out = new FileOutputStream(format(outPath, name))) {

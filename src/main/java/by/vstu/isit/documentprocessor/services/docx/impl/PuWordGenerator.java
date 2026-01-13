@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
 import java.util.Map;
 
 @Service
@@ -59,11 +58,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
                 mergeVertical(table, startRow, endRow, 13);
             }
 
-            try (var out = new FileOutputStream(tmpOut)) {
-                doc.write(out);
-            }
-
-            postProcess(dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
+            postProcess(doc, dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
         }
     }
 

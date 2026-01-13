@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
 import java.util.Map;
 
 @Service
@@ -33,11 +32,8 @@ public class RiWordGenerator extends AbstractWordGenerator {
                 row.getCell(1).setText(oper.shifr() + " " + oper.name());
                 row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
             }
-            try (var out = new FileOutputStream(tmpOut)) {
-                doc.write(out);
-            }
 
-            postProcess("RI-0001", Map.of("d", dto.extra()));
+            postProcess(doc, "RI-0001", Map.of("d", dto.extra()));
         }
     }
 }
