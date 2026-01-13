@@ -32,36 +32,6 @@ public abstract class AbstractWordGenerator {
         }
     }
 
-    protected void clearCell(XWPFTableCell cell) {
-        if (cell == null) {
-            return;
-        }
-
-        for (int i = cell.getParagraphs().size() - 1; i >= 0; i--) {
-            cell.removeParagraph(i);
-        }
-        cell.addParagraph();
-    }
-
-    protected void fillHeaderFromSecondPage(
-            XWPFDocument doc,
-            String placeholder,
-            String value
-    ) {
-        if (doc.getHeaderList().size() <= 1) {
-            return;
-        }
-
-        var header = doc.getHeaderList().get(1);
-        for (var p : header.getParagraphs()) {
-            p.getRuns().forEach(r -> {
-                if (r.text() != null && r.text().contains(placeholder)) {
-                    r.setText(value, 0);
-                }
-            });
-        }
-    }
-
     protected void postProcess(String name, Map<String, String> colData) throws Exception {
         try (var in = new FileInputStream(tmpOut);
              var template = XWPFTemplate.compile(in).render(colData);

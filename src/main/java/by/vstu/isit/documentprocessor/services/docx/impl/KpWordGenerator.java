@@ -31,7 +31,6 @@ public class KpWordGenerator extends AbstractWordGenerator {
     @Override
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-            fillHeaderFromSecondPage(doc, "${KP}", dto.kpName());
             var table = doc.getTables().getFirst();
             for (var oper : dto.opers()) {
                 var row = table.createRow();
@@ -53,9 +52,9 @@ public class KpWordGenerator extends AbstractWordGenerator {
             try (var out = new FileOutputStream(tmpOut)) {
                 doc.write(out);
             }
-        }
 
-        postProcess(dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
+            postProcess(dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
+        }
     }
 
     private String fillFuncCell(List<FuncDto> funcs, boolean isProd) {

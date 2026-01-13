@@ -31,7 +31,6 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
     @Override
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-            fillHeaderFromSecondPage(doc, "${PU}", dto.puName());
             var table = doc.getTables().getFirst();
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
@@ -63,9 +62,9 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
             try (var out = new FileOutputStream(tmpOut)) {
                 doc.write(out);
             }
-        }
 
-        postProcess(dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
+            postProcess(dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
+        }
     }
 
     private XWPFTableRow createRow(XWPFTable table, OperDto oper) {

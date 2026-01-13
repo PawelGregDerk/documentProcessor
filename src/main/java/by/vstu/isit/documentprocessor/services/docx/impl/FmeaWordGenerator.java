@@ -31,7 +31,6 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
     @Override
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-            fillHeaderFromSecondPage(doc, "${FMEA}", dto.fmeaName());
             var table = doc.getTables().getFirst();
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
@@ -58,9 +57,9 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             try (var out = new FileOutputStream(tmpOut)) {
                 doc.write(out);
             }
-        }
 
-        postProcess(dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
+            postProcess(dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
+        }
     }
 
     private XWPFTableRow createRow(XWPFTable table, OperDto oper) {
@@ -71,7 +70,6 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
     }
 
     private void fillOperCell(XWPFTableCell cell, OperDto oper) {
-        clearCell(cell);
         var p = cell.getParagraphs().getFirst();
         var r1 = p.createRun();
         r1.setBold(true);

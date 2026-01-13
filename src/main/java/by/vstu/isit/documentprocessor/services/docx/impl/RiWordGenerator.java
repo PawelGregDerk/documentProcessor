@@ -25,7 +25,6 @@ public class RiWordGenerator extends AbstractWordGenerator {
     @Override
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-            fillHeaderFromSecondPage(doc, "${RI}", dto.kpName());
             var table = doc.getTables().getFirst();
             for (var oper : dto.opers()) {
                 var row = table.createRow();
@@ -37,8 +36,8 @@ public class RiWordGenerator extends AbstractWordGenerator {
             try (var out = new FileOutputStream(tmpOut)) {
                 doc.write(out);
             }
-        }
 
-        postProcess("RI-0001", Map.of("d", dto.extra()));
+            postProcess("RI-0001", Map.of("d", dto.extra()));
+        }
     }
 }
