@@ -1,14 +1,12 @@
-package by.vstu.isit.documentprocessor.services.docx;
+package by.vstu.isit.documentprocessor.services.docx.abstracts;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import com.deepoove.poi.XWPFTemplate;
 import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.core.io.Resource;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -43,43 +41,6 @@ public abstract class AbstractWordGenerator {
             cell.removeParagraph(i);
         }
         cell.addParagraph();
-    }
-
-    protected void mergeVertical(XWPFTable table, int start, int end, int col) {
-        for (int r = start; r <= end; r++) {
-            var row = table.getRow(r);
-            if (row == null) {
-                continue;
-            }
-
-            var cell = row.getCell(col);
-            if (cell == null) {
-                continue;
-            }
-
-            var tcPr = cell.getCTTc().isSetTcPr()
-                    ? cell.getCTTc().getTcPr()
-                    : cell.getCTTc().addNewTcPr();
-            var merge = tcPr.isSetVMerge() ? tcPr.getVMerge() : tcPr.addNewVMerge();
-            merge.setVal(r == start ? STMerge.RESTART : STMerge.CONTINUE);
-        }
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    protected void mergeHorizontal(XWPFTableRow row, int col, int span) {
-        var cell = row.getCell(col);
-        if (cell == null) {
-            return;
-        }
-
-        var tcPr = cell.getCTTc().isSetTcPr()
-                ? cell.getCTTc().getTcPr()
-                : cell.getCTTc().addNewTcPr();
-        if (tcPr.isSetGridSpan()) {
-            tcPr.getGridSpan().setVal(BigInteger.valueOf(span));
-        } else {
-            tcPr.addNewGridSpan().setVal(BigInteger.valueOf(span));
-        }
     }
 
     protected void fillHeaderFromSecondPage(

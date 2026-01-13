@@ -2,7 +2,7 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.DockPackageFormMapper;
-import by.vstu.isit.documentprocessor.services.docx.FmeaWordGenerator;
+import by.vstu.isit.documentprocessor.services.docx.impl.FmeaWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
