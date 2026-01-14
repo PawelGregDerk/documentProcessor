@@ -34,18 +34,17 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
-                    createRow(table, oper);
+                    createRow(table, oper, dto.extra());
                     continue;
                 }
 
                 for (var func : oper.funcs()) {
-                    var row = createRow(table, oper);
+                    var row = createRow(table, oper, dto.extra());
                     row.getCell(7).setText(func.name());
                     row.getCell(17).setText(func.specCharakt());
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
-                table.getRow(startRow).getCell(2).setText(dto.extra());
                 mergeVertical(table, startRow, endRow, 2);
                 mergeVertical(table, startRow, endRow, 3);
                 mergeVertical(table, startRow, endRow, 4);
@@ -57,9 +56,10 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         }
     }
 
-    private XWPFTableRow createRow(XWPFTable table, OperDto oper) {
+    private XWPFTableRow createRow(XWPFTable table, OperDto oper, String content2) {
         var row = table.createRow();
         ensureCells(row, COLUMN_COUNT);
+        row.getCell(2).setText(content2);
         fillOperCell(row.getCell(3), oper);
         return row;
     }
