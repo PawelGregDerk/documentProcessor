@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public class RiWordGenerator extends AbstractWordGenerator {
+public class WiWordGenerator extends AbstractWordGenerator {
     private static final int COLUMN_COUNT = 5;
 
-    public RiWordGenerator(
-            @Value("${inp.ri.path}") Resource inp,
-            @Value("${tmp.out.ri.path}") String tmp,
-            @Value("${out.ri.path}") String out
+    public WiWordGenerator(
+            @Value("${inp.wi.path}") Resource inp,
+            @Value("${tmp.out.wi.path}") String tmp,
+            @Value("${out.wi.path}") String out
     ) {
         super(inp, tmp, out);
     }
@@ -33,7 +33,7 @@ public class RiWordGenerator extends AbstractWordGenerator {
                 row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
             }
 
-            postProcess(doc, "RI-0001", Map.of("d", dto.extra()));
+            postProcess(doc, "WI-0001", Map.of("d", dto.extra()));
         }
     }
 }
