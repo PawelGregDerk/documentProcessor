@@ -20,7 +20,8 @@ public enum MessageCodes {
     SELECT_DOC_TITLE("select.doc"),
     EDIT_DOC("edit.doc"),
     NEW_DOC_PACKAGE("new.doc.package"),
-    DATA_NOT_FOUND("data.not.found"),;
+    DATA_NOT_FOUND("data.not.found"),
+    NO_FUNC("no.func"),;
 
     @Getter
     private final String code;

@@ -2,6 +2,7 @@ package by.vstu.isit.documentprocessor.services.docx.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
+import by.vstu.isit.documentprocessor.excepts.NoFunctionException;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.VerticalMerger;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -34,8 +35,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
-                    createRow(table, oper, dto.extra());
-                    continue;
+                    throw new NoFunctionException(oper.numOper(), oper.name());
                 }
 
                 for (var func : oper.funcs()) {
@@ -45,6 +45,8 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
+                mergeVertical(table, startRow, endRow, 0);
+                mergeVertical(table, startRow, endRow, 1);
                 mergeVertical(table, startRow, endRow, 2);
                 mergeVertical(table, startRow, endRow, 3);
                 mergeVertical(table, startRow, endRow, 4);
@@ -52,7 +54,11 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 mergeVertical(table, startRow, endRow, 6);
             }
 
-            postProcess(doc, dto.fmeaName(), Map.of("d", dto.extra(), "n", dto.fmeaName()));
+            postProcess(doc, dto.fmeaName(), Map.of(
+                    "d", dto.extra(),
+                    "n", dto.fmeaName(),
+                    "p", dto.packageName()
+            ));
         }
     }
 
@@ -69,7 +75,10 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         var r1 = p.createRun();
         r1.setBold(true);
         r1.setText(oper.numOper());
+        r1.addBreak();
         var r2 = p.createRun();
-        r2.setText(" " + oper.name() + " Цех " + oper.numZech());
+        r2.setText(oper.name());
+        r2.addBreak();
+        r2.setText("Цех " + oper.numZech());
     }
 }

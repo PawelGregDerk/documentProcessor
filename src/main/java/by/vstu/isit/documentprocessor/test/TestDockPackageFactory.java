@@ -33,7 +33,7 @@ public final class TestDockPackageFactory {
 
         // 2 операции без функций
         for (int i = 0; i < 2; i++) {
-            operations.add(createOper(operIndex++, 0));
+            operations.add(createOper(operIndex++, 2));
         }
 
         return new DockPackageDto(

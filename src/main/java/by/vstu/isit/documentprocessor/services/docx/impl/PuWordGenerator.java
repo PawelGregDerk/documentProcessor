@@ -2,6 +2,7 @@ package by.vstu.isit.documentprocessor.services.docx.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
+import by.vstu.isit.documentprocessor.excepts.NoFunctionException;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.HorizontMerger;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.VerticalMerger;
@@ -34,8 +35,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
                 if (oper.funcs().isEmpty()) {
-                    createRow(table, oper);
-                    continue;
+                    throw new NoFunctionException(oper.numOper(), oper.name());
                 }
 
                 for (var func : oper.funcs()) {
@@ -58,7 +58,11 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
                 mergeVertical(table, startRow, endRow, 13);
             }
 
-            postProcess(doc, dto.puName(), Map.of("d", dto.extra(), "n", dto.puName()));
+            postProcess(doc, dto.puName(), Map.of(
+                    "d", dto.extra(),
+                    "n", dto.puName(),
+                    "p", dto.packageName()
+            ));
         }
     }
 

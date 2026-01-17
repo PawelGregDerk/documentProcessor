@@ -2,15 +2,14 @@ package by.vstu.isit.documentprocessor.services.docx.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
+import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.services.docx.abstracts.AbstractWordGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
-import static java.lang.String.format;
-import static org.apache.commons.lang3.stream.LangCollectors.joining;
 
 import java.util.List;
 import java.util.Map;
@@ -36,28 +35,52 @@ public class KpWordGenerator extends AbstractWordGenerator {
                 ensureCells(row, COLUMN_COUNT);
                 var funcs = oper.funcs();
                 row.getCell(0).setText(oper.numOper());
-                row.getCell(7).setText(format("%s Цех %s %s", oper.name(), oper.numZech(), oper.oborud()));
-                var specChars = funcs.stream()
-                        .map(FuncDto::specCharakt)
-                        .filter(StringUtils::isNotBlank)
-                        .collect(joining(" "));
-                row.getCell(8).setText(specChars);
-                var funcProd = fillFuncCell(funcs, true);
-                row.getCell(9).setText(funcProd);
-                var funcProc = fillFuncCell(funcs, false);
-                row.getCell(10).setText(funcProc);
-
+                fillOpInfo(row.getCell(7), oper);
+                fillFuncSpecChars(row.getCell(8), funcs);
+                fillFuncNameParam(row.getCell(9), funcs, true);
+                fillFuncNameParam(row.getCell(10), funcs, false);
             }
 
-            postProcess(doc, dto.kpName(), Map.of("d", dto.extra(), "n", dto.kpName()));
+            postProcess(doc, dto.kpName(), Map.of(
+                    "d", dto.extra(),
+                    "n", dto.kpName(),
+                    "p", dto.packageName()
+            ));
         }
     }
 
-    private String fillFuncCell(List<FuncDto> funcs, boolean isProd) {
-        return funcs.stream()
-                .filter(f -> f.isProd() == isProd)
-                .map(f -> StringUtils.joinWith(" ", f.name(), f.param()))
+    private void fillOpInfo(XWPFTableCell cell, OperDto op) {
+        var p = cell.getParagraphs().getFirst();
+        var r = p.createRun();
+        r.setText(op.name());
+        r.addBreak();
+        r.setText("Цех " + op.numZech());
+        r.addBreak();
+        r.setText(op.oborud());
+    }
+
+    private void fillFuncSpecChars(XWPFTableCell cell, List<FuncDto> funcs) {
+        var p = cell.getParagraphs().getFirst();
+        funcs.stream()
+                .map(FuncDto::specCharakt)
                 .filter(StringUtils::isNotBlank)
-                .collect(joining(" "));
+                .forEach(s -> {
+                    var r = p.createRun();
+                    r.setText(s);
+                    r.addBreak();
+                });
+    }
+
+    private void fillFuncNameParam(XWPFTableCell cell, List<FuncDto> funcs, boolean isProd) {
+        var p = cell.getParagraphs().getFirst();
+        funcs.stream()
+                .filter(f -> f.isProd() == isProd)
+                .forEach(f -> {
+                    var r = p.createRun();
+                    r.setText(f.name());
+                    r.addBreak();
+                    r.setText(f.param());
+                    r.addBreak();
+                });
     }
 }
