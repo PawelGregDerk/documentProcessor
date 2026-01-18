@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import static by.vstu.isit.documentprocessor.utils.MessageCodes.MAIN_SCENE;
-import static by.vstu.isit.documentprocessor.utils.ResourceHelper.*;
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
 @SpringBootApplication
 public class Main extends Application {

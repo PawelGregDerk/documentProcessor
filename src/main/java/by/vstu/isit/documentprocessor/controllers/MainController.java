@@ -9,7 +9,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
 
 import static by.vstu.isit.documentprocessor.utils.MessageCodes.*;
-import static by.vstu.isit.documentprocessor.utils.ResourceHelper.*;
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
 @Slf4j
 @Controller

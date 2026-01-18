@@ -14,7 +14,7 @@ import java.util.Objects;
 import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.*;
 
 @UtilityClass
-public class ResourceHelper {
+public class GuiHelper {
 
     public <T extends Node> T styled(T node, String... styles) {
         for ( var s : styles) {

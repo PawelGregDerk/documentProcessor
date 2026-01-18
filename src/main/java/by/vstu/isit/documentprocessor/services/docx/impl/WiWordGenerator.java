@@ -24,7 +24,8 @@ public class WiWordGenerator extends AbstractWordGenerator {
     @Override
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-            var table = doc.getTables().getFirst();
+            var table = doc.getTables().get(1);
+            table.getRow(0).setRepeatHeader(true);
             for (var oper : dto.opers()) {
                 var row = table.createRow();
                 ensureCells(row, COLUMN_COUNT);
