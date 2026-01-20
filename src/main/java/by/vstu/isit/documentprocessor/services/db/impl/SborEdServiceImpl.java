@@ -1,6 +1,7 @@
 package by.vstu.isit.documentprocessor.services.db.impl;
 
 import by.vstu.isit.documentprocessor.repositories.SborEdRepository;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,12 +12,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SborEdServiceImpl implements SborEdService {
+    @Getter
     private final SborEdRepository repository;
-
-    @Override
-    public SborEdRepository getRepository() {
-        return repository;
-    }
 
     @Override
     @Transactional
