@@ -38,13 +38,15 @@ public final class TestDockPackageFactory {
 
         return new DockPackageDto(
                 "Тестовый пакет документов",
+                "path",
                 "ПУ-0001",
                 "СХПУ-0001",
                 "КП-0001",
                 "FMEA-0001",
                 "15-132",
                 "Доп. поле пакета ",
-                operations
+                operations,
+                new ArrayList<>()
         );
     }
 

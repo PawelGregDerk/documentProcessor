@@ -4,28 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
 @Table(name = "type_oper")
-public class TypeOper implements Serializable {
+@AttributeOverride(name = "id", column = @Column(name = "idTypeOper"))
+public class TypeOper extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Операция
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idTypeOper", nullable = false)
-    private Long idTypeOper;
 
     /**
      * КП-1, Пу-1

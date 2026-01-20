@@ -39,7 +39,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 }
 
                 for (var func : oper.funcs()) {
-                    var row = createRow(table, oper, dto.extra());
+                    var row = createRow(table, oper, dto.numInstr());
                     row.getCell(7).setText(func.name());
                     row.getCell(17).setText(func.specCharakt());
                 }
@@ -55,7 +55,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             }
 
             postProcess(doc, dto.fmeaName(), Map.of(
-                    "d", dto.extra(),
+                    "d", dto.numInstr(),
                     "n", dto.fmeaName(),
                     "p", dto.packageName()
             ));

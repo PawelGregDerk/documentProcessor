@@ -3,12 +3,14 @@ package by.vstu.isit.documentprocessor.mappers;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
+import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -25,13 +27,15 @@ public class DockPackageFormMapper {
     ) {
         return new DockPackageDto(
                 packageName.getText(),
+                "path",
                 pu.getText(),
                 spu.getText(),
                 kp.getText(),
                 fmea.getText(),
                 vedInstr.getText(),
                 extra.getText(),
-                mapOperations(operationsContainer)
+                mapOperations(operationsContainer),
+                new ArrayList<>()
         );
     }
 

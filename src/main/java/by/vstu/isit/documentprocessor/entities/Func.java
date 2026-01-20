@@ -4,27 +4,18 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
-
 @Entity
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
 @Table(name = "func")
-public class Func implements Serializable {
+@AttributeOverride(name = "id", column = @Column(name = "idFunc"))
+public class Func extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Операция
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idFunc", nullable = false)
-    private Long idFunc;
 
     /**
      * ПУ-5

@@ -34,7 +34,23 @@ public class WiWordGenerator extends AbstractWordGenerator {
                 row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
             }
 
-            postProcess(doc, "WI-0001", Map.of("d", dto.extra(), "p", dto.packageName()));
+            for (var oper : dto.opers()) {
+                var row = table.createRow();
+                ensureCells(row, COLUMN_COUNT);
+                row.getCell(0).setText(oper.numOper());
+                row.getCell(1).setText(oper.shifr() + " " + oper.name());
+                row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
+            }
+
+            for (var oper : dto.opers()) {
+                var row = table.createRow();
+                ensureCells(row, COLUMN_COUNT);
+                row.getCell(0).setText(oper.numOper());
+                row.getCell(1).setText(oper.shifr() + " " + oper.name());
+                row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
+            }
+
+            postProcess(doc, "WI-0001", Map.of("d", dto.numInstr(), "p", dto.packageName()));
         }
     }
 }
