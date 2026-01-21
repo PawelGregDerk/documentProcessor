@@ -12,7 +12,6 @@ public record DockPackageDto(
         String kpName,
         String fmeaName,
         String vedIName,
-        String numInstr,
         @Delegate
         List<OperDto> opers,
         @Delegate

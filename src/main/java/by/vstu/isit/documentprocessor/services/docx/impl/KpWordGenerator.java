@@ -42,7 +42,7 @@ public class KpWordGenerator extends AbstractWordGenerator {
             }
 
             postProcess(doc, dto.kpName(), Map.of(
-                    "d", dto.numInstr(),
+                    "d", dto.vedIName(),
                     "n", dto.kpName(),
                     "p", dto.packageName()
             ));

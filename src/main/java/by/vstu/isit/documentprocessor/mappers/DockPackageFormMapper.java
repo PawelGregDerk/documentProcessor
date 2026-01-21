@@ -22,7 +22,6 @@ public class DockPackageFormMapper {
             TextField kp,
             TextField fmea,
             TextField vedInstr,
-            TextField extra,
             VBox operationsContainer
     ) {
         return new DockPackageDto(
@@ -33,7 +32,6 @@ public class DockPackageFormMapper {
                 kp.getText(),
                 fmea.getText(),
                 vedInstr.getText(),
-                extra.getText(),
                 mapOperations(operationsContainer),
                 new ArrayList<>()
         );

@@ -44,7 +44,6 @@ public final class TestDockPackageFactory {
                 "КП-0001",
                 "FMEA-0001",
                 "15-132",
-                "Доп. поле пакета ",
                 operations,
                 new ArrayList<>()
         );

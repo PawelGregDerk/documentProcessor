@@ -22,8 +22,6 @@ public class DocPackageController {
     @FXML
     private TextField packageNameField;
     @FXML
-    private TextField extraField;
-    @FXML
     private TextField puField;
     @FXML
     private TextField spuField;
@@ -131,7 +129,6 @@ public class DocPackageController {
                     kpField,
                     fmeaField,
                     vedInstrField,
-                    extraField,
                     operationsContainer
             );
             fmeaGenerator.generate(dto);

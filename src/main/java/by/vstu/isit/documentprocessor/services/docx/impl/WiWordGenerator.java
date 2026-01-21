@@ -50,7 +50,7 @@ public class WiWordGenerator extends AbstractWordGenerator {
                 row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
             }
 
-            postProcess(doc, "WI-0001", Map.of("d", dto.numInstr(), "p", dto.packageName()));
+            postProcess(doc, "WI-0001", Map.of("d", dto.vedIName(), "p", dto.packageName()));
         }
     }
 }

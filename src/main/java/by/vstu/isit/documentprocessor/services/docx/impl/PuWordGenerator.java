@@ -59,7 +59,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
             }
 
             postProcess(doc, dto.puName(), Map.of(
-                    "d", dto.numInstr(),
+                    "d", dto.vedIName(),
                     "n", dto.puName(),
                     "p", dto.packageName()
             ));
