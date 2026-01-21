@@ -10,19 +10,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class DockPackageFormMapper {
     public DockPackageDto fromGui(
             TextField packageName,
+            TextField sborEdNazv,
             TextField pu,
             TextField spu,
             TextField kp,
             TextField fmea,
             TextField vedInstr,
-            VBox operationsContainer
+            VBox operationsContainer,
+            VBox assemblyUnitsContainer
     ) {
         return new DockPackageDto(
                 packageName.getText(),
@@ -33,8 +34,19 @@ public class DockPackageFormMapper {
                 fmea.getText(),
                 vedInstr.getText(),
                 mapOperations(operationsContainer),
-                new ArrayList<>()
+                mapSborEds(sborEdNazv, assemblyUnitsContainer)
         );
+    }
+
+    private List<SborEdDto> mapSborEds(TextField nazv, VBox container) {
+        return container.getChildren().stream()
+                .map(HBox.class::cast)
+                .map(row -> mapSborEdDto(nazv, row))
+                .toList();
+    }
+
+    private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
+        return new SborEdDto(nazv.getText(), text(row, 0));
     }
 
     private List<OperDto> mapOperations(VBox container) {

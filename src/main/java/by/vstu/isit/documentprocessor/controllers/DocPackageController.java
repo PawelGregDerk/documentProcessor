@@ -32,7 +32,7 @@ public class DocPackageController {
     @FXML
     private TextField vedInstrField;
     @FXML
-    private TextField assemblyUnitNameField;
+    private TextField sborEdNazv;
     @FXML
     private VBox assemblyUnitsContainer;
     @FXML
@@ -145,12 +145,14 @@ public class DocPackageController {
         try {
             var dto = formMapper.fromGui(
                     packageNameField,
+                    sborEdNazv,
                     puField,
                     spuField,
                     kpField,
                     fmeaField,
                     vedInstrField,
-                    operationsContainer
+                    operationsContainer,
+                    assemblyUnitsContainer
             );
             fmeaGenerator.generate(dto);
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();

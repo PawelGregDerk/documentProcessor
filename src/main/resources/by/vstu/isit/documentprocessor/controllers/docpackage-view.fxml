@@ -42,7 +42,7 @@
                    GridPane.rowIndex="1"
                    GridPane.columnIndex="0"/>
 
-        <TextField fx:id="assemblyUnitNameField"
+        <TextField fx:id="sborEdNazv"
                    GridPane.rowIndex="1"
                    GridPane.columnIndex="1"/>
     </GridPane>
