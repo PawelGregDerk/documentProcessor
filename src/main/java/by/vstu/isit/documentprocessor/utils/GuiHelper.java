@@ -50,7 +50,7 @@ public class GuiHelper {
     }
 
     private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle) {
-        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1280, 920);
+        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1280, 1024);
         stage.setScene(scene);
         stage.setTitle(getMessage(sceneTitle));
         stage.setResizable(false);

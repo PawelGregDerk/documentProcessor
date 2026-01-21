@@ -32,6 +32,8 @@ public class DocPackageController {
     @FXML
     private TextField vedInstrField;
     @FXML
+    private TextField assemblyUnitNameField;
+    @FXML
     private VBox assemblyUnitsContainer;
     @FXML
     private VBox operationsContainer;
@@ -44,27 +46,14 @@ public class DocPackageController {
         HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
 
-        TextField nameField = new TextField();
-        nameField.setPromptText("Наименование сборочной единицы");
-        nameField.setPrefWidth(300);
-
-        TextField codeField = new TextField();
-        codeField.setPromptText("Обозначение");
-        codeField.setPrefWidth(400);
-
-        // автозаполнение имени из предыдущей строки
-        int count = assemblyUnitsContainer.getChildren().size();
-        if (count > 0) {
-            HBox prevRow = (HBox) assemblyUnitsContainer.getChildren().get(count - 1);
-            TextField prevNameField = (TextField) prevRow.getChildren().getFirst();
-            nameField.setText(prevNameField.getText());
-        }
+        TextField codeField = styled(new TextField(), "compact");
+        codeField.setPromptText("Обозначение сборочной единицы");
+        codeField.prefWidthProperty().bind(row.widthProperty().multiply(0.75));
 
         Button deleteButton = styled(new Button("Удалить"), "delButton");
-        deleteButton.getStyleClass().add("deleteButton");
         deleteButton.setOnAction(e -> assemblyUnitsContainer.getChildren().remove(row));
 
-        row.getChildren().addAll(nameField, codeField, deleteButton);
+        row.getChildren().addAll(codeField, deleteButton);
         assemblyUnitsContainer.getChildren().add(row);
     }
 
