@@ -21,16 +21,22 @@
                promptText="Название пакета документов"
                maxWidth="400"/>
 
+<Button text="Добавить сборочную единицу"
+        onAction="#onAddAssemblyUnit"
+        styleClass="newButton"
+        maxWidth="300"/>
+
+<!-- Контейнер сборочных единиц -->
+<VBox fx:id="assemblyUnitsContainer"
+      spacing="10"
+      style="-fx-padding: 10 0 10 0;"/>
+      
     <!-- Названия документов -->
     <GridPane hgap="10" vgap="10">
         <columnConstraints>
             <ColumnConstraints percentWidth="30"/>
             <ColumnConstraints percentWidth="70"/>
         </columnConstraints>
-
-        <!-- Доп. поле -->
-        <Label text="Доп. поле:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="labelFont"/>
-        <TextField fx:id="extraField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
         <!-- ПУ -->
         <Label text="ПУ:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="labelFont"/>
