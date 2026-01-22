@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class DockPackageFormMapper {
@@ -22,8 +23,8 @@ public class DockPackageFormMapper {
             TextField kp,
             TextField fmea,
             TextField vedInstr,
-            VBox operationsContainer,
-            VBox assemblyUnitsContainer
+            VBox opersContainer,
+            VBox assemblyContainer
     ) {
         return new DockPackageDto(
                 packageName.getText(),
@@ -33,32 +34,17 @@ public class DockPackageFormMapper {
                 kp.getText(),
                 fmea.getText(),
                 vedInstr.getText(),
-                mapOperations(operationsContainer),
-                mapSborEds(sborEdNazv, assemblyUnitsContainer)
+                mapChildren(opersContainer, VBox.class, this::mapOperation),
+                mapChildren(assemblyContainer, HBox.class, row -> mapSborEdDto(sborEdNazv, row))
         );
-    }
-
-    private List<SborEdDto> mapSborEds(TextField nazv, VBox container) {
-        return container.getChildren().stream()
-                .map(HBox.class::cast)
-                .map(row -> mapSborEdDto(nazv, row))
-                .toList();
     }
 
     private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
         return new SborEdDto(nazv.getText(), text(row, 0));
     }
 
-    private List<OperDto> mapOperations(VBox container) {
-        return container.getChildren().stream()
-                .map(VBox.class::cast)
-                .map(this::mapOperation)
-                .toList();
-    }
-
     private OperDto mapOperation(VBox operBlock) {
         HBox operRow = (HBox) operBlock.getChildren().get(0);
-        VBox funcsBox = (VBox) operBlock.getChildren().get(1);
         return new OperDto(
                 text(operRow, 0),
                 text(operRow, 1),
@@ -67,16 +53,8 @@ public class DockPackageFormMapper {
                 text(operRow, 4),
                 text(operRow, 5),
                 text(operRow, 6),
-                mapFunctions(funcsBox)
+                mapChildren(operBlock, HBox.class, this::mapFunction)
         );
-    }
-
-    private List<FuncDto> mapFunctions(VBox funcsBox) {
-        return funcsBox.getChildren().stream()
-                .filter(n -> n.getStyleClass().contains("function-data-row"))
-                .map(HBox.class::cast)
-                .map(this::mapFunction)
-                .toList();
     }
 
     private FuncDto mapFunction(HBox row) {
@@ -86,6 +64,14 @@ public class DockPackageFormMapper {
                 ((CheckBox) row.getChildren().get(2)).isSelected(),
                 text(row, 3)
         );
+    }
+
+    private <N, R> List<R> mapChildren(VBox container, Class<N> nodeType, Function<N, R> mapper) {
+        return container.getChildren().stream()
+                .filter(nodeType::isInstance)
+                .map(nodeType::cast)
+                .map(mapper)
+                .toList();
     }
 
     private String text(HBox box, int idx) {

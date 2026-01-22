@@ -3,6 +3,7 @@ package by.vstu.isit.documentprocessor.test;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
+import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,9 +11,30 @@ import java.util.List;
 
 @Component
 public final class TestDockPackageFactory {
-    private TestDockPackageFactory() {}
+
+    private TestDockPackageFactory() {
+    }
 
     public DockPackageDto createTestDto() {
+        List<OperDto> operations = createOperations();
+        List<SborEdDto> sborEds = createSborEds(4);
+
+        return new DockPackageDto(
+                "Тестовый пакет документов",
+                "path",
+                "ПУ-0001",
+                "СХПУ-0001",
+                "КП-0001",
+                "FMEA-0001",
+                "15-132",
+                operations,
+                sborEds
+        );
+    }
+
+    // -------------------- operations --------------------
+
+    private List<OperDto> createOperations() {
         List<OperDto> operations = new ArrayList<>();
         int operIndex = 1;
 
@@ -33,20 +55,10 @@ public final class TestDockPackageFactory {
 
         // 2 операции без функций
         for (int i = 0; i < 2; i++) {
-            operations.add(createOper(operIndex++, 2));
+            operations.add(createOper(operIndex++, 0));
         }
 
-        return new DockPackageDto(
-                "Тестовый пакет документов",
-                "path",
-                "ПУ-0001",
-                "СХПУ-0001",
-                "КП-0001",
-                "FMEA-0001",
-                "15-132",
-                operations,
-                new ArrayList<>()
-        );
+        return operations;
     }
 
     private OperDto createOper(int index, int funcCount) {
@@ -72,5 +84,23 @@ public final class TestDockPackageFactory {
                 funcs
         );
     }
-}
 
+    // -------------------- assembly units --------------------
+
+    private List<SborEdDto> createSborEds(int count) {
+        List<SborEdDto> result = new ArrayList<>();
+
+        for (int i = 1; i <= count; i++) {
+            result.add(createSborEd(i));
+        }
+
+        return result;
+    }
+
+    private SborEdDto createSborEd(int index) {
+        return new SborEdDto(
+                "Сборочная единица",
+                "СЕ-" + String.format("%03d", index)
+        );
+    }
+}
