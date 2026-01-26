@@ -21,10 +21,10 @@ public class ConsoleMain implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         DockPackageDto dto = dockPackageFactory.createTestDto();
-        System.out.println(dto);
-//        for (var generator : generators) {
-//            generator.generate(dto);
-//        }
+       // System.out.println(dto);
+        for (var generator : generators) {
+            generator.generate(dto);
+        }
     }
 
     static void main(String[] args) {

@@ -12,95 +12,109 @@ import java.util.List;
 @Component
 public final class TestDockPackageFactory {
 
-    private TestDockPackageFactory() {
-    }
-
     public DockPackageDto createTestDto() {
-        List<OperDto> operations = createOperations();
-        List<SborEdDto> sborEds = createSborEds(4);
+
+        List<OperDto> operations = new ArrayList<>();
+
+        // --- Операция .001 (Хранение материалов) ---
+        operations.add(new OperDto(
+                ".001",
+                "",
+                "Поддон, Стеллаж для хранения материалов",
+                "",
+                "Хранение материалов на складе ОМТС",
+                "",
+                "22",
+                List.of(
+                        new FuncDto(
+                                "Хранение материалов",
+                                "По партиям в зависимости от даты поступления",
+                                false,
+                                ""
+                        ),
+                        new FuncDto(
+                                "Температура и влажность",
+                                "(+5°C)-(+40°C) 30-80 %",
+                                false,
+                                ""
+                        )
+                )
+        ));
+
+        // --- Операция .045 (Регулировка) ---
+        operations.add(new OperDto(
+                ".045",
+                "009",
+                "Установка ОМА-1321 с ротором согласно таблице 01, Шкаф сушки плат ШСП-004-07",
+                "Осциллограф С1-83, Тара-шкатулка, Частотомер РЧ3-07-0002, Миллиамперметр Э536, Вольтметр M2017 или Э532, БП Б5-47",
+                "Регулировка",
+                "8501",
+                "15",
+                List.of(
+                        new FuncDto(
+                                "Наличие выходных импульсных сигналов",
+                                "15-17 В — высокий уровень, 0-0,5 В — низкий уровень. Зазор 1,4 мм",
+                                true,
+                                "!FD1 <FF> (K) <>"
+                        ),
+                        new FuncDto(
+                                "Срок хранения цианоакрилатного клея",
+                                "12 месяцев с даты изготовления",
+                                true,
+                                ""
+                        ),
+                        new FuncDto(
+                                "Напряжение питания",
+                                "16 +/-1В",
+                                false,
+                                ""
+                        )
+                )
+        ));
+
+        // --- Операция 100 (повтор хранения) ---
+        operations.add(new OperDto(
+                "100",
+                "",
+                "Поддон, Стеллаж для хранения материалов",
+                "",
+                "Хранение материалов на складе ОМТС",
+                "",
+                "",
+                List.of(
+                        new FuncDto(
+                                "Хранение материалов",
+                                "По партиям в зависимости от даты поступления",
+                                false,
+                                ""
+                        ),
+                        new FuncDto(
+                                "Температура и влажность",
+                                "(+5°C)-(+40°C) 30-80 %",
+                                false,
+                                ""
+                        )
+                )
+        ));
+
+        // --- Сборочные единицы ---
+        List<SborEdDto> sborEds = List.of(
+                new SborEdDto(
+                        "Датчики",
+                        "1ПМ.292.001-11ПМ.292.001-7"
+                )
+        );
 
         return new DockPackageDto(
-                "Тестовый пакет документов",
-                "path",
-                "ПУ-0001",
-                "СХПУ-0001",
-                "КП-0001",
-                "FMEA-0001",
+                "ПД8093-ПД8093-7",
+                "Проект/1ПМ.292.001.000-007",
+                "ПУ 0098",
+                "СХ ПУ 0098",
+                "КП0058",
+                "FMEA T 0114",
                 "15-132",
                 operations,
                 sborEds
-        );
-    }
-
-    // -------------------- operations --------------------
-
-    private List<OperDto> createOperations() {
-        List<OperDto> operations = new ArrayList<>();
-        int operIndex = 1;
-
-        // 3 операции по 3 функции
-        for (int i = 0; i < 3; i++) {
-            operations.add(createOper(operIndex++, 3));
-        }
-
-        // 3 операции по 2 функции
-        for (int i = 0; i < 3; i++) {
-            operations.add(createOper(operIndex++, 2));
-        }
-
-        // 2 операции по 1 функции
-        for (int i = 0; i < 2; i++) {
-            operations.add(createOper(operIndex++, 1));
-        }
-
-        // 2 операции без функций
-        for (int i = 0; i < 2; i++) {
-            operations.add(createOper(operIndex++, 0));
-        }
-
-        return operations;
-    }
-
-    private OperDto createOper(int index, int funcCount) {
-        List<FuncDto> funcs = new ArrayList<>();
-
-        for (int i = 1; i <= funcCount; i++) {
-            funcs.add(new FuncDto(
-                    "Функция " + i + " операции " + index,
-                    "Параметры функции " + i,
-                    i % 2 == 0,
-                    "SC-" + index + "-" + i
-            ));
-        }
-
-        return new OperDto(
-                String.format("%02d", index),
-                "ИНСТ-" + index,
-                "Оборудование " + index,
-                "Оснастка " + index,
-                "Операция " + index,
-                "Ш" + index,
-                "15",
-                funcs
-        );
-    }
-
-    // -------------------- assembly units --------------------
-
-    private List<SborEdDto> createSborEds(int count) {
-        List<SborEdDto> result = new ArrayList<>();
-
-        for (int i = 1; i <= count; i++) {
-            result.add(createSborEd(i));
-        }
-
-        return result;
-    }
-
-    private SborEdDto createSborEd(int index) {
-        return new SborEdDto(
-                "Сборочная единица",
-                "СЕ-" + String.format("%03d", index)
         );
     }
 }
