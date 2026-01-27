@@ -1,4 +1,4 @@
-package by.vstu.isit.documentprocessor.services.docx.abstracts;
+package by.vstu.isit.documentprocessor.services.docx.write.abstracts;
 
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 

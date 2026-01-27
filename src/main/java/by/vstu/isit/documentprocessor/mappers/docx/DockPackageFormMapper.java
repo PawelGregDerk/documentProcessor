@@ -1,4 +1,4 @@
-package by.vstu.isit.documentprocessor.mappers;
+package by.vstu.isit.documentprocessor.mappers.docx;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
@@ -44,7 +44,7 @@ public class DockPackageFormMapper {
     }
 
     private OperDto mapOperation(VBox operBlock) {
-        HBox operRow = (HBox) operBlock.getChildren().get(0);
+        HBox operRow = (HBox) operBlock.getChildren().getFirst();
         return new OperDto(
                 text(operRow, 0),
                 text(operRow, 1),

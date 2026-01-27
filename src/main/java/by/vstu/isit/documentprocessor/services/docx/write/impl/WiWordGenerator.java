@@ -1,7 +1,7 @@
-package by.vstu.isit.documentprocessor.services.docx.impl;
+package by.vstu.isit.documentprocessor.services.docx.write.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
-import by.vstu.isit.documentprocessor.services.docx.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;

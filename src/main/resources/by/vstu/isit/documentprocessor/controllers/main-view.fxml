@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.12"
+<VBox xmlns="http://javafx.com/javafx/23.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:id="mainVBox"
       fx:controller="by.vstu.isit.documentprocessor.controllers.MainController"
@@ -27,7 +27,16 @@
     <Label fx:id="mainLabel" text="%word.docx" styleClass="label" />
 
     <HBox spacing="30" alignment="CENTER">
-        <Button fx:id="FEMA_Button" text="%create.dox.pack" onAction="#createDocPackage" />
+
+        <Button fx:id="createButton"
+                text="%create.dox.pack"
+                onAction="#createDocPackage"/>
+
+        <Button fx:id="loadFromFileButton"
+                text="Загрузить из файла"
+                onAction="#loadFromFile"/>
+
     </HBox>
+
 
 </VBox>

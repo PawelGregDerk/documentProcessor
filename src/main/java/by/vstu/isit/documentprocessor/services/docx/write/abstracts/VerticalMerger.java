@@ -1,4 +1,4 @@
-package by.vstu.isit.documentprocessor.services.docx.abstracts;
+package by.vstu.isit.documentprocessor.services.docx.write.abstracts;
 
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;

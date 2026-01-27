@@ -21,7 +21,8 @@ public enum MessageCodes {
     EDIT_DOC("edit.doc"),
     NEW_DOC_PACKAGE("new.doc.package"),
     DATA_NOT_FOUND("data.not.found"),
-    NO_FUNC("no.func"),;
+    NO_FUNC("no.func"),
+    LOAD_FROM_FILE("load.from.file"),;
 
     @Getter
     private final String code;

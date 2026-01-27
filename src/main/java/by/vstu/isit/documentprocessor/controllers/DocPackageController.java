@@ -1,12 +1,13 @@
 
 package by.vstu.isit.documentprocessor.controllers;
 
-import by.vstu.isit.documentprocessor.mappers.DockPackageFormMapper;
-import by.vstu.isit.documentprocessor.services.docx.impl.FmeaWordGenerator;
+import by.vstu.isit.documentprocessor.mappers.docx.DockPackageFormMapper;
+import by.vstu.isit.documentprocessor.services.docx.write.impl.FmeaWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -18,6 +19,7 @@ import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 @Controller
 @FxmlView("docpackage-view.fxml")
 @RequiredArgsConstructor
+@Getter
 public class DocPackageController {
     @FXML
     private TextField packageNameField;

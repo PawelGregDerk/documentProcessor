@@ -1,9 +1,9 @@
-package by.vstu.isit.documentprocessor.services.docx.impl;
+package by.vstu.isit.documentprocessor.services.docx.write.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
-import by.vstu.isit.documentprocessor.services.docx.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
