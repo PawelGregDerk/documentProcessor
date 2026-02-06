@@ -19,11 +19,11 @@ public final class TestDockPackageFactory {
         // --- Операция .001 (Хранение материалов) ---
         operations.add(new OperDto(
                 ".001",
-                "",
+                "007",
                 "Поддон, Стеллаж для хранения материалов",
-                "",
+                "Отбойный молоток",
                 "Хранение материалов на складе ОМТС",
-                "",
+                "8500",
                 "22",
                 List.of(
                         new FuncDto(
@@ -75,12 +75,12 @@ public final class TestDockPackageFactory {
         // --- Операция 100 (повтор хранения) ---
         operations.add(new OperDto(
                 "100",
-                "",
+                "010",
                 "Поддон, Стеллаж для хранения материалов",
-                "",
+                "Сварочный аппарат",
                 "Хранение материалов на складе ОМТС",
-                "",
-                "",
+                "8502",
+                "20",
                 List.of(
                         new FuncDto(
                                 "Хранение материалов",
@@ -101,7 +101,15 @@ public final class TestDockPackageFactory {
         List<SborEdDto> sborEds = List.of(
                 new SborEdDto(
                         "Датчики",
-                        "1ПМ.292.001-11ПМ.292.001-7"
+                        "1ПМ.292.001"
+                ),
+                new SborEdDto(
+                        "Датчики",
+                        "1ПМ.292.002"
+                ),
+                new SborEdDto(
+                        "Датчики",
+                        "1ПМ.292.003"
                 )
         );
 
