@@ -1,6 +1,7 @@
 package by.vstu.isit.documentprocessor.services.docx.write.abstracts;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
+import by.vstu.isit.documentprocessor.entities.SborEd;
 import com.deepoove.poi.XWPFTemplate;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.core.io.Resource;
@@ -9,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static java.text.MessageFormat.format;
@@ -44,5 +46,9 @@ public abstract class AbstractWordGenerator {
             template.write(out);
         }
         Files.deleteIfExists(Path.of(tmpOut));
+    }
+
+    protected String designationsAssemblyUnit(List<SborEd> sborEdList) {
+        return "";
     }
 }
