@@ -58,8 +58,9 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
                 mergeVertical(table, startRow, endRow, 13);
             }
 
+            String article = dto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(dto.sborEds());
             postProcess(doc, dto.puName(), Map.of(
-                    "d", dto.vedIName(),
+                    "d", article,
                     "n", dto.puName(),
                     "p", dto.packageName()
             ));

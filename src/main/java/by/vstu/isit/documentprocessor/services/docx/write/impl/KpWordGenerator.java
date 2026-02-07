@@ -41,8 +41,9 @@ public class KpWordGenerator extends AbstractWordGenerator {
                 fillFuncNameParam(row.getCell(10), funcs, false);
             }
 
+            String article = dto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(dto.sborEds());
             postProcess(doc, dto.kpName(), Map.of(
-                    "d", dto.vedIName(),
+                    "d", article,
                     "n", dto.kpName(),
                     "p", dto.packageName()
             ));

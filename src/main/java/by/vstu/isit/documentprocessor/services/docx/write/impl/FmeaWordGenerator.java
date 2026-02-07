@@ -54,8 +54,9 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 mergeVertical(table, startRow, endRow, 6);
             }
 
+            String article = dto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(dto.sborEds());
             postProcess(doc, dto.fmeaName(), Map.of(
-                    "d", dto.vedIName(),
+                    "d", article,
                     "n", dto.fmeaName(),
                     "p", dto.packageName()
             ));

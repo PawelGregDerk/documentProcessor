@@ -1,7 +1,5 @@
 package by.vstu.isit.documentprocessor.dto;
 
-import lombok.experimental.Delegate;
-
 import java.util.List;
 
 public record OperDto(
@@ -12,7 +10,6 @@ public record OperDto(
         String name,
         String shifr,
         String numZech,
-        @Delegate
         List<FuncDto> funcs
 ) {
 }

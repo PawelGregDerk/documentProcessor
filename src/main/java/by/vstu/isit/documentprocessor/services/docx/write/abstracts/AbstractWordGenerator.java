@@ -1,7 +1,7 @@
 package by.vstu.isit.documentprocessor.services.docx.write.abstracts;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
-import by.vstu.isit.documentprocessor.entities.SborEd;
+import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import com.deepoove.poi.XWPFTemplate;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.core.io.Resource;
@@ -35,20 +35,25 @@ public abstract class AbstractWordGenerator {
     }
 
     protected void postProcess(XWPFDocument doc, String name, Map<String, String> colData) throws Exception {
-        try (var out = new FileOutputStream(tmpOut)) {
-            doc.write(out);
+        Path tmp = Path.of(tmpOut);
+        Path out = Path.of(format(outPath, name));
+
+        try (var outTmp = new FileOutputStream(tmp.toFile())) {
+            doc.write(outTmp);
         }
 
-        try (var in = new FileInputStream(tmpOut);
+        try (var in = new FileInputStream(tmp.toFile());
              var template = XWPFTemplate.compile(in).render(colData);
-             var out = new FileOutputStream(format(outPath, name))) {
-
-            template.write(out);
+             var outFinal = new FileOutputStream(out.toFile())) {
+            template.write(outFinal);
+        } finally {
+            Files.deleteIfExists(tmp);
         }
-        Files.deleteIfExists(Path.of(tmpOut));
     }
 
-    protected String designationsAssemblyUnit(List<SborEd> sborEdList) {
-        return "";
+    protected String designationsAssemblyUnit(List<SborEdDto> sborEdList) {
+        String first = sborEdList.getFirst().oboznach();
+        String last = sborEdList.getLast().oboznach();
+        return first + "\u2014" + last;
     }
 }

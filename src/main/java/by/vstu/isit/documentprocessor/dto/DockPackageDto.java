@@ -1,7 +1,5 @@
 package by.vstu.isit.documentprocessor.dto;
 
-import lombok.experimental.Delegate;
-
 import java.util.List;
 
 public record DockPackageDto(
@@ -12,9 +10,7 @@ public record DockPackageDto(
         String kpName,
         String fmeaName,
         String vedIName,
-        @Delegate
         List<OperDto> opers,
-        @Delegate
         List<SborEdDto> sborEds
 ) {
 }
