@@ -2,7 +2,7 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.docx.DockPackageFormMapper;
-import by.vstu.isit.documentprocessor.services.docx.write.impl.FmeaWordGenerator;
+import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -11,7 +11,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxmlView;
+import io.vavr.control.Try;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
@@ -41,7 +44,7 @@ public class DocPackageController {
     private VBox operationsContainer;
 
     private final DockPackageFormMapper formMapper;
-    private final FmeaWordGenerator fmeaGenerator;
+    private final List<AbstractWordGenerator> generators;
 
     @FXML
     private void onAddAssemblyUnit() {
@@ -156,10 +159,12 @@ public class DocPackageController {
                     operationsContainer,
                     assemblyUnitsContainer
             );
-            fmeaGenerator.generate(dto);
+            generators.forEach(g -> Try.run(() -> g.generate(dto))
+                    .onFailure(ex -> log.error("Ошибка генерации документа", ex))
+                    .getOrElseThrow(ex -> new RuntimeException(ex)));
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
         } catch (Exception ex) {
-            log.error("Ошибка генерации FMEA", ex);
+            log.error("Ошибка генерации", ex);
             new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
     }

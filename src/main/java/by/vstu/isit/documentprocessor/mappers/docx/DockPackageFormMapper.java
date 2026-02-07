@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Component
@@ -27,7 +28,7 @@ public class DockPackageFormMapper {
             VBox assemblyContainer
     ) {
         return new DockPackageDto(
-                -1L,
+                null,
                 packageName.getText(),
                 "path",
                 pu.getText(),
@@ -41,31 +42,39 @@ public class DockPackageFormMapper {
     }
 
     private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
-        return new SborEdDto(-1L, -1L, nazv.getText(), text(row, 0));
+        return new SborEdDto(null, null, nazv.getText(), text(row, 0));
     }
 
     private OperDto mapOperation(VBox operBlock) {
         HBox operRow = (HBox) operBlock.getChildren().getFirst();
+        VBox funcsContainer = (VBox) operBlock.getChildren().get(1);
+
         return new OperDto(
-                -1L,
-                -1L,
+                null,
+                null,
                 text(operRow, 0),
                 text(operRow, 1),
-                -1L,
+                null,
                 text(operRow, 2),
                 text(operRow, 3),
                 text(operRow, 4),
                 text(operRow, 5),
                 text(operRow, 6),
-                mapChildren(operBlock, HBox.class, this::mapFunction)
+                mapChildren(funcsContainer, HBox.class, this::mapFunction)
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .toList()
         );
     }
 
     private FuncDto mapFunction(HBox row) {
+        if (!row.getStyleClass().contains("function-data-row")) {
+            return null;
+        }
         return new FuncDto(
-                -1L,
+                null,
                 text(row, 0),
-                -1L,
+                null,
                 text(row, 1),
                 ((CheckBox) row.getChildren().get(2)).isSelected(),
                 text(row, 3)

@@ -6,12 +6,12 @@ import by.vstu.isit.documentprocessor.test.TestDockPackageFactory;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+//import org.springframework.boot.SpringApplication;
+//import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.List;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class ConsoleMain implements CommandLineRunner {
     @Setter(onMethod_ = {@Autowired})
     private List<AbstractWordGenerator> generators;
@@ -28,6 +28,6 @@ public class ConsoleMain implements CommandLineRunner {
     }
 
     static void main(String[] args) {
-        SpringApplication.run(ConsoleMain.class, args);
+    //    SpringApplication.run(ConsoleMain.class, args);
     }
 }
