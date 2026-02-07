@@ -31,7 +31,7 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
     public void generate(DockPackageDto dto) throws Exception {
         for (var oper : dto.opers()) {
             try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
-                var table = doc.getTables().get(0);
+                var table = doc.getTables().get(2);
 
                 for (var fun : oper.funcs()) {
                     var row = createRow(table, fun);
