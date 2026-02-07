@@ -27,6 +27,7 @@ public class DockPackageFormMapper {
             VBox assemblyContainer
     ) {
         return new DockPackageDto(
+                -1L,
                 packageName.getText(),
                 "path",
                 pu.getText(),
@@ -40,14 +41,17 @@ public class DockPackageFormMapper {
     }
 
     private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
-        return new SborEdDto(nazv.getText(), text(row, 0));
+        return new SborEdDto(-1L, -1L, nazv.getText(), text(row, 0));
     }
 
     private OperDto mapOperation(VBox operBlock) {
         HBox operRow = (HBox) operBlock.getChildren().getFirst();
         return new OperDto(
+                -1L,
+                -1L,
                 text(operRow, 0),
                 text(operRow, 1),
+                -1L,
                 text(operRow, 2),
                 text(operRow, 3),
                 text(operRow, 4),
@@ -59,7 +63,9 @@ public class DockPackageFormMapper {
 
     private FuncDto mapFunction(HBox row) {
         return new FuncDto(
+                -1L,
                 text(row, 0),
+                -1L,
                 text(row, 1),
                 ((CheckBox) row.getChildren().get(2)).isSelected(),
                 text(row, 3)

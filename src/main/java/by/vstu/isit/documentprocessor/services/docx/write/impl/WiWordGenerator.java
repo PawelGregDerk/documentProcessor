@@ -26,21 +26,6 @@ public class WiWordGenerator extends AbstractWordGenerator {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
             var table = doc.getTables().get(1);
             table.getRow(0).setRepeatHeader(true);
-            for (var oper : dto.opers()) {
-                var row = table.createRow();
-                ensureCells(row, COLUMN_COUNT);
-                row.getCell(0).setText(oper.numOper());
-                row.getCell(1).setText(oper.shifr() + " " + oper.name());
-                row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
-            }
-
-            for (var oper : dto.opers()) {
-                var row = table.createRow();
-                ensureCells(row, COLUMN_COUNT);
-                row.getCell(0).setText(oper.numOper());
-                row.getCell(1).setText(oper.shifr() + " " + oper.name());
-                row.getCell(2).setText(oper.numZech() + "-" + oper.nomInstr());
-            }
 
             for (var oper : dto.opers()) {
                 var row = table.createRow();

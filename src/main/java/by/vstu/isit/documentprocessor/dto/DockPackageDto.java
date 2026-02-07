@@ -3,6 +3,7 @@ package by.vstu.isit.documentprocessor.dto;
 import java.util.List;
 
 public record DockPackageDto(
+        Long id,
         String packageName,
         String path,
         String puName,

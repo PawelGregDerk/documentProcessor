@@ -86,7 +86,7 @@ public class DockPackageGuiMapper {
 
         VBox funcs = styled(new VBox(4), "funcs-container");
 
-        addFunc.setOnAction(e -> funcs.getChildren().add(createFunction(new FuncDto("", "", false, ""))));
+        addFunc.setOnAction(e -> funcs.getChildren().add(createFunction(new FuncDto(1L,"", 1L,"", false, ""))));
         delOper.setOnAction(e -> ((VBox) block.getParent()).getChildren().remove(block));
 
         dto.funcs().forEach(f -> funcs.getChildren().add(createFunction(f)));
