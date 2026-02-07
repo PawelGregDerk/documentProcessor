@@ -1,6 +1,6 @@
 package by.vstu.isit.documentprocessor.controllers;
 
-import by.vstu.isit.documentprocessor.mappers.docx.DockPackageGuiMapper;
+import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.docx.read.DocxPackageReader;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

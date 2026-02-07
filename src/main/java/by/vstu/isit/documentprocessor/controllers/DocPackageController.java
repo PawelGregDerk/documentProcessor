@@ -1,7 +1,7 @@
 
 package by.vstu.isit.documentprocessor.controllers;
 
-import by.vstu.isit.documentprocessor.mappers.docx.DockPackageFormMapper;
+import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;

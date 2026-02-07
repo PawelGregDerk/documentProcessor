@@ -1,4 +1,4 @@
-package by.vstu.isit.documentprocessor.mappers.docx;
+package by.vstu.isit.documentprocessor.mappers.gui;
 
 import by.vstu.isit.documentprocessor.dto.*;
 import javafx.geometry.Pos;
