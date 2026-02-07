@@ -35,7 +35,7 @@ public abstract class AbstractWordGenerator {
     }
 
     protected void postProcess(XWPFDocument doc, String name, Map<String, String> colData) throws Exception {
-        Path tmp = Path.of(tmpOut);
+        Path tmp = tmpOut.contains("{0}") ? Path.of(format(tmpOut, name)) : Path.of(tmpOut);
         Path out = Path.of(format(outPath, name));
 
         try (var outTmp = new FileOutputStream(tmp.toFile())) {
