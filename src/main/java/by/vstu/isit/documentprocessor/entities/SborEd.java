@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
@@ -15,9 +15,6 @@ import lombok.experimental.SuperBuilder;
 public class SborEd extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = 1L;
-
-    @Column(name = "idDocPackage", nullable = false, insertable = false, updatable = false)
-    private Long idDocpackage;
 
     @Column(name = "Nazv", nullable = false)
     private String nazv;

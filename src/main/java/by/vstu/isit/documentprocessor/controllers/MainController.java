@@ -1,6 +1,7 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
+import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.docx.read.DocxPackageReader;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -24,6 +25,7 @@ public class MainController {
     private final FxWeaver fxWeaver;
     private final DockPackageGuiMapper guiMapper;
     private final DocxPackageReader reader;
+    private final DocpackageService docpackageService;
 
     @FXML
     private VBox mainVBox;
@@ -35,20 +37,13 @@ public class MainController {
     @FXML
     public void loadFromFile() {
 
-//        FileChooser chooser = new FileChooser();
-//        chooser.setTitle("Выбор пакета документов");
-//        chooser.getExtensionFilters().add(
-//                new FileChooser.ExtensionFilter("Word documents (*.docx)", "*.docx")
-//        );
-//
-//        var file = chooser.showOpenDialog(mainVBox.getScene().getWindow());
-//        if (file == null) {
-//            return;
-//        }
-
         try {
+            var dto = docpackageService.getLastPackageDto();
+            if (dto == null) {
+                throw new IllegalStateException("В базе данных нет пакетов документов");
+            }
             // DOCX → DTO
-            var dto = reader.read();
+            // var dto = reader.read();
 
             // открыть форму
             DocPackageController controller = openDocPackageForm("Редактирование пакета документов");

@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
@@ -26,9 +26,6 @@ public class TypeOperFunc extends AbstractEntity<Long> {
      */
     @Column(name = "Name", nullable = false)
     private String name;
-
-    @Column(name = "idTypeOper", nullable = false, insertable = false, updatable = false)
-    private Long idTypeOper;
 
     /**
      * ПУ-8

@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @SuperBuilder
 @NoArgsConstructor
@@ -18,12 +18,6 @@ import java.util.List;
 public class Oper extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Если idDocPackage = NULL - то эта типовая опрерация, сохранённая для справочника типовых операций
-     */
-    @Column(name = "idDocPackage", insertable = false, updatable = false)
-    private Long idDocPackage;
 
     /**
      * КП-1, Пу-1
@@ -37,12 +31,6 @@ public class Oper extends AbstractEntity<Long> {
      */
     @Column(name = "NomInstr", nullable = false)
     private String nomInstr;
-
-    /**
-     * Если не NULL то опреация типовая и Раб Инстр генерить не надо
-     */
-    @Column(name = "idTypeOper", insertable = false, updatable = false)
-    private Long idTypeOper;
 
     /**
      * ПУ-3 (всё списком вместе с OstnasInstr) Используемое оборудование
