@@ -176,6 +176,13 @@
             <version>11.2.2</version>
         </dependency>
 
+        <!--mappers-->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
+
         <!-- db -->
         <!--dependency>
             <groupId>com.h2database</groupId>
