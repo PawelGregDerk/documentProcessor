@@ -11,7 +11,6 @@ import java.util.List;
 
 @Component
 public final class TestDockPackageFactory {
-
     public DockPackageDto createTestDto() {
 
         List<OperDto> operations = new ArrayList<>();
@@ -369,7 +368,7 @@ public final class TestDockPackageFactory {
         return new DockPackageDto(
                 1L,
                 "ПД8093-ПД8093-7",
-                "Проект/1ПМ.292.001.000-007",
+                "2ПМ.292.001.000-007",
                 "ПУ 0098",
                 "СХ ПУ 0098",
                 "КП0058",

@@ -25,7 +25,6 @@ public class DockPackageGuiMapper {
     ) {
 
         clearAll(operationsContainer, assemblyUnitsContainer);
-
         packageName.setText(dto.packageName());
         pu.setText(dto.puName());
         spu.setText(dto.spuName());
@@ -51,7 +50,11 @@ public class DockPackageGuiMapper {
             oboz.setText(ed.oboznach());
 
             Button del = styled(new Button("Удалить"), "delButton");
-            del.setOnAction(e -> container.getChildren().remove(row));
+        del.setOnAction(e -> {
+            VBox parent = (VBox) row.getParent();
+            parent.getChildren().remove(row);
+            cleanupFunctionHeader(parent);
+        });
 
             row.getChildren().addAll(oboz, del);
             container.getChildren().add(row);
@@ -85,11 +88,15 @@ public class DockPackageGuiMapper {
         row.getChildren().addAll(addFunc, delOper);
 
         VBox funcs = styled(new VBox(4), "funcs-container");
-
-        addFunc.setOnAction(e -> funcs.getChildren().add(createFunction(new FuncDto(null,"", null,"", false, ""))));
+        addFunc.setOnAction(e -> {
+            ensureFunctionHeader(funcs);
+            funcs.getChildren().add(createFunction(new FuncDto(null,"", null,"", false, "")));
+        });
         delOper.setOnAction(e -> ((VBox) block.getParent()).getChildren().remove(block));
-
-        dto.funcs().forEach(f -> funcs.getChildren().add(createFunction(f)));
+        if (!dto.funcs().isEmpty()) {
+            ensureFunctionHeader(funcs);
+            dto.funcs().forEach(f -> funcs.getChildren().add(createFunction(f)));
+        }
 
         block.getChildren().addAll(row, funcs);
         return block;
@@ -107,7 +114,11 @@ public class DockPackageGuiMapper {
         TextField spec = styled(new TextField(dto.specCharakt()), "compact");
 
         Button del = styled(new Button("Удалить"), "delButton");
-        del.setOnAction(e -> ((VBox) row.getParent()).getChildren().remove(row));
+        del.setOnAction(e -> {
+            VBox parent = (VBox) row.getParent();
+            parent.getChildren().remove(row);
+            cleanupFunctionHeader(parent);
+        });
 
         row.getChildren().addAll(name, param, prod, spec, del);
         return row;
@@ -121,8 +132,37 @@ public class DockPackageGuiMapper {
         return f;
     }
 
+    private void ensureFunctionHeader(VBox funcs) {
+        boolean hasHeader = funcs.getChildren().stream()
+                .anyMatch(n -> n.getStyleClass().contains("function-header-row"));
+        if (hasHeader) {
+            return;
+        }
+
+        HBox header = styled(new HBox(6), "function-header");
+        header.getStyleClass().add("function-header-row");
+        header.getChildren().addAll(
+                styled(new Label("Описание функции"), "table-header"),
+                styled(new Label("Параметры / Требования"), "table-header"),
+                styled(new Label("Продукт"), "table-header"),
+                styled(new Label("Спец. характеристики"), "table-header")
+        );
+        funcs.getChildren().add(0, header);
+    }
+
+    private void cleanupFunctionHeader(VBox funcs) {
+        boolean hasDataRows = funcs.getChildren().stream()
+                .anyMatch(n -> n.getStyleClass().contains("function-data-row"));
+        if (!hasDataRows) {
+            funcs.getChildren().removeIf(n -> n.getStyleClass().contains("function-header-row"));
+        }
+    }
     private void clearAll(VBox ops, VBox sbor) {
         ops.getChildren().clear();
         sbor.getChildren().clear();
     }
 }
+
+
+
+

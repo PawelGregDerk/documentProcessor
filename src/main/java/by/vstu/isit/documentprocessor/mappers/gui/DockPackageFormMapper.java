@@ -18,6 +18,7 @@ import java.util.function.Function;
 public class DockPackageFormMapper {
     public DockPackageDto fromGui(
             TextField packageName,
+            String packagePath,
             TextField sborEdNazv,
             TextField pu,
             TextField spu,
@@ -30,7 +31,7 @@ public class DockPackageFormMapper {
         return new DockPackageDto(
                 null,
                 packageName.getText(),
-                "path",
+                packagePath,
                 pu.getText(),
                 spu.getText(),
                 kp.getText(),

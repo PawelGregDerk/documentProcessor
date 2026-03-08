@@ -6,17 +6,19 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import lombok.experimental.UtilityClass;
 import net.rgielen.fxweaver.core.FxWeaver;
 
 import java.util.Objects;
 
-import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.*;
+import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.getBundle;
+import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.getMessage;
 
-@UtilityClass
-public class GuiHelper {
+public final class GuiHelper {
 
-    public <T extends Node> T styled(T node, String... styles) {
+    private GuiHelper() {
+    }
+
+    public static <T extends Node> T styled(T node, String... styles) {
         for ( var s : styles) {
             if (!node.getStyleClass().contains(s)) {
                 node.getStyleClass().add(s);
@@ -25,16 +27,16 @@ public class GuiHelper {
         return node;
     }
 
-    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle, Stage primaryStage) {
+    public static <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle, Stage primaryStage) {
         configureAndShow(primaryStage, controller, fxWeaver, sceneTitle);
     }
 
-    public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, Pane pane, MessageCodes sceneTitle) {
+    public static <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, Pane pane, MessageCodes sceneTitle) {
         var stage = resolveChildStage(pane).getOrElse(Stage::new);
         configureAndShow(stage, controller, fxWeaver, sceneTitle);
     }
 
-    private Option<Stage> resolveChildStage(Pane pane) {
+    private static Option<Stage> resolveChildStage(Pane pane) {
         return Option.of(pane)
                 .map(Pane::getScene)
                 .map(Scene::getWindow)
@@ -49,7 +51,7 @@ public class GuiHelper {
                 });
     }
 
-    private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle) {
+    private static <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle) {
         var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1280, 1024);
         stage.setScene(scene);
         stage.setTitle(getMessage(sceneTitle));
@@ -58,7 +60,7 @@ public class GuiHelper {
         stage.show();
     }
 
-    private <T> void addIcon(Stage stage, Class<T> tClass) {
+    private static <T> void addIcon(Stage stage, Class<T> tClass) {
         var iconPath = GlobalConsts.getICON_PATH();
         stage.getIcons().add(new Image(Objects.requireNonNull(tClass.getResourceAsStream(iconPath))));
     }

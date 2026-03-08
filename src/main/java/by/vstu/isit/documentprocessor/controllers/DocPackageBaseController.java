@@ -1,53 +1,62 @@
-
 package by.vstu.isit.documentprocessor.controllers;
 
+import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
-import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.services.docx.DocxDocumentService;
+import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.rgielen.fxweaver.core.FxmlView;
-import io.vavr.control.Try;
-import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.styled;
 
 @Slf4j
-@Controller
-@FxmlView("docpackage-view.fxml")
-@RequiredArgsConstructor
 @Getter
-public class DocPackageController {
+public abstract class DocPackageBaseController {
+    protected DockPackageDto dto;
     @FXML
-    private TextField packageNameField;
+    protected TextField packageNameField;
     @FXML
-    private TextField puField;
+    protected TextField puField;
     @FXML
-    private TextField spuField;
+    protected TextField spuField;
     @FXML
-    private TextField kpField;
+    protected TextField kpField;
     @FXML
-    private TextField fmeaField;
+    protected TextField fmeaField;
     @FXML
-    private TextField vedInstrField;
+    protected TextField vedInstrField;
     @FXML
-    private TextField sborEdNazv;
+    protected TextField sborEdNazv;
     @FXML
-    private VBox assemblyUnitsContainer;
+    protected VBox assemblyUnitsContainer;
     @FXML
-    private VBox operationsContainer;
+    protected VBox operationsContainer;
 
-    private final DockPackageFormMapper formMapper;
-    private final List<AbstractWordGenerator> generators;
+    protected final DockPackageFormMapper formMapper;
+    private final List<DocxDocumentService> services;
+    protected DockPackageDto originalDto;
+
+    protected DocPackageBaseController(
+            DockPackageFormMapper formMapper,
+            List<DocxDocumentService> services
+    ) {
+        this.formMapper = formMapper;
+        this.services = services;
+    }
 
     @FXML
-    private void onAddAssemblyUnit() {
+    protected void onAddAssemblyUnit() {
         HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
 
@@ -63,7 +72,7 @@ public class DocPackageController {
     }
 
     @FXML
-    private void onAddOperation() {
+    protected void onAddOperation() {
         VBox operationBlock = styled(new VBox(5), "operation-block");
         // --- строка операции ---
         HBox operRow = styled(new HBox(6), "operation-row");
@@ -138,7 +147,6 @@ public class DocPackageController {
                         n -> n.getStyleClass().contains("function-header-row")
                 );
             }
-
         });
 
         funcRow.getChildren().addAll(name, param, isProd, spec, delBtn);
@@ -146,26 +154,18 @@ public class DocPackageController {
     }
 
     @FXML
-    private void onSave() {
+    protected abstract void onSave();
+
+    protected void save() {
         try {
-            var dto = formMapper.fromGui(
-                    packageNameField,
-                    sborEdNazv,
-                    puField,
-                    spuField,
-                    kpField,
-                    fmeaField,
-                    vedInstrField,
-                    operationsContainer,
-                    assemblyUnitsContainer
-            );
-            generators.forEach(g -> Try.run(() -> g.generate(dto))
+            services.forEach(service -> Try.run(() -> service.upsert(dto, originalDto))
                     .onFailure(ex -> log.error("Ошибка генерации документа", ex))
                     .getOrElseThrow(ex -> new RuntimeException(ex)));
-            new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
+            new Alert(Alert.AlertType.INFORMATION, "Документы сохранены").showAndWait();
         } catch (Exception ex) {
             log.error("Ошибка генерации", ex);
             new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
     }
 }
+
