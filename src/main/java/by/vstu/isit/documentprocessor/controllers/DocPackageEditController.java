@@ -2,6 +2,8 @@ package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.docx.DocxDocumentService;
+import javafx.fxml.FXML;
+import javafx.stage.Stage;
 import lombok.Setter;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,12 @@ public class DocPackageEditController extends DocPackageBaseController {
 
     public void setOriginalDto(by.vstu.isit.documentprocessor.dto.DockPackageDto originalDto) {
         this.originalDto = originalDto;
+    }
+    
+    @FXML
+    protected void onBack() {
+        Stage currentStage = (Stage) packageNameField.getScene().getWindow();
+        currentStage.close();
     }
 }
 

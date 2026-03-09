@@ -4,6 +4,10 @@ import by.vstu.isit.documentprocessor.entities.SborEd;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
+
 public interface SborEdRepository extends JpaRepository<SborEd, Long>, JpaSpecificationExecutor<SborEd> {
+
+    List<SborEd> findByOboznachContainingIgnoreCase(String oboznach);
 
 }

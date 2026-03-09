@@ -1,5 +1,9 @@
 package by.vstu.isit.documentprocessor.utils;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public enum MessageCodes {
     CREATE_SUCCESS("create.success"),
     WRONG_OPERATION("wrong.operation"),
@@ -20,13 +24,6 @@ public enum MessageCodes {
     NO_FUNC("no.func"),
     LOAD_FROM_FILE("load.from.file"),;
 
+    @Getter
     private final String code;
-
-    MessageCodes(String code) {
-        this.code = code;
-    }
-
-    public String getCode() {
-        return code;
-    }
 }

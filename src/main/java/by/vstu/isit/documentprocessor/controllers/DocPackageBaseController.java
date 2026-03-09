@@ -14,14 +14,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-import static by.vstu.isit.documentprocessor.utils.GuiHelper.styled;
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
 @Slf4j
 @Getter
+@RequiredArgsConstructor
 public abstract class DocPackageBaseController {
     protected DockPackageDto dto;
     @FXML
@@ -46,15 +48,6 @@ public abstract class DocPackageBaseController {
     protected final DockPackageFormMapper formMapper;
     private final List<DocxDocumentService> services;
     protected DockPackageDto originalDto;
-
-    protected DocPackageBaseController(
-            DockPackageFormMapper formMapper,
-            List<DocxDocumentService> services
-    ) {
-        this.formMapper = formMapper;
-        this.services = services;
-    }
-
     @FXML
     protected void onAddAssemblyUnit() {
         HBox row = new HBox(10);

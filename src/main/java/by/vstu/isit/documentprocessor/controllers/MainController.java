@@ -3,9 +3,11 @@ package by.vstu.isit.documentprocessor.controllers;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.docx.read.DocxPackageReader;
 import by.vstu.isit.documentprocessor.utils.GlobalConsts;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -35,37 +37,60 @@ public class MainController {
     }
 
     @FXML
-    public void loadFromFile() {
-        try {
-            // DOCX → DTO
-            var dto = reader.read();
+    public void loadFromDB() {
+        Stage parentStage = (Stage) mainVBox.getScene().getWindow();
+        parentStage.hide();
+        
+        // Создаем окно с прогресс-баром
+        Stage progressStage = new Stage();
+        progressStage.initOwner(parentStage);
+        progressStage.setTitle("Загрузка...");
+        
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.setPrefWidth(300);
+        VBox progressBox = new VBox(20, new javafx.scene.control.Label("Загрузка списка пакетов..."), progressBar);
+        progressBox.setAlignment(javafx.geometry.Pos.CENTER);
+        progressBox.setPadding(new Insets(20));
+        
+        progressStage.setScene(new Scene(progressBox, 400, 150));
+        progressStage.setResizable(false);
+        progressStage.show();
 
-            // открыть форму
-            DocPackageEditController controller = openDocPackageForm(
-                    DocPackageEditController.class,
-                    "Редактирование пакета документов"
-            );
-            controller.setPath(dto.path());
-            controller.setOriginalDto(dto);
-            guiMapper.toGui(
-                    dto,
-                    controller.getPackageNameField(),
-                    controller.getSborEdNazv(),
-                    controller.getPuField(),
-                    controller.getSpuField(),
-                    controller.getKpField(),
-                    controller.getFmeaField(),
-                    controller.getVedInstrField(),
-                    controller.getOperationsContainer(),
-                    controller.getAssemblyUnitsContainer()
-            );
+        Task<Pane> loadTask = getPaneTask(progressStage, parentStage);
 
-        } catch (Exception ex) {
-            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
-        }
+        new Thread(loadTask).start();
     }
 
-    private <T> T openDocPackageForm(Class<T> controllerClass, String title) {
+    private Task<Pane> getPaneTask(Stage progressStage, Stage parentStage) {
+        Task<Pane> loadTask = new Task<>() {
+            @Override
+            protected Pane call() {
+                // Загружаем контроллер и view в фоновом потоке
+                PackageListController controller = fxWeaver.loadController(PackageListController.class);
+                return fxWeaver.loadView(PackageListController.class);
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            progressStage.close();
+            Pane view = loadTask.getValue();
+
+            Stage childStage = new Stage();
+            childStage.initOwner(parentStage);
+            childStage.setScene(new Scene(view, 1280, 1024));
+            childStage.setTitle("Список пакетов документов");
+            childStage.setResizable(false);
+            addIcon(childStage, PackageListController.class);
+            
+            // Добавляем обработчик только для закрытия крестиком
+            childStage.setOnCloseRequest(ev -> parentStage.show());
+            
+            childStage.show();
+        });
+        return loadTask;
+    }
+
+    private <T> void openDocPackageForm(Class<T> controllerClass, String title) {
         Stage parentStage = (Stage) mainVBox.getScene().getWindow();
         parentStage.hide();
 
@@ -81,7 +106,6 @@ public class MainController {
         addIcon(childStage, controllerClass);
         childStage.show();
 
-        return controller;
     }
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {

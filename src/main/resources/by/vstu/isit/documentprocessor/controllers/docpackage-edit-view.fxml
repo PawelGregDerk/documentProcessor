@@ -120,6 +120,11 @@
             <Insets top="50"/>
         </padding>
 
+        <Button text="Назад"
+                onAction="#onBack"
+                styleClass="newButton"
+                minWidth="200"/>
+
         <Button text="Сохранить"
                 onAction="#onSave"
                 styleClass="buttonSave"
