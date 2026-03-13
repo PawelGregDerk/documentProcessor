@@ -45,23 +45,8 @@ public class DocpackageServiceImpl implements DocpackageService {
 
     @Override
     @Transactional
-    public DockPackageDto getLastPackageDto() {
-        List<Docpackage> allPackages = repository.findAll();
-        if (allPackages.isEmpty()) {
-            return null;
-        }
-        return docpackageMapper.toDto(allPackages.get(allPackages.size() - 1));
-    }
-
-    @Override
-    @Transactional
     public DockPackageDto saveFullPackage(DockPackageDto dto) {
         Docpackage docpackage = docpackageMapper.toEntity(dto);
-        docpackage.setOpers(new ArrayList<>());
-        docpackage.setSborEds(new ArrayList<>());
-
-        // Сохраняем Docpackage, чтобы получить ID
-        docpackage = repository.save(docpackage);
 
         // Сохраняем операции
         if (dto.opers() != null && !dto.opers().isEmpty()) {
@@ -107,7 +92,7 @@ public class DocpackageServiceImpl implements DocpackageService {
     public List<DockPackageDto> searchByOboznach(String oboznach) {
         // Ищем сборные единицы по обозначению
         List<SborEd> sborEds = sborEdRepository.findByOboznachContainingIgnoreCase(oboznach);
-        
+
         // Получаем уникальные Docpackage из найденных сборных единиц
         Set<Docpackage> uniquePackages = new HashSet<>();
         for (SborEd se : sborEds) {
@@ -115,7 +100,7 @@ public class DocpackageServiceImpl implements DocpackageService {
                 uniquePackages.add(se.getDocpackage());
             }
         }
-        
+
         // Маппим в DTO
         return uniquePackages.stream()
                 .map(docpackageMapper::toDto)
@@ -127,7 +112,7 @@ public class DocpackageServiceImpl implements DocpackageService {
     public List<DockPackageDto> searchByPackageName(String packageName) {
         // Ищем пакеты документов по обозначению изделия
         List<Docpackage> packages = repository.findByPackageNameContainingIgnoreCase(packageName);
-        
+
         // Маппим в DTO
         return packages.stream()
                 .map(docpackageMapper::toDto)

@@ -22,7 +22,7 @@ public class WiWordUpdater extends AbstractDocxUpdater {
         path = dto.path();
         var source = resolveOutPath(path, dto.vedIName());
         ensureExisting(source);
-        var target = resolveOutPath(copyPath(path), dto.vedIName());
+        var target = source; // Сохраняем в ту же папку
         updateDocument(dto, source, target);
     }
     

@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record OperDto(
@@ -15,4 +16,9 @@ public record OperDto(
         String numZech,
         List<FuncDto> funcs
 ) {
+    public OperDto {
+        if (funcs == null) {
+            funcs = new ArrayList<>();
+        }
+    }
 }

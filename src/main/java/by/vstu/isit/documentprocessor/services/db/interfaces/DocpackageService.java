@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface DocpackageService extends Service<Docpackage, Long, DocpackageRepository> {
     Docpackage updateDocpackage(Docpackage docpackage);
-    DockPackageDto getLastPackageDto();
     DockPackageDto saveFullPackage(DockPackageDto dto);
     
     // Методы поиска

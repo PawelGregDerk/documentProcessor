@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record DockPackageDto(
@@ -14,4 +15,12 @@ public record DockPackageDto(
         List<OperDto> opers,
         List<SborEdDto> sborEds
 ) {
+    public DockPackageDto {
+        if (opers == null) {
+            opers = new ArrayList<>();
+        }
+        if (sborEds == null) {
+            sborEds = new ArrayList<>();
+        }
+    }
 }

@@ -24,7 +24,7 @@ public class KpWordUpdater extends AbstractDocxUpdater {
         path = dto.path();
         var source = resolveOutPath(path, dto.kpName());
         ensureExisting(source);
-        var target = resolveOutPath(copyPath(path), dto.kpName());
+        var target = source; // Сохраняем в ту же папку
         updateDocument(dto, source, target);
     }
     

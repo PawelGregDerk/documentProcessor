@@ -32,7 +32,7 @@ public class RiWordUpdater extends AbstractDocxUpdater {
         path = dto.path();
         var source = resolveOutPath(path, oper.name());
         ensureExisting(source);
-        var target = resolveOutPath(copyPath(path), oper.name());
+        var target = source; // Сохраняем в ту же папку
         try (var writer = new Docx4jBookmarkWriter(inpPath, source, target)) {
             writer.updateBookmarkText("d", designationsAssemblyUnit(dto.sborEds()));
             writer.updateBookmarkText("d1", dto.sborEds().getFirst().nazv());
@@ -89,6 +89,7 @@ public class RiWordUpdater extends AbstractDocxUpdater {
         var source = resolveOutPath(path, sourceOperName);
         ensureExisting(source);
         var target = resolveOutPath(targetBasePath, oper.name());
+        // Используем source как inputPath, чтобы загрузить существующий файл
         try (var writer = new Docx4jBookmarkWriter(inpPath, source, target)) {
             writer.updateBookmarkText("d", designationsAssemblyUnit(dto.sborEds()));
             writer.updateBookmarkText("d1", dto.sborEds().getFirst().nazv());

@@ -25,7 +25,7 @@ public class PuWordUpdater extends AbstractDocxUpdater {
         path = dto.path();
         var source = resolveOutPath(path, dto.puName());
         ensureExisting(source);
-        var target = resolveOutPath(copyPath(path), dto.puName());
+        var target = source; // Сохраняем в ту же папку
         updateDocument(dto, source, target);
     }
     
