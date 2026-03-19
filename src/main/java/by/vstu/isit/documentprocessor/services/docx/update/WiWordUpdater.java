@@ -40,16 +40,15 @@ public class WiWordUpdater extends AbstractDocxUpdater {
             writer.updateBookmarkText("d1", dto.sborEds().getFirst().nazv());
             writer.updateBookmarkText("p", dto.packageName());
 
-            var table = writer.getTable(1);
-            int totalRows = dto.opers().size();
-            int rowIndex = table.getRows().getCount() - totalRows;
-            for (var oper : dto.opers()) {
+            var rowIndices = writer.listBookmarkIndices("wi_r", "_numOper");
+            for (int i = 0; i < Math.min(dto.opers().size(), rowIndices.size()); i++) {
+                var oper = dto.opers().get(i);
+                int rowIndex = rowIndices.get(i);
                 writer.updateBookmarkText("wi_r" + rowIndex + "_numOper", oper.numOper());
                 writer.updateBookmarkText("wi_r" + rowIndex + "_shifr", oper.shifr());
                 writer.updateBookmarkText("wi_r" + rowIndex + "_operName", oper.name());
                 writer.updateBookmarkText("wi_r" + rowIndex + "_numZech", oper.numZech());
                 writer.updateBookmarkText("wi_r" + rowIndex + "_nomInstr", oper.nomInstr());
-                rowIndex++;
             }
             writer.save();
         }

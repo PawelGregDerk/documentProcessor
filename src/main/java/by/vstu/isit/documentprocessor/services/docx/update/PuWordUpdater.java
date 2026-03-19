@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -55,27 +56,37 @@ public class PuWordUpdater extends AbstractDocxUpdater {
             ), Docx4jBookmarkWriter.HeaderFooterScope.DEFAULT_EVEN_ONLY);
 
             var table = writer.getTable(0);
-            int totalRows = dto.opers().stream().mapToInt(o -> o.funcs().size()).sum();
-            int rowIndex = table.getRows().getCount() - totalRows;
-
-            for (var oper : dto.opers()) {
+            var rowIndices = writer.listBookmarkIndices("pu_r", "_numOper");
+            for (int ri = 0; ri < Math.min(dto.opers().size(), rowIndices.size()); ri++) {
+                var oper = dto.opers().get(ri);
+                int rowIndex = rowIndices.get(ri);
                 for (int funcIndex = 0; funcIndex < oper.funcs().size(); funcIndex++) {
                     var func = oper.funcs().get(funcIndex);
+                    int curRow = rowIndex + funcIndex;
+                    var row = table.getRows().get(curRow);
                     writer.updateBookmarkText("pu_r" + rowIndex + "_numOper", oper.numOper());
                     writer.updateBookmarkText("pu_r" + rowIndex + "_operName", oper.name());
                     writer.updateBookmarkText("pu_r" + rowIndex + "_oborud", oper.oborud());
                     writer.updateBookmarkText("pu_r" + rowIndex + "_ostnas", oper.ostnasInstr());
 
-                    if (func.isProd()) {
-                        writer.updateBookmarkText("pu_r" + rowIndex + "_funcName_prod", func.name());
-                    } else {
-                        writer.updateBookmarkText("pu_r" + rowIndex + "_funcName_proc", func.name());
+                    boolean prodUpdated = writer.updateBookmarkText("pu_r" + curRow + "_funcName_prod", func.isProd() ? func.name() : "");
+                    boolean procUpdated = writer.updateBookmarkText("pu_r" + curRow + "_funcName_proc", func.isProd() ? "" : func.name());
+                    if (!prodUpdated || !procUpdated) {
+                        List<Docx4jBookmarkWriter.CellSegment> prodSeg = new ArrayList<>();
+                        List<Docx4jBookmarkWriter.CellSegment> procSeg = new ArrayList<>();
+                        if (func.isProd()) {
+                            prodSeg.add(Docx4jBookmarkWriter.CellSegment.bookmark(
+                                    "pu_r" + curRow + "_funcName_prod", func.name(), false, false));
+                        } else {
+                            procSeg.add(Docx4jBookmarkWriter.CellSegment.bookmark(
+                                    "pu_r" + curRow + "_funcName_proc", func.name(), false, false));
+                        }
+                        writer.setCellSegments(row.getCells().get(4), prodSeg);
+                        writer.setCellSegments(row.getCells().get(5), procSeg);
                     }
 
-                    writer.updateBookmarkText("pu_r" + rowIndex + "_funcSpec", func.specCharakt());
-                    writer.updateBookmarkText("pu_r" + rowIndex + "_funcParam", func.param());
-
-                    rowIndex++;
+                    writer.updateBookmarkText("pu_r" + curRow + "_funcSpec", func.specCharakt());
+                    writer.updateBookmarkText("pu_r" + curRow + "_funcParam", func.param());
                 }
             }
             writer.save();

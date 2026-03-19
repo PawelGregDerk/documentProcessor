@@ -1,18 +1,17 @@
 package by.vstu.isit.documentprocessor.services.docx.lifecycle;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
-import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.services.docx.DocxDocumentService;
 import by.vstu.isit.documentprocessor.services.docx.generate.RiWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.update.RiWordUpdater;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 @Service
+@Order(100)
 public class RiDocxService implements DocxDocumentService {
     private final RiWordGenerator generator;
     private final RiWordUpdater updater;
@@ -24,13 +23,11 @@ public class RiDocxService implements DocxDocumentService {
 
     @Override
     public void upsert(DockPackageDto dto) throws Exception {
-        boolean hasAnyOriginal = hasAnyOriginalRi(dto.path());
         for (var oper : dto.opers()) {
             if (generator.hasGeneratedFile(dto, oper)) {
-                updater.updateForOper(dto, oper);
+                updater.updateForOper(dto, oper, oper.name(), dto.path(), dto.path());
             } else {
-                String basePath = hasAnyOriginal ? copyPath(dto.path()) : dto.path();
-                generator.generateForOper(dto, oper, basePath);
+                generator.generateForOper(dto, oper, dto.path());
             }
         }
     }
@@ -42,8 +39,8 @@ public class RiDocxService implements DocxDocumentService {
             return;
         }
         String originalPath = originalDto.path();
-        boolean hasAnyOriginal = hasAnyOriginalRi(originalPath);
-        String targetBasePath = hasAnyOriginal ? copyPath(originalPath) : originalPath;
+        String copyPath = generator.copyPath(originalPath);
+        boolean copyExists = Files.exists(generator.outputDir(copyPath).getParent());
 
         var byNumOper = new HashMap<String, String>();
         for (var oper : originalDto.opers()) {
@@ -52,35 +49,14 @@ public class RiDocxService implements DocxDocumentService {
 
         for (var oper : dto.opers()) {
             String oldName = byNumOper.get(oper.numOper());
-            if (oldName != null && !oldName.equals(oper.name()) && generator.existsAt(originalPath, oldName)) {
-                updater.updateForOper(dto, oper, oldName, targetBasePath);
-                continue;
-            }
-
+            String targetPath = copyExists ? copyPath : originalPath;
             if (oldName != null && generator.existsAt(originalPath, oldName)) {
-                updater.updateForOper(dto, oper);
-            } else if (hasAnyOriginal) {
-                generator.generateForOper(dto, oper, targetBasePath);
+                updater.updateForOper(dto, oper, oldName, originalPath, targetPath);
             } else {
-                generator.generateForOper(dto, oper, originalPath);
+                generator.generateForOper(dto, oper, targetPath);
             }
         }
     }
 
-    private boolean hasAnyOriginalRi(String basePath) {
-        Path dir = generator.outputDir(basePath);
-        if (dir == null || !Files.exists(dir)) {
-            return false;
-        }
-        try (var stream = Files.list(dir)) {
-            return stream.anyMatch(path -> path.toString().toLowerCase().endsWith(".docx"));
-        } catch (IOException ex) {
-            return false;
-        }
-    }
-
-    private String copyPath(String basePath) {
-        return "копия" + basePath;
-    }
 }
 
