@@ -32,8 +32,8 @@
                 text="%create.dox.pack"
                 onAction="#createDocPackage"/>
 
-        <Button fx:id="loadFromFileButton"
-                text="Найти пакет документов"
+        <Button fx:id="loadFromDBButton"
+                text="Загрузить из файла"
                 onAction="#loadFromDB"/>
 
     </HBox>

@@ -17,6 +17,7 @@ import java.util.function.Function;
 @Component
 public class DockPackageFormMapper {
     public DockPackageDto fromGui(
+            Long packageId,
             TextField packageName,
             String packagePath,
             TextField sborEdNazv,
@@ -29,7 +30,7 @@ public class DockPackageFormMapper {
             VBox assemblyContainer
     ) {
         return new DockPackageDto(
-                null,
+                packageId,
                 packageName.getText(),
                 packagePath,
                 pu.getText(),
@@ -43,15 +44,17 @@ public class DockPackageFormMapper {
     }
 
     private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
-        return new SborEdDto(null, null, nazv.getText(), text(row, 0));
+        Long id = (Long) row.getUserData();
+        return new SborEdDto(id, null, nazv.getText(), text(row, 0));
     }
 
     private OperDto mapOperation(VBox operBlock) {
+        Long id = (Long) operBlock.getUserData();
         HBox operRow = (HBox) operBlock.getChildren().getFirst();
         VBox funcsContainer = (VBox) operBlock.getChildren().get(1);
 
         return new OperDto(
-                null,
+                id,
                 null,
                 text(operRow, 0),
                 text(operRow, 1),
@@ -72,8 +75,9 @@ public class DockPackageFormMapper {
         if (!row.getStyleClass().contains("function-data-row")) {
             return null;
         }
+        Long id = (Long) row.getUserData();
         return new FuncDto(
-                null,
+                id,
                 text(row, 0),
                 null,
                 text(row, 1),

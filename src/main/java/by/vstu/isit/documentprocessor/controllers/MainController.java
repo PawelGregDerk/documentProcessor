@@ -1,7 +1,7 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
-import by.vstu.isit.documentprocessor.services.docx.read.DocxPackageReader;
+import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.utils.GlobalConsts;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -20,6 +20,9 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Objects;
 
+import static by.vstu.isit.documentprocessor.utils.MessageCodes.*;
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
+
 @Slf4j
 @Controller
 @FxmlView("main-view.fxml")
@@ -27,31 +30,31 @@ import java.util.Objects;
 public class MainController {
     private final FxWeaver fxWeaver;
     private final DockPackageGuiMapper guiMapper;
-    private final DocxPackageReader reader;
+    private final DocpackageService docpackageService;
 
     @FXML
     private VBox mainVBox;
 
     public void createDocPackage() {
-        openDocPackageForm(DocPackageCreateController.class, "Создание пакета документов");
-    }
+        loadStage(DocPackageCreateController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
+   }
 
     @FXML
     public void loadFromDB() {
         Stage parentStage = (Stage) mainVBox.getScene().getWindow();
         parentStage.hide();
-        
+
         // Создаем окно с прогресс-баром
         Stage progressStage = new Stage();
         progressStage.initOwner(parentStage);
         progressStage.setTitle("Загрузка...");
-        
+
         ProgressBar progressBar = new ProgressBar();
         progressBar.setPrefWidth(300);
         VBox progressBox = new VBox(20, new javafx.scene.control.Label("Загрузка списка пакетов..."), progressBar);
         progressBox.setAlignment(javafx.geometry.Pos.CENTER);
         progressBox.setPadding(new Insets(20));
-        
+
         progressStage.setScene(new Scene(progressBox, 400, 150));
         progressStage.setResizable(false);
         progressStage.show();
@@ -81,10 +84,10 @@ public class MainController {
             childStage.setTitle("Список пакетов документов");
             childStage.setResizable(false);
             addIcon(childStage, PackageListController.class);
-            
+
             // Добавляем обработчик только для закрытия крестиком
             childStage.setOnCloseRequest(ev -> parentStage.show());
-            
+
             childStage.show();
         });
         return loadTask;
@@ -105,7 +108,6 @@ public class MainController {
         childStage.setResizable(false);
         addIcon(childStage, controllerClass);
         childStage.show();
-
     }
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {

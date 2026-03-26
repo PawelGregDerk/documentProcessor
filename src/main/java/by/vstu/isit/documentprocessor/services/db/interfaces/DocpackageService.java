@@ -9,6 +9,7 @@ import java.util.List;
 public interface DocpackageService extends Service<Docpackage, Long, DocpackageRepository> {
     Docpackage updateDocpackage(Docpackage docpackage);
     DockPackageDto saveFullPackage(DockPackageDto dto);
+    DockPackageDto updateFullPackage(DockPackageDto dto);
     
     // Методы поиска
     List<DockPackageDto> searchByOboznach(String oboznach);

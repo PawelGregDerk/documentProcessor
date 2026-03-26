@@ -40,7 +40,6 @@ public class PackageListController {
     private void loadPackages() {
         packagesContainer.getChildren().clear();
         List<DockPackageDto> packages = docpackageService.searchByPackageName("");
-
         for (DockPackageDto pkg : packages) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
@@ -64,6 +63,9 @@ public class PackageListController {
     }
 
     private void openPackage(DockPackageDto dto) {
+        dto.opers().stream()
+                .flatMap(o -> o.funcs().stream())
+                .forEach(System.out::println);
         Stage currentStage = (Stage) packagesContainer.getScene().getWindow();
         Stage mainStage = (Stage) currentStage.getOwner();
         currentStage.hide();
@@ -72,7 +74,7 @@ public class PackageListController {
         Pane view = fxWeaver.loadView(DocPackageEditController.class);
 
         controller.setPath(dto.path());
-        controller.setOriginalDto(dto);
+        controller.setPackageId(dto.id());
         guiMapper.toGui(
                 dto,
                 controller.getPackageNameField(),

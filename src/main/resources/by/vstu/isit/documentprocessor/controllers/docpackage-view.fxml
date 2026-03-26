@@ -62,18 +62,18 @@
         </HBox>
     </GridPane>
 
-    <Button text="Добавить сборочную единицу"
-            onAction="#onAddAssemblyUnit"
-            styleClass="newButton"
-            maxWidth="300"/>
+<Button text="Добавить сборочную единицу"
+        onAction="#onAddAssemblyUnit"
+        styleClass="newButton"
+        maxWidth="300"/>
 
-    <!-- Контейнер сборочных единиц -->
+<!-- Контейнер сборочных единиц -->
     <ScrollPane fitToWidth="true" prefHeight="350">
         <content>
             <VBox fx:id="assemblyUnitsContainer" spacing="10"/>
         </content>
     </ScrollPane>
-
+      
     <!-- Названия документов -->
     <GridPane hgap="10" vgap="10">
         <columnConstraints>

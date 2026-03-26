@@ -45,16 +45,17 @@ public class DockPackageGuiMapper {
         for (SborEdDto ed : dto.sborEds()) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
+            row.setUserData(ed.id());
 
             TextField oboz = styled(new TextField(), "compact");
             oboz.setText(ed.oboznach());
 
             Button del = styled(new Button("Удалить"), "delButton");
-        del.setOnAction(e -> {
-            VBox parent = (VBox) row.getParent();
-            parent.getChildren().remove(row);
-            cleanupFunctionHeader(parent);
-        });
+            del.setOnAction(e -> {
+                VBox parent = (VBox) row.getParent();
+                parent.getChildren().remove(row);
+                cleanupFunctionHeader(parent);
+            });
 
             row.getChildren().addAll(oboz, del);
             container.getChildren().add(row);
@@ -68,6 +69,7 @@ public class DockPackageGuiMapper {
     private VBox createOperation(OperDto dto) {
 
         VBox block = styled(new VBox(5), "operation-block");
+        block.setUserData(dto.id());
 
         HBox row = styled(new HBox(6), "operation-row");
         row.setAlignment(Pos.CENTER_LEFT);
@@ -90,7 +92,7 @@ public class DockPackageGuiMapper {
         VBox funcs = styled(new VBox(4), "funcs-container");
         addFunc.setOnAction(e -> {
             ensureFunctionHeader(funcs);
-            funcs.getChildren().add(createFunction(new FuncDto(null,"", null,"", false, "")));
+            funcs.getChildren().add(createFunction(new FuncDto(null, "", null, "", false, "")));
         });
         delOper.setOnAction(e -> ((VBox) block.getParent()).getChildren().remove(block));
         if (!dto.funcs().isEmpty()) {
@@ -106,6 +108,7 @@ public class DockPackageGuiMapper {
 
         HBox row = styled(new HBox(6), "function-row");
         row.getStyleClass().add("function-data-row");
+        row.setUserData(dto.id());
 
         TextField name = styled(new TextField(dto.name()), "compact");
         TextField param = styled(new TextField(dto.param()), "no-compact");

@@ -7,11 +7,13 @@ import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.PropertySource;
 
 import static by.vstu.isit.documentprocessor.utils.MessageCodes.MAIN_SCENE;
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
 @SpringBootApplication
+@PropertySource(value = "classpath:paths.properties", encoding = "UTF-8")
 public class Main extends Application {
     private ConfigurableApplicationContext springContext;
 
