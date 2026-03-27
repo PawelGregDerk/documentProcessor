@@ -1,7 +1,9 @@
 package by.vstu.isit.documentprocessor.mappers.db;
 
 import by.vstu.isit.documentprocessor.dto.OperDto;
+import by.vstu.isit.documentprocessor.entities.Docpackage;
 import by.vstu.isit.documentprocessor.entities.Oper;
+import by.vstu.isit.documentprocessor.entities.TypeOper;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,19 +21,20 @@ public interface OperMapper {
 
     @Mapping(target = "docpackage", ignore = true)
     @Mapping(target = "typeOper", ignore = true)
-    @Mapping(target = "funcs", ignore = true)
+    @Mapping(target = "funcs")
     Oper toEntity(OperDto dto);
 
     List<OperDto> toDtoList(List<Oper> entities);
+
     List<Oper> toEntityList(List<OperDto> dtos);
 
     @AfterMapping
     default void setOperFk(@MappingTarget Oper entity, OperDto dto) {
         if (dto.idDocPackage() != null) {
-            entity.setDocpackage(by.vstu.isit.documentprocessor.entities.Docpackage.builder().id(dto.idDocPackage()).build());
+            entity.setDocpackage(Docpackage.builder().id(dto.idDocPackage()).build());
         }
         if (dto.idTypeOper() != null) {
-            entity.setTypeOper(by.vstu.isit.documentprocessor.entities.TypeOper.builder().id(dto.idTypeOper()).build());
+            entity.setTypeOper(TypeOper.builder().id(dto.idTypeOper()).build());
         }
     }
 }

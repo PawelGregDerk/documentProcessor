@@ -63,9 +63,6 @@ public class PackageListController {
     }
 
     private void openPackage(DockPackageDto dto) {
-        dto.opers().stream()
-                .flatMap(o -> o.funcs().stream())
-                .forEach(System.out::println);
         Stage currentStage = (Stage) packagesContainer.getScene().getWindow();
         Stage mainStage = (Stage) currentStage.getOwner();
         currentStage.hide();
@@ -87,7 +84,6 @@ public class PackageListController {
                 controller.getOperationsContainer(),
                 controller.getAssemblyUnitsContainer()
         );
-
         Stage editStage = new Stage();
         editStage.initOwner(mainStage);
         editStage.setOnHidden(e -> {

@@ -74,7 +74,7 @@ public class Oper extends AbstractEntity<Long> {
     @JoinColumn(name = "idTypeOper")
     private TypeOper typeOper;
 
-    @OneToMany(mappedBy = "oper", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "oper", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @ToString.Exclude
     private List<Func> funcs;

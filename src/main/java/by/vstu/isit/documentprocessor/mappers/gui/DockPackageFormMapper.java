@@ -52,7 +52,6 @@ public class DockPackageFormMapper {
         Long id = (Long) operBlock.getUserData();
         HBox operRow = (HBox) operBlock.getChildren().getFirst();
         VBox funcsContainer = (VBox) operBlock.getChildren().get(1);
-
         return new OperDto(
                 id,
                 null,

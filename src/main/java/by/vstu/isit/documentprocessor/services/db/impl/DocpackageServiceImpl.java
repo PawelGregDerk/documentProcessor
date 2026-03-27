@@ -110,9 +110,7 @@ public class DocpackageServiceImpl implements DocpackageService {
         existing.setFmeaName(dto.fmeaName());
         existing.setVedIName(dto.vedIName());
         
-        // Удаляем старые связанные записи из БД
-        operRepository.deleteAll(existing.getOpers());
-        sborEdRepository.deleteAll(existing.getSborEds());
+        // Очищаем старые связанные записи (JPA каскадно удалит при сохранении)
         existing.getOpers().clear();
         existing.getSborEds().clear();
         
@@ -121,7 +119,8 @@ public class DocpackageServiceImpl implements DocpackageService {
             for (OperDto odto : dto.opers()) {
                 Oper oper = operMapper.toEntity(odto);
                 oper.setDocpackage(existing);
-                
+                oper.setFuncs(new ArrayList<>());
+
                 if (odto.funcs() != null) {
                     for (FuncDto fdto : odto.funcs()) {
                         Func func = funcMapper.toEntity(fdto);

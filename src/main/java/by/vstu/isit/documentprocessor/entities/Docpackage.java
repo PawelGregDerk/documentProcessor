@@ -58,12 +58,12 @@ public class Docpackage extends AbstractEntity<Long> {
     @Column(name = "VedIName", nullable = false)
     private String vedIName;
 
-    @OneToMany(mappedBy = "docpackage", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docpackage", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @ToString.Exclude
     private List<Oper> opers;
 
-    @OneToMany(mappedBy = "docpackage", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docpackage", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @ToString.Exclude
     private List<SborEd> sborEds;

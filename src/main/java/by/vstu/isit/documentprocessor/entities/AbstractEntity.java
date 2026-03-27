@@ -1,10 +1,6 @@
 package by.vstu.isit.documentprocessor.entities;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import jakarta.persistence.GeneratedValue;
