@@ -10,6 +10,7 @@ public interface DocpackageService extends Service<Docpackage, Long, DocpackageR
     Docpackage updateDocpackage(Docpackage docpackage);
     DockPackageDto saveFullPackage(DockPackageDto dto);
     DockPackageDto updateFullPackage(DockPackageDto dto);
+    DockPackageDto findDtoById(Long id);
     
     // Методы поиска
     List<DockPackageDto> searchByOboznach(String oboznach);

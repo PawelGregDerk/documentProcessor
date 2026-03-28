@@ -4,7 +4,6 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
-import by.vstu.isit.documentprocessor.services.db.interfaces.FuncService;
 import com.spire.doc.Table;
 import com.spire.doc.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,29 +18,27 @@ import java.util.Set;
 public class PuDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 14;
     private final DocpackageService docpackageService;
-    private final FuncService funcService;
 
     public PuDocEditor(
             @Value("${out.pu.path}") String src,
             @Value("${copy.out.pu.path}") String dest,
-            DocpackageService docpackageService,
-            FuncService funcService
+            DocpackageService docpackageService
     ) {
         super(src, dest);
         this.docpackageService = docpackageService;
-        this.funcService = funcService;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void edit(DockPackageDto dto) throws Exception {
-        var original = docpackageService.getRepository().findById(dto.id()).orElseThrow();
-        Document doc = loadCopy(dto.path(), original.getPuName(), dto.puName());
+    public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
+        Document doc = loadCopy(dto.path(), dto.puName(), savedDto.puName());
         Table table = doc.getSections().get(0).getTables().get(0);
 
         Set<Long> processedFuncIds = new HashSet<>();
 
-        for (OperDto oper : dto.opers()) {
+        for (int oi = 0; oi < savedDto.opers().size(); oi++) {
+            OperDto oper = savedDto.opers().get(oi);
+            OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : null;
             updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
             updateCell(table, "oper_" + oper.id() + "_col_1", oper.name());
             updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
@@ -52,10 +49,13 @@ public class PuDocEditor extends AbstractDocEditor {
                 boolean exists = findCellByBookmark(table, "func_" + func.id() + "_col_6") != null;
 
                 if (exists) {
-                    boolean originalIsProd = func.id() != null
-                            ? funcService.getRepository().findById(func.id())
-                                    .map(f -> f.getIsProd()).orElse(func.isProd())
-                            : func.isProd();
+                    boolean originalIsProd = func.isProd();
+                    if (origOper != null) {
+                        originalIsProd = origOper.funcs().stream()
+                                .filter(f -> f.id() != null && f.id().equals(func.id()))
+                                .map(FuncDto::isProd)
+                                .findFirst().orElse(func.isProd());
+                    }
                     if (originalIsProd != func.isProd()) {
                         clearBookmarkText(table, "func_" + func.id() + "_col_4");
                         clearBookmarkText(table, "func_" + func.id() + "_col_5");
@@ -65,7 +65,7 @@ public class PuDocEditor extends AbstractDocEditor {
                     updateCell(table, "func_" + func.id() + "_col_6", func.specCharakt());
                     updateCell(table, "func_" + func.id() + "_col_7", func.param());
                 } else {
-                    TableRow newRow = insertRowAfterLastBookmark(table, "func_" + func.id(), COLUMN_COUNT);
+                    TableRow newRow = insertRowAfterLastBookmark(table, "oper_" + oper.id(), COLUMN_COUNT);
                     setShadedText(newRow.getCells().get(func.isProd() ? 4 : 5), func.name());
                     setShadedText(newRow.getCells().get(6), func.specCharakt());
                     setShadedText(newRow.getCells().get(7), func.param());
@@ -75,15 +75,15 @@ public class PuDocEditor extends AbstractDocEditor {
 
         removeDeletedRows(table, processedFuncIds, "func_", "_col_6");
 
-        String article = dto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(dto.sborEds());
-        String origArticle = original.getSborEds().getFirst().getNazv() + " "
-                + original.getSborEds().getFirst().getOboznach() + "\u2014"
-                + original.getSborEds().getLast().getOboznach();
+        String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
+        String origArticle = dto.sborEds().getFirst().nazv() + " "
+                + dto.sborEds().getFirst().oboznach() + "\u2014"
+                + dto.sborEds().getLast().oboznach();
         updateHeader(doc,
-                Map.of("d", origArticle, "n", original.getPuName(), "p", original.getPackageName()),
-                Map.of("d", article, "n", dto.puName(), "p", dto.packageName())
+                Map.of("d", origArticle, "n", dto.puName(), "p", dto.packageName()),
+                Map.of("d", article, "n", savedDto.puName(), "p", savedDto.packageName())
         );
 
-        save(doc, dto.path(), dto.puName());
+        save(doc, savedDto.path(), savedDto.puName());
     }
 }

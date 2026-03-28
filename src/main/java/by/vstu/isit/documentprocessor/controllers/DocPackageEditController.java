@@ -175,8 +175,9 @@ public class DocPackageEditController {
             if (dto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
             if (dto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
             if (dto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
-            var pckgDto = service.updateFullPackage(dto);
-            editors.forEach(e -> Try.run(() -> e.edit(pckgDto))
+            var originalDto = service.findDtoById(packageId);
+            var savedDto = service.updateFullPackage(dto);
+            editors.forEach(e -> Try.run(() -> e.edit(originalDto, savedDto))
                     .onFailure(ex -> log.error("Ошибка редактирования документа", ex))
                     .getOrElseThrow(ex -> new RuntimeException(ex)));
             new Alert(Alert.AlertType.INFORMATION, "Документы сохранены в папку копия_" + dto.path()).showAndWait();

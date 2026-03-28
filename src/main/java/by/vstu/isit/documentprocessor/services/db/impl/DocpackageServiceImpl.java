@@ -146,6 +146,14 @@ public class DocpackageServiceImpl implements DocpackageService {
 
     @Override
     @Transactional(readOnly = true)
+    public DockPackageDto findDtoById(Long id) {
+        return repository.findById(id)
+                .map(docpackageMapper::toDto)
+                .orElseThrow();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<DockPackageDto> searchByOboznach(String oboznach) {
         // Ищем сборные единицы по обозначению
         List<SborEd> sborEds = sborEdRepository.findByOboznachContainingIgnoreCase(oboznach);

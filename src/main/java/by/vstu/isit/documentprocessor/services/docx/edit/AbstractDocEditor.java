@@ -27,7 +27,7 @@ public abstract class AbstractDocEditor {
         this.destPath = destPath;
     }
 
-    public abstract void edit(DockPackageDto dto) throws Exception;
+    public abstract void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception;
 
     protected Document loadCopy(String folder, String srcName, String destName) throws IOException {
         Path src = Path.of(format(srcPath, folder, srcName));
@@ -121,14 +121,19 @@ public abstract class AbstractDocEditor {
         for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
             Paragraph para = cell.getParagraphs().get(k);
             boolean inBookmark = false;
+            int bookmarkStartIdx = -1;
             for (int m = 0; m < para.getChildObjects().getCount(); m++) {
                 var obj = para.getChildObjects().get(m);
                 if (obj instanceof BookmarkStart bm && bookmarkName.equals(bm.getName())) {
                     inBookmark = true;
+                    bookmarkStartIdx = m;
                     continue;
                 }
                 if (obj instanceof com.spire.doc.BookmarkEnd && inBookmark) {
-                    break;
+                    // TextRange не найден между start и end — добавляем новый
+                    com.spire.doc.fields.TextRange tr = para.appendText(newText);
+                    tr.getCharacterFormat().isShadow(true);
+                    return;
                 }
                 if (inBookmark && obj instanceof com.spire.doc.fields.TextRange tr) {
                     boolean changed = !newText.equals(tr.getText().trim());

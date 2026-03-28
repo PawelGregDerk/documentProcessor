@@ -3,7 +3,6 @@ package by.vstu.isit.documentprocessor.services.docx.edit;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
-import by.vstu.isit.documentprocessor.services.db.interfaces.OperService;
 import com.spire.doc.Table;
 import com.spire.doc.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,25 +20,22 @@ import static java.text.MessageFormat.format;
 @Service
 public class RiDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 4;
-    private final OperService operService;
 
     public RiDocEditor(
             @Value("${out.ri.path}") String src,
-            @Value("${copy.out.ri.path}") String dest,
-            OperService operService
+            @Value("${copy.out.ri.path}") String dest
     ) {
         super(src, dest);
-        this.operService = operService;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void edit(DockPackageDto dto) throws Exception {
-        for (OperDto oper : dto.opers()) {
-            var originalOper = operService.getRepository().findById(oper.id()).orElseThrow();
-            String originalName = originalOper.getName();
+    public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
+        for (int oi = 0; oi < savedDto.opers().size(); oi++) {
+            OperDto oper = savedDto.opers().get(oi);
+            OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
 
-            Document doc = loadCopySub(dto.path(), "ri", originalName, oper.name());
+            Document doc = loadCopySub(dto.path(), "ri", origOper.name(), oper.name());
             Table table = doc.getSections().get(0).getTables().get(2);
 
             Set<Long> processedFuncIds = new HashSet<>();
@@ -61,19 +57,19 @@ public class RiDocEditor extends AbstractDocEditor {
 
             removeDeletedRows(table, processedFuncIds, "func_", "_name");
 
+            String origDesig = dto.sborEds().getFirst().oboznach() + "\u2014" + dto.sborEds().getLast().oboznach();
             updateHeader(doc,
-                    Map.of("d", originalOper.getDocpackage().getSborEds().getFirst().getOboznach() + "\u2014"
-                                    + originalOper.getDocpackage().getSborEds().getLast().getOboznach(),
-                            "d1", originalOper.getDocpackage().getSborEds().getFirst().getNazv(),
-                            "p", originalOper.getDocpackage().getPackageName(),
-                            "shop", originalOper.getShifr(),
-                            "namOp", originalOper.getName(),
-                            "numOp", originalOper.getNumOper(),
-                            "oObr", originalOper.getOborud(),
-                            "oOst", originalOper.getOstnasInstr()),
-                    Map.of("d", designationsAssemblyUnit(dto.sborEds()),
+                    Map.of("d", origDesig,
                             "d1", dto.sborEds().getFirst().nazv(),
                             "p", dto.packageName(),
+                            "shop", origOper.shifr(),
+                            "namOp", origOper.name(),
+                            "numOp", origOper.numOper(),
+                            "oObr", origOper.oborud(),
+                            "oOst", origOper.ostnasInstr()),
+                    Map.of("d", designationsAssemblyUnit(savedDto.sborEds()),
+                            "d1", savedDto.sborEds().getFirst().nazv(),
+                            "p", savedDto.packageName(),
                             "shop", oper.shifr(),
                             "namOp", oper.name(),
                             "numOp", oper.numOper(),
@@ -81,10 +77,10 @@ public class RiDocEditor extends AbstractDocEditor {
                             "oOst", oper.ostnasInstr())
             );
 
-            saveSub(doc, dto.path(), "ri", oper.name());
+            saveSub(doc, savedDto.path(), "ri", oper.name());
 
-            if (!originalName.equals(oper.name())) {
-                Path oldFile = Path.of(format(destPath, dto.path(), "ri", originalName));
+            if (!origOper.name().equals(oper.name())) {
+                Path oldFile = Path.of(format(destPath, savedDto.path(), "ri", origOper.name()));
                 Files.deleteIfExists(oldFile);
             }
         }
