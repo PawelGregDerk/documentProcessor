@@ -8,7 +8,10 @@ import com.spire.doc.documents.Paragraph;
 import com.spire.doc.documents.Paragraph;
 
 import java.io.IOException;
+import java.io.FileReader;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -21,6 +24,7 @@ public abstract class AbstractDocEditor {
 
     protected final String srcPath;
     protected final String destPath;
+    private Path lastResolvedSource;
 
     protected AbstractDocEditor(String srcPath, String destPath) {
         this.srcPath = srcPath;
@@ -31,9 +35,18 @@ public abstract class AbstractDocEditor {
 
     protected Document loadCopy(String folder, String srcName, String destName) throws IOException {
         Path src = Path.of(format(srcPath, folder, srcName));
+        Path altSrc = Path.of(format(srcPath, folder, destName));
         Path dest = Path.of(format(destPath, folder, destName));
+        Path resolvedSrc = resolveSource(src, altSrc);
+
+        if (resolvedSrc == null) {
+            throw new NoSuchFileException("No source document found in originals. Tried: " + src + ", " + altSrc);
+        }
+
         Files.createDirectories(dest.getParent());
-        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        lastResolvedSource = resolvedSrc;
+
         Document doc = new Document();
         doc.loadFromFile(dest.toString());
         return doc;
@@ -45,16 +58,141 @@ public abstract class AbstractDocEditor {
 
     protected Document loadCopySub(String folder, String sub, String srcName, String destName) throws IOException {
         Path src = Path.of(format(srcPath, folder, sub, srcName));
+        Path altSrc = Path.of(format(srcPath, folder, sub, destName));
         Path dest = Path.of(format(destPath, folder, sub, destName));
+        Path resolvedSrc = resolveSource(src, altSrc);
+
+        if (resolvedSrc == null) {
+            throw new NoSuchFileException("No source document found in originals. Tried: " + src + ", " + altSrc);
+        }
+
         Files.createDirectories(dest.getParent());
-        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        lastResolvedSource = resolvedSrc;
+
         Document doc = new Document();
         doc.loadFromFile(dest.toString());
         return doc;
     }
 
+    private Path resolveSource(Path... candidates) {
+        for (Path candidate : candidates) {
+            if (Files.exists(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
     protected Document loadCopySub(String folder, String sub, String name) throws IOException {
         return loadCopySub(folder, sub, name, name);
+    }
+
+    protected Document loadCopyByBookmark(String folder, String srcName, String destName, int tableIndex, String bookmarkName) throws Exception {
+        try {
+            return loadCopy(folder, srcName, destName);
+        } catch (NoSuchFileException ex) {
+            if (bookmarkName == null || bookmarkName.isBlank()) {
+                throw ex;
+            }
+            Path sourceDir = Path.of(format(srcPath, folder, srcName)).getParent();
+            Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
+            if (found == null) {
+                throw ex;
+            }
+            return loadCopyFromExplicitSource(found, Path.of(format(destPath, folder, destName)));
+        }
+    }
+
+    protected Document loadCopySubByBookmark(String folder, String sub, String srcName, String destName, int tableIndex, String bookmarkName) throws Exception {
+        try {
+            return loadCopySub(folder, sub, srcName, destName);
+        } catch (NoSuchFileException ex) {
+            if (bookmarkName == null || bookmarkName.isBlank()) {
+                throw ex;
+            }
+            Path sourceDir = Path.of(format(srcPath, folder, sub, srcName)).getParent();
+            Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
+            if (found == null) {
+                throw ex;
+            }
+            return loadCopyFromExplicitSource(found, Path.of(format(destPath, folder, sub, destName)));
+        }
+    }
+
+    private Document loadCopyFromExplicitSource(Path source, Path dest) throws IOException {
+        Files.createDirectories(dest.getParent());
+        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        lastResolvedSource = source;
+        Document doc = new Document();
+        doc.loadFromFile(dest.toString());
+        return doc;
+    }
+
+    protected Map<String, String> resolveHeaderOldData(Map<String, String> fallback) {
+        if (lastResolvedSource == null) {
+            return fallback;
+        }
+
+        Path meta = metaPathFor(lastResolvedSource);
+        if (!Files.exists(meta)) {
+            return fallback;
+        }
+
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(meta.toFile())) {
+            props.load(reader);
+        } catch (Exception e) {
+            return fallback;
+        }
+
+        Map<String, String> resolved = new HashMap<>();
+        for (Map.Entry<String, String> entry : fallback.entrySet()) {
+            String key = entry.getKey();
+            String value = props.getProperty(key, entry.getValue());
+            resolved.put(key, value);
+        }
+        return resolved;
+    }
+
+    private Path metaPathFor(Path sourceDoc) {
+        Path metaDir = sourceDoc.getParent().resolve(".docproc-meta");
+        return metaDir.resolve(sourceDoc.getFileName().toString() + ".hdr.properties");
+    }
+
+    private Path findSourceByBookmark(Path sourceDir, int tableIndex, String bookmarkName) {
+        if (sourceDir == null || !Files.isDirectory(sourceDir)) {
+            return null;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir, "*.docx")) {
+            for (Path file : stream) {
+                if (containsBookmark(file, tableIndex, bookmarkName)) {
+                    return file;
+                }
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
+    }
+
+    private boolean containsBookmark(Path file, int tableIndex, String bookmarkName) {
+        Document doc = new Document();
+        try {
+            doc.loadFromFile(file.toString());
+            if (doc.getSections().getCount() == 0) {
+                return false;
+            }
+            var tables = doc.getSections().get(0).getTables();
+            if (tableIndex < 0 || tables.getCount() <= tableIndex) {
+                return false;
+            }
+            return findCellByBookmark(tables.get(tableIndex), bookmarkName) != null;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            doc.close();
+        }
     }
 
     protected void save(Document doc, String folder, String name) {
@@ -152,7 +290,24 @@ public abstract class AbstractDocEditor {
             String oldVal = oldData.get(key);
             String newVal = newData.get(key);
             if (oldVal != null && newVal != null && !oldVal.equals(newVal)) {
-                doc.replace(oldVal, newVal, false, false);
+                replaceAllOccurrences(doc, oldVal, newVal);
+            }
+        }
+    }
+
+    private void replaceAllOccurrences(Document doc, String oldValue, String newValue) {
+        if (oldValue.isBlank()) {
+            return;
+        }
+
+        // Spire may replace only one hit per call (including headers/footers),
+        // and header text is not always reflected in doc.getText().
+        int safetyCounter = 0;
+        while (safetyCounter < 10_000) {
+            doc.replace(oldValue, newValue, false, false);
+            safetyCounter++;
+            if (!doc.getText().contains(oldValue)) {
+                break;
             }
         }
     }

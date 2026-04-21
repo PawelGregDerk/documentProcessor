@@ -31,7 +31,7 @@ public class PuDocEditor extends AbstractDocEditor {
     @Override
     @Transactional(readOnly = true)
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
-        Document doc = loadCopy(dto.path(), dto.puName(), savedDto.puName());
+        Document doc = loadCopyByBookmark(dto.path(), dto.puName(), savedDto.puName(), 0, sourceBookmark(dto));
         Table table = doc.getSections().get(0).getTables().get(0);
 
         Set<Long> processedFuncIds = new HashSet<>();
@@ -79,11 +79,19 @@ public class PuDocEditor extends AbstractDocEditor {
         String origArticle = dto.sborEds().getFirst().nazv() + " "
                 + dto.sborEds().getFirst().oboznach() + "\u2014"
                 + dto.sborEds().getLast().oboznach();
-        updateHeader(doc,
-                Map.of("d", origArticle, "n", dto.puName(), "p", dto.packageName()),
-                Map.of("d", article, "n", savedDto.puName(), "p", savedDto.packageName())
+        Map<String, String> oldHeader = resolveHeaderOldData(
+                Map.of("d", origArticle, "n", dto.puName(), "p", dto.packageName())
         );
+        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.puName(), "p", savedDto.packageName()));
 
         save(doc, savedDto.path(), savedDto.puName());
+    }
+
+    private String sourceBookmark(DockPackageDto dto) {
+        if (dto.opers().isEmpty() || dto.opers().getFirst().funcs().isEmpty()) {
+            return null;
+        }
+        var func = dto.opers().getFirst().funcs().getFirst();
+        return func.id() == null ? null : "func_" + func.id() + "_col_6";
     }
 }

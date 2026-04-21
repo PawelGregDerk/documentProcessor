@@ -10,9 +10,11 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTMarkupRange;
 import org.springframework.core.io.Resource;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +79,34 @@ public abstract class AbstractWordGenerator {
                 doc.write(outTmp);
             }
             fillHeadersWithSpire(tmp, out, headerData);
+            saveHeaderMeta(out, headerData);
         } finally {
             Files.deleteIfExists(tmp);
+        }
+    }
+
+    private void saveHeaderMeta(Path outDoc, Map<String, String> headerData) throws Exception {
+        Path metaDir = outDoc.getParent().resolve(".docproc-meta");
+        Files.createDirectories(metaDir);
+        markHidden(metaDir);
+
+        Path meta = metaDir.resolve(outDoc.getFileName().toString() + ".hdr.properties");
+        Properties props = new Properties();
+        headerData.forEach((k, v) -> {
+            if (v != null) {
+                props.setProperty(k, v);
+            }
+        });
+        try (FileWriter writer = new FileWriter(meta.toFile(), false)) {
+            props.store(writer, "Header source values");
+        }
+        markHidden(meta);
+    }
+
+    private void markHidden(Path path) {
+        try {
+            Files.setAttribute(path, "dos:hidden", true);
+        } catch (Exception ignored) {
         }
     }
 

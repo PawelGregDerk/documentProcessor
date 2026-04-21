@@ -34,7 +34,7 @@ public class KpDocEditor extends AbstractDocEditor {
     @Override
     @Transactional(readOnly = true)
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
-        Document doc = loadCopy(dto.path(), dto.kpName(), savedDto.kpName());
+        Document doc = loadCopyByBookmark(dto.path(), dto.kpName(), savedDto.kpName(), 0, sourceBookmark(dto));
         Table table = doc.getSections().get(0).getTables().get(0);
 
         Set<Long> processedOperIds = new HashSet<>();
@@ -100,12 +100,20 @@ public class KpDocEditor extends AbstractDocEditor {
         String origArticle = dto.sborEds().getFirst().nazv() + " "
                 + dto.sborEds().getFirst().oboznach() + "\u2014"
                 + dto.sborEds().getLast().oboznach();
-        updateHeader(doc,
-                Map.of("d", origArticle, "n", dto.kpName(), "p", dto.packageName()),
-                Map.of("d", article, "n", savedDto.kpName(), "p", savedDto.packageName())
+        Map<String, String> oldHeader = resolveHeaderOldData(
+                Map.of("d", origArticle, "n", dto.kpName(), "p", dto.packageName())
         );
+        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.kpName(), "p", savedDto.packageName()));
 
         save(doc, savedDto.path(), savedDto.kpName());
+    }
+
+    private String sourceBookmark(DockPackageDto dto) {
+        if (dto.opers().isEmpty() || dto.opers().getFirst().funcs().isEmpty()) {
+            return null;
+        }
+        var func = dto.opers().getFirst().funcs().getFirst();
+        return func.id() == null ? null : "func_" + func.id() + "_name";
     }
 
     private String buildSpecChars(List<FuncDto> funcs) {

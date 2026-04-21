@@ -35,7 +35,14 @@ public class RiDocEditor extends AbstractDocEditor {
             OperDto oper = savedDto.opers().get(oi);
             OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
 
-            Document doc = loadCopySub(dto.path(), "ri", origOper.name(), oper.name());
+            Document doc = loadCopySubByBookmark(
+                    dto.path(),
+                    "ri",
+                    origOper.name(),
+                    oper.name(),
+                    2,
+                    sourceBookmark(origOper)
+            );
             Table table = doc.getSections().get(0).getTables().get(2);
 
             Set<Long> processedFuncIds = new HashSet<>();
@@ -58,24 +65,26 @@ public class RiDocEditor extends AbstractDocEditor {
             removeDeletedRows(table, processedFuncIds, "func_", "_name");
 
             String origDesig = dto.sborEds().getFirst().oboznach() + "\u2014" + dto.sborEds().getLast().oboznach();
-            updateHeader(doc,
-                    Map.of("d", origDesig,
-                            "d1", dto.sborEds().getFirst().nazv(),
-                            "p", dto.packageName(),
-                            "shop", origOper.shifr(),
-                            "namOp", origOper.name(),
-                            "numOp", origOper.numOper(),
-                            "oObr", origOper.oborud(),
-                            "oOst", origOper.ostnasInstr()),
-                    Map.of("d", designationsAssemblyUnit(savedDto.sborEds()),
-                            "d1", savedDto.sborEds().getFirst().nazv(),
-                            "p", savedDto.packageName(),
-                            "shop", oper.shifr(),
-                            "namOp", oper.name(),
-                            "numOp", oper.numOper(),
-                            "oObr", oper.oborud(),
-                            "oOst", oper.ostnasInstr())
-            );
+            Map<String, String> oldHeader = resolveHeaderOldData(Map.of(
+                    "d", origDesig,
+                    "d1", dto.sborEds().getFirst().nazv(),
+                    "p", dto.packageName(),
+                    "shop", origOper.shifr(),
+                    "namOp", origOper.name(),
+                    "numOp", origOper.numOper(),
+                    "oObr", origOper.oborud(),
+                    "oOst", origOper.ostnasInstr()
+            ));
+            updateHeader(doc, oldHeader, Map.of(
+                    "d", designationsAssemblyUnit(savedDto.sborEds()),
+                    "d1", savedDto.sborEds().getFirst().nazv(),
+                    "p", savedDto.packageName(),
+                    "shop", oper.shifr(),
+                    "namOp", oper.name(),
+                    "numOp", oper.numOper(),
+                    "oObr", oper.oborud(),
+                    "oOst", oper.ostnasInstr()
+            ));
 
             saveSub(doc, savedDto.path(), "ri", oper.name());
 
@@ -84,5 +93,13 @@ public class RiDocEditor extends AbstractDocEditor {
                 Files.deleteIfExists(oldFile);
             }
         }
+    }
+
+    private String sourceBookmark(OperDto oper) {
+        if (oper.funcs() == null || oper.funcs().isEmpty()) {
+            return null;
+        }
+        var func = oper.funcs().getFirst();
+        return func.id() == null ? null : "func_" + func.id() + "_name";
     }
 }

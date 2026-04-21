@@ -26,7 +26,7 @@ public class WiDocEditor extends AbstractDocEditor {
     @Override
     @Transactional(readOnly = true)
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
-        Document doc = loadCopy(dto.path(), dto.vedIName(), savedDto.vedIName());
+        Document doc = loadCopyByBookmark(dto.path(), dto.vedIName(), savedDto.vedIName(), 1, sourceBookmark(dto));
         Table table = doc.getSections().get(0).getTables().get(1);
 
         Set<Long> processedOperIds = new HashSet<>();
@@ -52,11 +52,23 @@ public class WiDocEditor extends AbstractDocEditor {
         removeDeletedRows(table, processedOperIds, "oper_", "_col_0");
 
         String origDesig = dto.sborEds().getFirst().oboznach() + "\u2014" + dto.sborEds().getLast().oboznach();
-        updateHeader(doc,
-                Map.of("d", origDesig, "d1", dto.sborEds().getFirst().nazv(), "p", dto.packageName()),
-                Map.of("d", designationsAssemblyUnit(savedDto.sborEds()), "d1", savedDto.sborEds().getFirst().nazv(), "p", savedDto.packageName())
+        Map<String, String> oldHeader = resolveHeaderOldData(
+                Map.of("d", origDesig, "d1", dto.sborEds().getFirst().nazv(), "p", dto.packageName())
         );
+        updateHeader(doc, oldHeader, Map.of(
+                "d", designationsAssemblyUnit(savedDto.sborEds()),
+                "d1", savedDto.sborEds().getFirst().nazv(),
+                "p", savedDto.packageName()
+        ));
 
         save(doc, savedDto.path(), savedDto.vedIName());
+    }
+
+    private String sourceBookmark(DockPackageDto dto) {
+        if (dto.opers().isEmpty()) {
+            return null;
+        }
+        var oper = dto.opers().getFirst();
+        return oper.id() == null ? null : "oper_" + oper.id() + "_shifr";
     }
 }

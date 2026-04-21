@@ -1,13 +1,17 @@
 package by.vstu.isit.documentprocessor.controllers;
 
+import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
-import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -52,7 +56,6 @@ public class DocPackageEditController {
     private Long packageId;
 
     private final DockPackageFormMapper formMapper;
-    private final List<AbstractWordGenerator> generators;
     private final List<AbstractDocEditor> editors;
     private final DocpackageService service;
 
@@ -75,7 +78,6 @@ public class DocPackageEditController {
     @FXML
     private void onAddOperation() {
         VBox operationBlock = styled(new VBox(5), "operation-block");
-        // --- строка операции ---
         HBox operRow = styled(new HBox(6), "operation-row");
         operRow.setAlignment(Pos.CENTER_LEFT);
         TextField numOper = styled(new TextField(), "compact");
@@ -102,7 +104,6 @@ public class DocPackageEditController {
                 numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
         );
 
-        // --- контейнер функций ---
         VBox funcsContainer = styled(new VBox(4), "funcs-container");
 
         addFuncBtn.setOnAction(e -> addFunctionRow(funcsContainer));
@@ -112,7 +113,6 @@ public class DocPackageEditController {
     }
 
     private void addFunctionRow(VBox funcsContainer) {
-        // если первая функция — добавляем шапку
         if (funcsContainer.getChildren().isEmpty()) {
             HBox header = styled(new HBox(6), "function-header");
             header.getStyleClass().add("function-header-row");
@@ -140,7 +140,6 @@ public class DocPackageEditController {
         Button delBtn = styled(new Button("Удалить"), "delButton");
         delBtn.setOnAction(e -> {
             funcsContainer.getChildren().remove(funcRow);
-            // если больше нет строк функций — удаляем шапку
             boolean hasDataRows = funcsContainer.getChildren().stream()
                     .anyMatch(n -> n.getStyleClass().contains("function-data-row"));
             if (!hasDataRows) {
@@ -148,7 +147,6 @@ public class DocPackageEditController {
                         n -> n.getStyleClass().contains("function-header-row")
                 );
             }
-
         });
 
         funcRow.getChildren().addAll(name, param, isProd, spec, delBtn);
@@ -175,11 +173,14 @@ public class DocPackageEditController {
             if (dto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
             if (dto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
             if (dto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
             var originalDto = service.findDtoById(packageId);
             var savedDto = service.updateFullPackage(dto);
+
             editors.forEach(e -> Try.run(() -> e.edit(originalDto, savedDto))
                     .onFailure(ex -> log.error("Ошибка редактирования документа", ex))
                     .getOrElseThrow(ex -> new RuntimeException(ex)));
+
             new Alert(Alert.AlertType.INFORMATION, "Документы сохранены в папку копия_" + dto.path()).showAndWait();
         } catch (Exception ex) {
             log.error("Ошибка сохранения", ex);
