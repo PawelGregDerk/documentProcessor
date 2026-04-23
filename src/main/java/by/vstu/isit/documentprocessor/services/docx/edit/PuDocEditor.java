@@ -3,7 +3,6 @@ package by.vstu.isit.documentprocessor.services.docx.edit;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
-import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import com.spire.doc.Table;
 import com.spire.doc.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,15 +16,12 @@ import java.util.Set;
 @Service
 public class PuDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 14;
-    private final DocpackageService docpackageService;
 
     public PuDocEditor(
             @Value("${out.pu.path}") String src,
-            @Value("${copy.out.pu.path}") String dest,
-            DocpackageService docpackageService
+            @Value("${copy.out.pu.path}") String dest
     ) {
         super(src, dest);
-        this.docpackageService = docpackageService;
     }
 
     @Override
@@ -66,14 +62,17 @@ public class PuDocEditor extends AbstractDocEditor {
                     updateCell(table, "func_" + func.id() + "_col_7", func.param());
                 } else {
                     TableRow newRow = insertRowAfterLastBookmark(table, "oper_" + oper.id(), COLUMN_COUNT);
-                    setShadedText(newRow.getCells().get(func.isProd() ? 4 : 5), func.name());
-                    setShadedText(newRow.getCells().get(6), func.specCharakt());
-                    setShadedText(newRow.getCells().get(7), func.param());
+                    setShadedBookmarkedText(newRow.getCells().get(func.isProd() ? 4 : 5),
+                            "func_" + func.id() + "_col_" + (func.isProd() ? "4" : "5"),
+                            func.name());
+                    setShadedBookmarkedText(newRow.getCells().get(6), "func_" + func.id() + "_col_6", func.specCharakt());
+                    setShadedBookmarkedText(newRow.getCells().get(7), "func_" + func.id() + "_col_7", func.param());
                 }
             }
         }
 
         removeDeletedRows(table, processedFuncIds, "func_", "_col_6");
+        rebuildOperMerges(table, savedDto);
 
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
         String origArticle = dto.sborEds().getFirst().nazv() + " "
@@ -93,5 +92,34 @@ public class PuDocEditor extends AbstractDocEditor {
         }
         var func = dto.opers().getFirst().funcs().getFirst();
         return func.id() == null ? null : "func_" + func.id() + "_col_6";
+    }
+
+    private void rebuildOperMerges(Table table, DockPackageDto dto) {
+        for (OperDto oper : dto.opers()) {
+            TableRow startRow = findRowByBookmark(table, "oper_" + oper.id() + "_col_0");
+            if (startRow == null) {
+                continue;
+            }
+            int start = -1;
+            for (int i = 0; i < table.getRows().getCount(); i++) {
+                if (table.getRows().get(i) == startRow) {
+                    start = i;
+                    break;
+                }
+            }
+            if (start < 0) {
+                continue;
+            }
+            int rowSpan = Math.max(oper.funcs().size(), 1);
+            int end = Math.min(table.getRows().getCount() - 1, start + rowSpan - 1);
+            if (end <= start) {
+                continue;
+            }
+            table.applyVerticalMerge(0, start, end);
+            table.applyVerticalMerge(1, start, end);
+            table.applyVerticalMerge(2, start, end);
+            table.applyVerticalMerge(12, start, end);
+            table.applyVerticalMerge(13, start, end);
+        }
     }
 }

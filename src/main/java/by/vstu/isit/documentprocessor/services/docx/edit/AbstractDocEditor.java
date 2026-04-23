@@ -5,7 +5,6 @@ import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import com.spire.doc.*;
 import com.spire.doc.BookmarkStart;
 import com.spire.doc.documents.Paragraph;
-import com.spire.doc.documents.Paragraph;
 
 import java.io.IOException;
 import java.io.FileReader;
@@ -364,6 +363,28 @@ public abstract class AbstractDocEditor {
         para.setText("");
         com.spire.doc.fields.TextRange tr = para.appendText(text);
         tr.getCharacterFormat().isShadow(true);
+    }
+
+    protected void clearCell(TableCell cell) {
+        Paragraph para = cell.getParagraphs().getCount() > 0
+                ? cell.getParagraphs().get(0)
+                : cell.addParagraph();
+        para.setText("");
+    }
+
+    protected void setShadedBookmarkedText(TableCell cell, String bookmarkName, String text) {
+        Paragraph para = cell.getParagraphs().getCount() > 0
+                ? cell.getParagraphs().get(0)
+                : cell.addParagraph();
+        para.setText("");
+        appendShadedBookmark(para, bookmarkName, text);
+    }
+
+    protected void appendShadedBookmark(Paragraph para, String bookmarkName, String text) {
+        para.appendBookmarkStart(bookmarkName);
+        com.spire.doc.fields.TextRange tr = para.appendText(text == null ? "" : text);
+        tr.getCharacterFormat().isShadow(true);
+        para.appendBookmarkEnd(bookmarkName);
     }
 
     protected Set<Long> getAllBookmarkIds(Table table, String prefix, String colSuffix) {

@@ -36,7 +36,7 @@ public class MainController {
     private VBox mainVBox;
 
     public void createDocPackage() {
-        loadStage(DocPackageCreateController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
+        loadStage(DocPackageTestCreateController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
    }
 
     @FXML

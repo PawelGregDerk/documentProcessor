@@ -2,19 +2,15 @@ package by.vstu.isit.documentprocessor.services.docx.write.impl;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
-import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class KpWordGenerator extends AbstractWordGenerator {
@@ -39,7 +35,7 @@ public class KpWordGenerator extends AbstractWordGenerator {
                 addBookmark(row.getCell(7), "oper_" + oper.id() + "_name", oper.name());
                 appendBookmark(row.getCell(7), "oper_" + oper.id() + "_numZech", oper.numZech());
                 appendBookmark(row.getCell(7), "oper_" + oper.id() + "_oborud", oper.oborud());
-                addBookmark(row.getCell(8), "oper_" + oper.id() + "_col_8", buildSpecChars(funcs));
+                addSpecBookmarks(row.getCell(8), funcs, oper.id());
                 boolean firstProd = true, firstProc = true;
                 for (FuncDto func : funcs) {
                     if (func.isProd()) {
@@ -63,10 +59,21 @@ public class KpWordGenerator extends AbstractWordGenerator {
         }
     }
 
-    private String buildSpecChars(List<FuncDto> funcs) {
-        return funcs.stream()
-                .map(FuncDto::specCharakt)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining("\n"));
+    private void addSpecBookmarks(org.apache.poi.xwpf.usermodel.XWPFTableCell cell, List<FuncDto> funcs, Long operId) {
+        boolean first = true;
+        for (FuncDto func : funcs) {
+            if (StringUtils.isBlank(func.specCharakt())) {
+                continue;
+            }
+            if (first) {
+                addBookmark(cell, "func_" + func.id() + "_col_8", func.specCharakt());
+                first = false;
+            } else {
+                appendBookmark(cell, "func_" + func.id() + "_col_8", func.specCharakt());
+            }
+        }
+        if (first) {
+            addBookmark(cell, "oper_" + operId + "_col_8", "");
+        }
     }
 }

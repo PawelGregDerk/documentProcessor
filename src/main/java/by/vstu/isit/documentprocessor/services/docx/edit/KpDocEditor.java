@@ -3,32 +3,27 @@ package by.vstu.isit.documentprocessor.services.docx.edit;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
-import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import com.spire.doc.Table;
 import com.spire.doc.*;
+import com.spire.doc.documents.Paragraph;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class KpDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 11;
-    private final DocpackageService docpackageService;
 
     public KpDocEditor(
             @Value("${out.kp.path}") String src,
-            @Value("${copy.out.kp.path}") String dest,
-            DocpackageService docpackageService
+            @Value("${copy.out.kp.path}") String dest
     ) {
         super(src, dest);
-        this.docpackageService = docpackageService;
     }
 
     @Override
@@ -44,54 +39,20 @@ public class KpDocEditor extends AbstractDocEditor {
             processedOperIds.add(oper.id());
             boolean exists = findCellByBookmark(table, "oper_" + oper.id() + "_col_0") != null;
 
+            TableRow row;
             if (exists) {
+                row = findRowByBookmark(table, "oper_" + oper.id() + "_col_0");
                 updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
                 updateCell(table, "oper_" + oper.id() + "_name", oper.name());
                 updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
                 updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
-                updateCell(table, "oper_" + oper.id() + "_col_8", buildSpecChars(oper.funcs()));
-
-                OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : null;
-                for (FuncDto func : oper.funcs()) {
-                    boolean funcExistsInDoc = findCellByBookmark(table, "func_" + func.id() + "_name") != null;
-                    if (!funcExistsInDoc) {
-                        TableRow newFuncRow = insertRowAfterLastBookmark(table, "oper_" + oper.id(), COLUMN_COUNT);
-                        setShadedText(newFuncRow.getCells().get(func.isProd() ? 9 : 10), func.name() + "\n" + func.param());
-                        continue;
-                    }
-                    boolean originalIsProd = func.isProd();
-                    if (origOper != null) {
-                        originalIsProd = origOper.funcs().stream()
-                                .filter(f -> f.id() != null && f.id().equals(func.id()))
-                                .map(FuncDto::isProd)
-                                .findFirst().orElse(func.isProd());
-                    }
-                    if (originalIsProd != func.isProd()) {
-                        clearBookmarkText(table, "func_" + func.id() + "_name");
-                        clearBookmarkText(table, "func_" + func.id() + "_param");
-                        TableRow row = findRowByBookmark(table, "func_" + func.id() + "_name");
-                        if (row != null) {
-                            setShadedText(row.getCells().get(func.isProd() ? 9 : 10), func.name() + "\n" + func.param());
-                            setShadedText(row.getCells().get(func.isProd() ? 10 : 9), "");
-                        }
-                    } else {
-                        updateCell(table, "func_" + func.id() + "_name", func.name());
-                        updateCell(table, "func_" + func.id() + "_param", func.param());
-                    }
-                }
             } else {
-                TableRow newRow = addRowWithShading(table, COLUMN_COUNT);
-                setShadedText(newRow.getCells().get(0), oper.numOper());
-                setShadedText(newRow.getCells().get(7), oper.name() + "\n" + oper.numZech() + "\n" + oper.oborud());
-                setShadedText(newRow.getCells().get(8), buildSpecChars(oper.funcs()));
-                for (FuncDto func : oper.funcs()) {
-                    if (func.isProd()) {
-                        setShadedText(newRow.getCells().get(9), func.name() + "\n" + func.param() + "\n");
-                    } else {
-                        setShadedText(newRow.getCells().get(10), func.name() + "\n" + func.param() + "\n");
-                    }
-                }
+                row = addRowWithShading(table, COLUMN_COUNT);
+                setShadedText(row.getCells().get(0), oper.numOper());
+                setShadedText(row.getCells().get(7), oper.name() + "\n" + oper.numZech() + "\n" + oper.oborud());
             }
+            rebuildSpecCell(row, oper);
+            rebuildFunctionGroups(row, oper);
         }
 
         removeDeletedRows(table, processedOperIds, "oper_", "_col_0");
@@ -116,10 +77,52 @@ public class KpDocEditor extends AbstractDocEditor {
         return func.id() == null ? null : "func_" + func.id() + "_name";
     }
 
-    private String buildSpecChars(List<FuncDto> funcs) {
-        return funcs.stream()
-                .map(FuncDto::specCharakt)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining("\n"));
+    private void rebuildSpecCell(TableRow row, OperDto oper) {
+        TableCell cell = row.getCells().get(8);
+        clearCell(cell);
+        Paragraph para = cell.getParagraphs().getCount() > 0 ? cell.getParagraphs().get(0) : cell.addParagraph();
+
+        boolean first = true;
+        for (FuncDto func : oper.funcs()) {
+            if (StringUtils.isBlank(func.specCharakt())) {
+                continue;
+            }
+            if (!first) {
+                para.appendText("\n");
+            }
+            appendShadedBookmark(para, "func_" + func.id() + "_col_8", func.specCharakt());
+            first = false;
+        }
+    }
+
+    private void rebuildFunctionGroups(TableRow row, OperDto oper) {
+        TableCell prodCell = row.getCells().get(9);
+        TableCell procCell = row.getCells().get(10);
+        clearCell(prodCell);
+        clearCell(procCell);
+        Paragraph prodPara = prodCell.getParagraphs().getCount() > 0 ? prodCell.getParagraphs().get(0) : prodCell.addParagraph();
+        Paragraph procPara = procCell.getParagraphs().getCount() > 0 ? procCell.getParagraphs().get(0) : procCell.addParagraph();
+
+        boolean firstProd = true;
+        boolean firstProc = true;
+        for (FuncDto func : oper.funcs()) {
+            if (Boolean.TRUE.equals(func.isProd())) {
+                if (!firstProd) {
+                    prodPara.appendText("\n");
+                }
+                appendShadedBookmark(prodPara, "func_" + func.id() + "_name", func.name());
+                prodPara.appendText("\n");
+                appendShadedBookmark(prodPara, "func_" + func.id() + "_param", func.param());
+                firstProd = false;
+            } else {
+                if (!firstProc) {
+                    procPara.appendText("\n");
+                }
+                appendShadedBookmark(procPara, "func_" + func.id() + "_name", func.name());
+                procPara.appendText("\n");
+                appendShadedBookmark(procPara, "func_" + func.id() + "_param", func.param());
+                firstProc = false;
+            }
+        }
     }
 }
