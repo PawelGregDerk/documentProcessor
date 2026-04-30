@@ -163,6 +163,10 @@ public class DocPackageCreateController {
                     operationsContainer,
                     assemblyUnitsContainer
             );
+            if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
+            if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
+            if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
             var dto = service.saveFullPackage(pckgDto);
             generators.forEach(g -> Try.run(() -> g.generate(dto))
                     .onFailure(ex -> log.error("Ошибка генерации документа", ex))

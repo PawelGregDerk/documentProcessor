@@ -2,9 +2,11 @@ package by.vstu.isit.documentprocessor.utils;
 
 import io.vavr.control.Option;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.experimental.UtilityClass;
 import net.rgielen.fxweaver.core.FxWeaver;
@@ -15,6 +17,7 @@ import static by.vstu.isit.documentprocessor.utils.LocalizeHelper.*;
 
 @UtilityClass
 public class GuiHelper {
+    private static final double WINDOW_SIZE_RATIO = 0.9;
 
     public <T extends Node> T styled(T node, String... styles) {
         for ( var s : styles) {
@@ -50,12 +53,21 @@ public class GuiHelper {
     }
 
     private <T> void configureAndShow(Stage stage, Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle) {
-        var scene = new Scene(fxWeaver.loadView(controller, getBundle()), 1280, 1024);
+        var scene = createScreenRatioScene(fxWeaver.loadView(controller, getBundle()));
         stage.setScene(scene);
         stage.setTitle(getMessage(sceneTitle));
         stage.setResizable(false);
         addIcon(stage, controller);
         stage.show();
+    }
+
+    public Scene createScreenRatioScene(Parent root) {
+        var bounds = Screen.getPrimary().getVisualBounds();
+        return new Scene(
+                root,
+                bounds.getWidth() * WINDOW_SIZE_RATIO,
+                bounds.getHeight() * WINDOW_SIZE_RATIO
+        );
     }
 
     private <T> void addIcon(Stage stage, Class<T> tClass) {

@@ -17,10 +17,9 @@ public class WiDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 5;
 
     public WiDocEditor(
-            @Value("${out.wi.path}") String src,
-            @Value("${copy.out.wi.path}") String dest
+            @Value("${out.wi.path}") String src
     ) {
-        super(src, dest);
+        super(src, src);
     }
 
     @Override

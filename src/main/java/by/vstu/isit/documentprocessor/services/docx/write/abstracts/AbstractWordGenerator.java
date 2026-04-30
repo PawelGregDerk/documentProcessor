@@ -7,13 +7,16 @@ import com.spire.doc.FileFormat;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTMarkupRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ import java.util.Map;
 import static java.text.MessageFormat.format;
 
 public abstract class AbstractWordGenerator {
+    private static final Logger log = LoggerFactory.getLogger(AbstractWordGenerator.class);
     protected final Resource inpPath;
     protected final String outPath;
 
@@ -79,7 +83,11 @@ public abstract class AbstractWordGenerator {
                 doc.write(outTmp);
             }
             fillHeadersWithSpire(tmp, out, headerData);
-            saveHeaderMeta(out, headerData);
+            try {
+                saveHeaderMeta(out, headerData);
+            } catch (Exception metaEx) {
+                log.warn("Failed to save header metadata for {}: {}", out, metaEx.getMessage());
+            }
         } finally {
             Files.deleteIfExists(tmp);
         }
@@ -97,7 +105,13 @@ public abstract class AbstractWordGenerator {
                 props.setProperty(k, v);
             }
         });
-        try (FileWriter writer = new FileWriter(meta.toFile(), false)) {
+        try (var writer = Files.newBufferedWriter(
+                meta,
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        )) {
             props.store(writer, "Header source values");
         }
         markHidden(meta);

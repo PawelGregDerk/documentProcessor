@@ -5,7 +5,6 @@ import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -20,6 +19,8 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
 @Controller
 @FxmlView("package-list-view.fxml")
@@ -90,7 +91,7 @@ public class PackageListController {
             loadPackages();
             currentStage.show();
         });
-        editStage.setScene(new Scene(view, 1280, 1024));
+        editStage.setScene(createScreenRatioScene(view));
         editStage.setTitle("Редактирование пакета документов");
         editStage.setResizable(false);
         editStage.show();

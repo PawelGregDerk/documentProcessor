@@ -18,10 +18,9 @@ public class PuDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 14;
 
     public PuDocEditor(
-            @Value("${out.pu.path}") String src,
-            @Value("${copy.out.pu.path}") String dest
+            @Value("${out.pu.path}") String src
     ) {
-        super(src, dest);
+        super(src, src);
     }
 
     @Override

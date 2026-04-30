@@ -27,15 +27,22 @@ public abstract class AbstractDocEditor {
 
     protected AbstractDocEditor(String srcPath, String destPath) {
         this.srcPath = srcPath;
-        this.destPath = destPath;
+        // Destination path template is derived from originals output template.
+        // This guarantees that "copy_*" updates are generated under the same root as originals
+        // configured via application.properties (out.*.path), even if legacy copy.out.* properties exist.
+        this.destPath = srcPath;
     }
 
     public abstract void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception;
 
+    protected String copyFolder(String folder) {
+        return "копия_" + folder;
+    }
+
     protected Document loadCopy(String folder, String srcName, String destName) throws IOException {
         Path src = Path.of(format(srcPath, folder, srcName));
         Path altSrc = Path.of(format(srcPath, folder, destName));
-        Path dest = Path.of(format(destPath, folder, destName));
+        Path dest = Path.of(format(destPath, copyFolder(folder), destName));
         Path resolvedSrc = resolveSource(src, altSrc);
 
         if (resolvedSrc == null) {
@@ -58,7 +65,7 @@ public abstract class AbstractDocEditor {
     protected Document loadCopySub(String folder, String sub, String srcName, String destName) throws IOException {
         Path src = Path.of(format(srcPath, folder, sub, srcName));
         Path altSrc = Path.of(format(srcPath, folder, sub, destName));
-        Path dest = Path.of(format(destPath, folder, sub, destName));
+        Path dest = Path.of(format(destPath, copyFolder(folder), sub, destName));
         Path resolvedSrc = resolveSource(src, altSrc);
 
         if (resolvedSrc == null) {
@@ -99,7 +106,7 @@ public abstract class AbstractDocEditor {
             if (found == null) {
                 throw ex;
             }
-            return loadCopyFromExplicitSource(found, Path.of(format(destPath, folder, destName)));
+            return loadCopyFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), destName)));
         }
     }
 
@@ -115,7 +122,7 @@ public abstract class AbstractDocEditor {
             if (found == null) {
                 throw ex;
             }
-            return loadCopyFromExplicitSource(found, Path.of(format(destPath, folder, sub, destName)));
+            return loadCopyFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), sub, destName)));
         }
     }
 
@@ -195,12 +202,12 @@ public abstract class AbstractDocEditor {
     }
 
     protected void save(Document doc, String folder, String name) {
-        doc.saveToFile(Path.of(format(destPath, folder, name)).toString(), FileFormat.Docx);
+        doc.saveToFile(Path.of(format(destPath, copyFolder(folder), name)).toString(), FileFormat.Docx);
         doc.close();
     }
 
     protected void saveSub(Document doc, String folder, String sub, String name) {
-        doc.saveToFile(Path.of(format(destPath, folder, sub, name)).toString(), FileFormat.Docx);
+        doc.saveToFile(Path.of(format(destPath, copyFolder(folder), sub, name)).toString(), FileFormat.Docx);
         doc.close();
     }
 

@@ -22,10 +22,9 @@ public class RiDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 4;
 
     public RiDocEditor(
-            @Value("${out.ri.path}") String src,
-            @Value("${copy.out.ri.path}") String dest
+            @Value("${out.ri.path}") String src
     ) {
-        super(src, dest);
+        super(src, src);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class RiDocEditor extends AbstractDocEditor {
             saveSub(doc, savedDto.path(), "ri", oper.name());
 
             if (!origOper.name().equals(oper.name())) {
-                Path oldFile = Path.of(format(destPath, savedDto.path(), "ri", origOper.name()));
+                Path oldFile = Path.of(format(destPath, copyFolder(savedDto.path()), "ri", origOper.name()));
                 Files.deleteIfExists(oldFile);
             }
         }

@@ -18,10 +18,9 @@ public class FmeaDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 25;
 
     public FmeaDocEditor(
-            @Value("${out.fmea.path}") String src,
-            @Value("${copy.out.fmea.path}") String dest
+            @Value("${out.fmea.path}") String src
     ) {
-        super(src, dest);
+        super(src, src);
     }
 
     @Override

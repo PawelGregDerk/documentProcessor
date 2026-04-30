@@ -33,7 +33,7 @@
                 onAction="#createDocPackage"/>
 
         <Button fx:id="loadFromDBButton"
-                text="Загрузить из файла"
+                text="Загрузить пакет"
                 onAction="#loadFromDB"/>
 
     </HBox>

@@ -36,7 +36,7 @@ public class MainController {
     private VBox mainVBox;
 
     public void createDocPackage() {
-        loadStage(DocPackageTestCreateController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
+        loadStage(DocPackageCreateController.class, fxWeaver, mainVBox, NEW_DOC_PACKAGE);
    }
 
     @FXML
@@ -80,7 +80,7 @@ public class MainController {
 
             Stage childStage = new Stage();
             childStage.initOwner(parentStage);
-            childStage.setScene(new Scene(view, 1280, 1024));
+            childStage.setScene(createScreenRatioScene(view));
             childStage.setTitle("Список пакетов документов");
             childStage.setResizable(false);
             addIcon(childStage, PackageListController.class);
@@ -103,7 +103,7 @@ public class MainController {
         Stage childStage = new Stage();
         childStage.initOwner(parentStage);
         childStage.setOnHidden(e -> parentStage.show());
-        childStage.setScene(new Scene(view, 1280, 1024));
+        childStage.setScene(createScreenRatioScene(view));
         childStage.setTitle(title);
         childStage.setResizable(false);
         addIcon(childStage, controllerClass);

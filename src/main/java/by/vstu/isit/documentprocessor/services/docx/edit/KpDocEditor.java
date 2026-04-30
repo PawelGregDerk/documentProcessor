@@ -20,10 +20,9 @@ public class KpDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 11;
 
     public KpDocEditor(
-            @Value("${out.kp.path}") String src,
-            @Value("${copy.out.kp.path}") String dest
+            @Value("${out.kp.path}") String src
     ) {
-        super(src, dest);
+        super(src, src);
     }
 
     @Override
