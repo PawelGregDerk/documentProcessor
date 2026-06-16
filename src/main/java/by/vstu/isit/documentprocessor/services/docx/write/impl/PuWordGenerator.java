@@ -72,6 +72,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
         if (first) {
             addBookmark(row.getCell(0), "oper_" + oper.id() + "_col_0", oper.numOper());
             addBookmark(row.getCell(1), "oper_" + oper.id() + "_col_1", oper.name());
+            appendBookmark(row.getCell(1), "oper_" + oper.id() + "_numZech", oper.numZech());
             addBookmark(row.getCell(2), "oper_" + oper.id() + "_oborud", oper.oborud());
             appendBookmark(row.getCell(2), "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
         }

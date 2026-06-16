@@ -135,8 +135,12 @@ public abstract class AbstractWordGenerator {
     }
 
     protected String designationsAssemblyUnit(List<SborEdDto> sborEdList) {
-        String first = sborEdList.getFirst().oboznach();
-        String last = sborEdList.getLast().oboznach();
-        return first + "\u2014" + last;
+        if (sborEdList.size() == 1) {
+            return sborEdList.getFirst().oboznach();
+        } else {
+            String first = sborEdList.getFirst().oboznach();
+            String last = sborEdList.getLast().oboznach();
+            return first + "\u2014" + last;
+        }
     }
 }

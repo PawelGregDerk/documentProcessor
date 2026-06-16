@@ -34,7 +34,7 @@ public class FmeaDocEditor extends AbstractDocEditor {
         for (int oi = 0; oi < savedDto.opers().size(); oi++) {
             OperDto oper = savedDto.opers().get(oi);
             OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
-            updateCell(table, "oper_" + oper.id() + "_col_2", savedDto.vedIName());
+         //   updateCell(table, "oper_" + oper.id() + "_col_2", savedDto.vedIName());
             updateCell(table, "oper_" + oper.id() + "_numOper", oper.numOper());
             updateCell(table, "oper_" + oper.id() + "_name", oper.name());
             updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());

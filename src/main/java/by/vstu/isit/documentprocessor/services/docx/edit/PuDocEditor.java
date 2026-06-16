@@ -32,6 +32,7 @@ public class PuDocEditor extends AbstractDocEditor {
         for (OperDto oper : savedDto.opers()) {
             updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
             updateCell(table, "oper_" + oper.id() + "_col_1", oper.name());
+            updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
             updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
             updateCell(table, "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
             rebuildOperationFunctionRows(table, oper);

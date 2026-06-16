@@ -144,7 +144,7 @@
             <Separator/>
 
             <!-- Контейнер операций -->
-            <ScrollPane fitToWidth="true" prefHeight="600">
+            <ScrollPane fitToWidth="true" prefHeight="470">
                 <content>
                     <VBox fx:id="operationsContainer" spacing="10"/>
                 </content>
