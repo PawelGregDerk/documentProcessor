@@ -8,7 +8,6 @@ public record OperDto(
         Long idDocPackage,
         String numOper,
         String nomInstr,
-        Long idTypeOper,
         String oborud,
         String ostnasInstr,
         String name,

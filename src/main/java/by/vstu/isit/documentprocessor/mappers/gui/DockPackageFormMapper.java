@@ -57,7 +57,6 @@ public class DockPackageFormMapper {
                 null,
                 text(operRow, 0),
                 text(operRow, 1),
-                null,
                 text(operRow, 2),
                 text(operRow, 3),
                 text(operRow, 4),

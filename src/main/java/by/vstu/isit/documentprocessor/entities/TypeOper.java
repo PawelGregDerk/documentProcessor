@@ -66,12 +66,11 @@ public class TypeOper extends AbstractEntity<Long> {
     @Column(name = "NumZech")
     private String numZech;
 
-    @OneToMany(mappedBy = "typeOper", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Oper> opers;
-
-    @OneToMany(mappedBy = "typeOper", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "typeOper",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @ToString.Exclude
     private List<TypeOperFunc> typeOperFuncs;
-
 }

@@ -70,10 +70,6 @@ public class Oper extends AbstractEntity<Long> {
     @JoinColumn(name = "idDocPackage")
     private Docpackage docpackage;
 
-    @ManyToOne
-    @JoinColumn(name = "idTypeOper")
-    private TypeOper typeOper;
-
     @OneToMany(mappedBy = "oper", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @ToString.Exclude
