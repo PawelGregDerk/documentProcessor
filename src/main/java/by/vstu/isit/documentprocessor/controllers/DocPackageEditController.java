@@ -4,6 +4,7 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
+import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Controller;
 
+import java.io.File;
 import java.util.List;
 
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
@@ -57,6 +59,7 @@ public class DocPackageEditController {
 
     private final DockPackageFormMapper formMapper;
     private final List<AbstractDocEditor> editors;
+    private final List<AbstractWordGenerator> generators;
     private final DocpackageService service;
 
     @FXML
@@ -184,6 +187,66 @@ public class DocPackageEditController {
             new Alert(Alert.AlertType.INFORMATION, "Документы сохранены в папку копия_" + dto.path()).showAndWait();
         } catch (Exception ex) {
             log.error("Ошибка сохранения", ex);
+            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+        }
+    }
+
+    @FXML
+    private void onUpdateDbOnly() {
+        try {
+            var dto = formMapper.fromGui(
+                    packageId,
+                    packageNameField,
+                    path,
+                    sborEdNazv,
+                    puField,
+                    spuField,
+                    kpField,
+                    fmeaField,
+                    vedInstrField,
+                    operationsContainer,
+                    assemblyUnitsContainer
+            );
+
+            if (dto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
+            if (dto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
+            if (dto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
+            service.updateFullPackage(dto);
+
+            new Alert(Alert.AlertType.INFORMATION, "Данные обновлены в базе данных").showAndWait();
+        } catch (Exception ex) {
+            log.error("Ошибка обновления", ex);
+            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+        }
+    }
+
+    @FXML
+    private void onSaveToDiskOnly() {
+        try {
+            var pckgDto = formMapper.fromGui(
+                    null,
+                    packageNameField,
+                    path,
+                    sborEdNazv,
+                    puField,
+                    spuField,
+                    kpField,
+                    fmeaField,
+                    vedInstrField,
+                    operationsContainer,
+                    assemblyUnitsContainer
+            );
+            if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
+            if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
+            if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
+            generators.forEach(g -> Try.run(() -> g.generate(pckgDto))
+                    .onFailure(ex -> log.error("Ошибка генерации документа", ex))
+                    .getOrElseThrow(ex -> new RuntimeException(ex)));
+            new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
+        } catch (Exception ex) {
+            log.error("Ошибка генерации", ex);
             new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
     }

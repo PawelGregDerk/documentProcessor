@@ -1,4 +1,3 @@
-
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
@@ -503,6 +502,35 @@ public class DocPackageCreateController {
             new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
         } catch (Exception ex) {
             log.error("Ошибка генерации", ex);
+            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+        }
+    }
+
+    @FXML
+    private void onSaveToDbOnly() {
+        try {
+            var pckgDto = formMapper.fromGui(
+                    null,
+                    packageNameField,
+                    packagePathField.getText(),
+                    sborEdNazv,
+                    puField,
+                    spuField,
+                    kpField,
+                    fmeaField,
+                    vedInstrField,
+                    operationsContainer,
+                    assemblyUnitsContainer
+            );
+            if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
+            if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
+            if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
+            service.saveFullPackage(pckgDto);
+
+            new Alert(Alert.AlertType.INFORMATION, "Пакет сохранён в базу данных").showAndWait();
+        } catch (Exception ex) {
+            log.error("Ошибка сохранения в БД", ex);
             new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
     }

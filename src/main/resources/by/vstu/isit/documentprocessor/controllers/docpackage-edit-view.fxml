@@ -114,21 +114,28 @@
         </content>
     </ScrollPane>
 
-    <!-- Сохранить -->
-    <HBox alignment="CENTER_RIGHT" spacing="10">
-        <padding>
-            <Insets top="50"/>
-        </padding>
-
-        <Button text="Назад"
-                onAction="#onBack"
-                styleClass="newButton"
-                minWidth="200"/>
-
-        <Button text="Сохранить"
-                onAction="#onSave"
-                styleClass="buttonSave"
-                minWidth="200"/>
-    </HBox>
+    <!-- Сохранить: две строки кнопок, чтобы не уменьшать размеры остальных элементов -->
+    <VBox spacing="8" alignment="CENTER_RIGHT">
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Назад"
+                    onAction="#onBack"
+                    styleClass="newButton"
+                    minWidth="200"/>
+            <Button text="Обновить базу данных"
+                    onAction="#onUpdateDbOnly"
+                    styleClass="newButton"
+                    minWidth="200"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Сохранить пакет на диске"
+                    onAction="#onSaveToDiskOnly"
+                    styleClass="buttonSave"
+                    minWidth="200"/>
+            <Button text="Сохранить"
+                    onAction="#onSave"
+                    styleClass="buttonSave"
+                    minWidth="200"/>
+        </HBox>
+    </VBox>
 
 </VBox>

@@ -4,6 +4,8 @@ import by.vstu.isit.documentprocessor.dto.*;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +69,6 @@ public class DockPackageGuiMapper {
     }
 
     private VBox createOperation(OperDto dto) {
-
         VBox block = styled(new VBox(5), "operation-block");
         block.setUserData(dto.id());
 
@@ -75,13 +76,13 @@ public class DockPackageGuiMapper {
         row.setAlignment(Pos.CENTER_LEFT);
 
         row.getChildren().addAll(
-                tf(dto.numOper()),
-                tf(dto.nomInstr()),
-                tf(dto.oborud()),
-                tf(dto.ostnasInstr()),
-                tf(dto.name()),
-                tf(dto.shifr()),
-                tf(dto.numZech())
+                createStyledField(dto.numOper(), 80),
+                createStyledField(dto.nomInstr(), 110),
+                createStyledField(dto.oborud(), 120),
+                createStyledField(dto.ostnasInstr(), 140),
+                createStyledField(dto.name(), 160),
+                createStyledField(dto.shifr(), 80),
+                createStyledField(dto.numZech(), 60)
         );
 
         Button addFunc = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
@@ -110,11 +111,12 @@ public class DockPackageGuiMapper {
         row.getStyleClass().add("function-data-row");
         row.setUserData(dto.id());
 
-        TextField name = styled(new TextField(dto.name()), "compact");
-        TextField param = styled(new TextField(dto.param()), "no-compact");
+        TextField name = createStyledField(dto.name(), 140);
+        TextField param = param = createStyledField(dto.param(), 140);
         CheckBox prod = new CheckBox();
         prod.setSelected(dto.isProd());
-        TextField spec = styled(new TextField(dto.specCharakt()), "compact");
+        prod.setPrefWidth(20);
+        TextField spec = createStyledField(dto.specCharakt(), 140);
 
         Button del = styled(new Button("Удалить"), "delButton");
         del.setOnAction(e -> {
@@ -128,12 +130,12 @@ public class DockPackageGuiMapper {
     }
 
     /* ================= HELPERS ================= */
-
-    private TextField tf(String v) {
-        TextField f = styled(new TextField(), "compact");
-        f.setText(v);
-        return f;
-    }
+//
+//    private TextField tf(String v) {
+//        TextField f = styled(new TextField(), "compact");
+//        f.setText(v);
+//        return f;
+//    }
 
     private void ensureFunctionHeader(VBox funcs) {
         boolean hasHeader = funcs.getChildren().stream()
@@ -160,9 +162,26 @@ public class DockPackageGuiMapper {
             funcs.getChildren().removeIf(n -> n.getStyleClass().contains("function-header-row"));
         }
     }
+
     private void clearAll(VBox ops, VBox sbor) {
         ops.getChildren().clear();
         sbor.getChildren().clear();
+    }
+
+    private void setGrow(Region region, double minWidth) {
+        region.setMinWidth(minWidth);
+        region.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(region, Priority.ALWAYS);
+    }
+
+
+    private TextField createStyledField(String text, int width) {
+        TextField f = styled(new TextField(), "compact");
+        if (text != null && !text.isEmpty()) {
+            f.setText(text);
+        }
+        setGrow(f, width);
+        return f;
     }
 }
 

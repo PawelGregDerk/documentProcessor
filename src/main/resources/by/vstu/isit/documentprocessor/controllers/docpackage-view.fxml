@@ -62,18 +62,18 @@
         </HBox>
     </GridPane>
 
-<Button text="Добавить сборочную единицу"
-        onAction="#onAddAssemblyUnit"
-        styleClass="newButton"
-        maxWidth="300"/>
+    <Button text="Добавить сборочную единицу"
+            onAction="#onAddAssemblyUnit"
+            styleClass="newButton"
+            maxWidth="300"/>
 
-<!-- Контейнер сборочных единиц -->
+    <!-- Контейнер сборочных единиц -->
     <ScrollPane fitToWidth="true" prefHeight="350">
         <content>
             <VBox fx:id="assemblyUnitsContainer" spacing="10"/>
         </content>
     </ScrollPane>
-      
+
     <!-- Названия документов -->
     <GridPane hgap="10" vgap="10">
         <columnConstraints>
@@ -123,32 +123,32 @@
         <VBox fx:id="regularPanel" spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
             <Label text="Обычные операции" styleClass="labelFont"/>
 
-    <!-- Кнопка добавления операции -->
-    <Button text="Добавить операцию"
-            onAction="#onAddOperation"
-            styleClass="newButton"
-            maxWidth="200"/>
+            <!-- Кнопка добавления операции -->
+            <Button text="Добавить операцию"
+                    onAction="#onAddOperation"
+                    styleClass="newButton"
+                    maxWidth="200"/>
 
-    <HBox spacing="6" maxWidth="Infinity" style="-fx-font-weight: bold;">
-        <Label text="№ опер." minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="№ инструкции" minWidth="110" prefWidth="110" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="Оборудование" minWidth="120" prefWidth="120" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="Оснастка / Инстр." minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="Наименование" minWidth="160" prefWidth="160" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="Шифр" minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Label text="Цех" minWidth="60" prefWidth="60" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        <Region minWidth="140" prefWidth="140" maxWidth="140"/>
-        <Region minWidth="90" prefWidth="90" maxWidth="90"/>
-    </HBox>
+            <HBox spacing="6" maxWidth="Infinity" style="-fx-font-weight: bold;">
+                <Label text="№ опер." minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="№ инструкции" minWidth="110" prefWidth="110" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="Оборудование" minWidth="120" prefWidth="120" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="Оснастка / Инстр." minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="Наименование" minWidth="160" prefWidth="160" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="Шифр" minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Label text="Цех" minWidth="60" prefWidth="60" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <Region minWidth="140" prefWidth="140" maxWidth="140"/>
+                <Region minWidth="90" prefWidth="90" maxWidth="90"/>
+            </HBox>
 
-    <Separator/>
+            <Separator/>
 
-    <!-- Контейнер операций -->
-    <ScrollPane fitToWidth="true" prefHeight="600">
-        <content>
-            <VBox fx:id="operationsContainer" spacing="10"/>
-        </content>
-    </ScrollPane>
+            <!-- Контейнер операций -->
+            <ScrollPane fitToWidth="true" prefHeight="600">
+                <content>
+                    <VBox fx:id="operationsContainer" spacing="10"/>
+                </content>
+            </ScrollPane>
 
 
         </VBox>
@@ -186,6 +186,11 @@
         <padding>
             <Insets top="50"/>
         </padding>
+
+        <Button text="Сохранить в базу данных"
+                onAction="#onSaveToDbOnly"
+                styleClass="buttonSave"
+                minWidth="200"/>
 
         <Button text="Сохранить"
                 onAction="#onSave"
