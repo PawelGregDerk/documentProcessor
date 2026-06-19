@@ -14,6 +14,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -81,7 +82,10 @@ public class DocPackageEditController {
     @FXML
     private void onAddOperation() {
         VBox operationBlock = styled(new VBox(5), "operation-block");
+        operationBlock.setUserData(null);
+        operationBlock.setMaxWidth(Double.MAX_VALUE);
         HBox operRow = styled(new HBox(6), "operation-row");
+        operRow.setMaxWidth(Double.MAX_VALUE);
         operRow.setAlignment(Pos.CENTER_LEFT);
         TextField numOper = styled(new TextField(), "compact");
         numOper.setPromptText("№ операции");
@@ -103,6 +107,15 @@ public class DocPackageEditController {
         Button delOperBtn = styled(new Button("Удалить"), "btn-danger", "btn-small");
         delOperBtn.setPrefWidth(90);
 
+        List<TextField> fields = List.of(
+                numOper, nomInstr, oborud, ostnas, name, shifr, zech
+        );
+
+        fields.forEach(f -> {
+            HBox.setHgrow(f, Priority.ALWAYS);
+            f.setMaxWidth(Double.MAX_VALUE);
+        });
+
         operRow.getChildren().addAll(
                 numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
         );
@@ -119,6 +132,7 @@ public class DocPackageEditController {
         if (funcsContainer.getChildren().isEmpty()) {
             HBox header = styled(new HBox(6), "function-header");
             header.getStyleClass().add("function-header-row");
+            header.setMaxWidth(Double.MAX_VALUE);
             header.getChildren().addAll(
                     styled(new Label("Описание функции"), "table-header"),
                     styled(new Label("Параметры / Требования"), "table-header"),
@@ -139,6 +153,15 @@ public class DocPackageEditController {
         CheckBox isProd = new CheckBox();
         TextField spec = styled(new TextField(), "compact");
         spec.setPromptText("Спец. характеристики");
+
+        List<javafx.scene.Node> growFields = List.of(name, param, spec);
+
+        for (var node : growFields) {
+            if (node instanceof TextField tf) {
+                HBox.setHgrow(tf, Priority.ALWAYS);
+                tf.setMaxWidth(Double.MAX_VALUE);
+            }
+        }
 
         Button delBtn = styled(new Button("Удалить"), "delButton");
         delBtn.setOnAction(e -> {

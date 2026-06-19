@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,8 +34,9 @@ public class RiDocEditor extends AbstractDocEditor {
         for (int oi = 0; oi < savedDto.opers().size(); oi++) {
             OperDto oper = savedDto.opers().get(oi);
             OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
-
-            Document doc = loadCopySubByBookmark(
+            Document doc;
+            try {
+            doc = loadCopySubByBookmark(
                     dto.path(),
                     "ri",
                     origOper.name(),
@@ -42,6 +44,11 @@ public class RiDocEditor extends AbstractDocEditor {
                     2,
                     sourceBookmark(origOper)
             );
+            } catch (NoSuchFileException ex) {
+                // 👉 Новая операция → копируем первую операцию как шаблон
+                OperDto first = savedDto.opers().getFirst();
+                doc = loadCopySub(dto.path(), "ri", first.name(), oper.name());
+            }
             Table table = doc.getSections().get(0).getTables().get(2);
 
             Set<Long> processedFuncIds = new HashSet<>();
@@ -72,7 +79,8 @@ public class RiDocEditor extends AbstractDocEditor {
                     "namOp", origOper.name(),
                     "numOp", origOper.numOper(),
                     "oObr", origOper.oborud(),
-                    "oOst", origOper.ostnasInstr()
+                    "oOst", origOper.ostnasInstr(),
+                    "nZech", oper.numZech()
             ));
             updateHeader(doc, oldHeader, Map.of(
                     "d", designationsAssemblyUnit(savedDto.sborEds()),
@@ -82,7 +90,8 @@ public class RiDocEditor extends AbstractDocEditor {
                     "namOp", oper.name(),
                     "numOp", oper.numOper(),
                     "oObr", oper.oborud(),
-                    "oOst", oper.ostnasInstr()
+                    "oOst", oper.ostnasInstr(),
+                    "nZech", oper.numZech()
             ));
 
             saveSub(doc, savedDto.path(), "ri", oper.name());

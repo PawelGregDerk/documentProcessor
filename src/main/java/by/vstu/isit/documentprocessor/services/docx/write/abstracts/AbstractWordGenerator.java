@@ -4,6 +4,7 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import com.spire.doc.Document;
 import com.spire.doc.FileFormat;
+import lombok.Getter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTMarkupRange;
@@ -25,7 +26,9 @@ import static java.text.MessageFormat.format;
 
 public abstract class AbstractWordGenerator {
     private static final Logger log = LoggerFactory.getLogger(AbstractWordGenerator.class);
+    @Getter
     protected final Resource inpPath;
+    @Getter
     protected final String outPath;
 
     protected AbstractWordGenerator(Resource inpPath, String outPath) {
@@ -135,12 +138,6 @@ public abstract class AbstractWordGenerator {
     }
 
     protected String designationsAssemblyUnit(List<SborEdDto> sborEdList) {
-        if (sborEdList.size() == 1) {
-            return sborEdList.getFirst().oboznach();
-        } else {
-            String first = sborEdList.getFirst().oboznach();
-            String last = sborEdList.getLast().oboznach();
-            return first + "\u2014" + last;
-        }
+        return sborEdList.getFirst().oboznach();
     }
 }

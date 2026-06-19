@@ -41,8 +41,7 @@ public class PuDocEditor extends AbstractDocEditor {
 
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
         String origArticle = dto.sborEds().getFirst().nazv() + " "
-                + dto.sborEds().getFirst().oboznach() + "\u2014"
-                + dto.sborEds().getLast().oboznach();
+                + dto.sborEds().getFirst().oboznach();
         Map<String, String> oldHeader = resolveHeaderOldData(
                 Map.of("d", origArticle, "n", dto.puName(), "p", dto.packageName())
         );

@@ -14,6 +14,7 @@
     <groupId>by.vstu.isit</groupId>
     <artifactId>documentProcessor</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>23</java.version>

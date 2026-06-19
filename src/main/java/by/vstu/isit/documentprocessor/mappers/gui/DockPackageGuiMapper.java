@@ -71,8 +71,9 @@ public class DockPackageGuiMapper {
     private VBox createOperation(OperDto dto) {
         VBox block = styled(new VBox(5), "operation-block");
         block.setUserData(dto.id());
-
+        block.setMaxWidth(Double.MAX_VALUE);
         HBox row = styled(new HBox(6), "operation-row");
+        row.setMaxWidth(Double.MAX_VALUE);
         row.setAlignment(Pos.CENTER_LEFT);
 
         row.getChildren().addAll(
@@ -110,7 +111,7 @@ public class DockPackageGuiMapper {
         HBox row = styled(new HBox(6), "function-row");
         row.getStyleClass().add("function-data-row");
         row.setUserData(dto.id());
-
+        row.setMaxWidth(Double.MAX_VALUE);
         TextField name = createStyledField(dto.name(), 140);
         TextField param = param = createStyledField(dto.param(), 140);
         CheckBox prod = new CheckBox();

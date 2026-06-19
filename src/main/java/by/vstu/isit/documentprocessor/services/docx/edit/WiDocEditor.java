@@ -50,7 +50,7 @@ public class WiDocEditor extends AbstractDocEditor {
 
         removeDeletedRows(table, processedOperIds, "oper_", "_col_0");
 
-        String origDesig = dto.sborEds().getFirst().oboznach() + "\u2014" + dto.sborEds().getLast().oboznach();
+        String origDesig = dto.sborEds().getFirst().oboznach();
         Map<String, String> oldHeader = resolveHeaderOldData(
                 Map.of("d", origDesig, "d1", dto.sborEds().getFirst().nazv(), "p", dto.packageName())
         );

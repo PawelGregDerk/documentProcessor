@@ -431,6 +431,6 @@ public abstract class AbstractDocEditor {
     }
 
     protected String designationsAssemblyUnit(List<by.vstu.isit.documentprocessor.dto.SborEdDto> list) {
-        return list.getFirst().oboznach() + "\u2014" + list.getLast().oboznach();
+        return list.getFirst().oboznach();
     }
 }
