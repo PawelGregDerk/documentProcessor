@@ -430,7 +430,7 @@ public abstract class AbstractDocEditor {
         }
     }
 
-    protected String designationsAssemblyUnit(List<by.vstu.isit.documentprocessor.dto.SborEdDto> list) {
-        return list.getFirst().oboznach();
+    protected String designationsAssemblyUnit(List<SborEdDto> list) {
+        return list.size() > 1 ? "согласно таблице 1" : list.getFirst().oboznach();
     }
 }

@@ -5,7 +5,6 @@ import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.excepts.NoFunctionException;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
-import by.vstu.isit.documentprocessor.services.docx.write.abstracts.HorizontMerger;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.VerticalMerger;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +42,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 List<FuncDto> funcs = oper.funcs();
                 for (int fi = 0; fi < funcs.size(); fi++) {
                     FuncDto func = funcs.get(fi);
-                    var row = createRow(table, oper, dto.vedIName(), fi == 0);
+                    var row = createRow(table, oper, /*dto.vedIName(),*/ fi == 0);
                     addBookmark(row.getCell(7), "func_" + func.id() + "_col_7", func.name());
                     if (isNotBlank(func.specCharakt())) {
                         mergeHorizontalAndRemove(row, 17, 2);
@@ -70,7 +69,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         }
     }
 
-    private XWPFTableRow createRow(XWPFTable table, OperDto oper, String vedIName, boolean first) {
+    private XWPFTableRow createRow(XWPFTable table, OperDto oper, /*String vedIName,*/ boolean first) {
         var row = table.createRow();
         ensureCells(row, COLUMN_COUNT);
         if (first) {

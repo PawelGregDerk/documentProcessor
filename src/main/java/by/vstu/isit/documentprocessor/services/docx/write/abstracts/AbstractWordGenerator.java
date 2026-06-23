@@ -45,7 +45,7 @@ public abstract class AbstractWordGenerator {
     }
 
     protected void addBookmark(XWPFTableCell cell, String bookmarkName, String text) {
-        XWPFParagraph para = cell.getParagraphs().getFirst();
+        var para = cell.getParagraphs().getFirst();
         para.getRuns().forEach(r -> r.setText("", 0));
         appendBookmark(para, bookmarkName, text);
     }
@@ -138,6 +138,6 @@ public abstract class AbstractWordGenerator {
     }
 
     protected String designationsAssemblyUnit(List<SborEdDto> sborEdList) {
-        return sborEdList.getFirst().oboznach();
+        return sborEdList.size() > 1 ? "согласно таблице 1" : sborEdList.getFirst().oboznach();
     }
 }
