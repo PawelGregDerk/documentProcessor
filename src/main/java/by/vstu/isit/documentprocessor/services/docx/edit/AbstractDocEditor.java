@@ -5,6 +5,8 @@ import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import com.spire.doc.*;
 import com.spire.doc.BookmarkStart;
 import com.spire.doc.documents.Paragraph;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.FileReader;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.text.MessageFormat.format;
-
+@Slf4j
 public abstract class AbstractDocEditor {
 
     protected final String srcPath;
@@ -271,16 +273,19 @@ public abstract class AbstractDocEditor {
                 if (obj instanceof BookmarkStart bm && bookmarkName.equals(bm.getName())) {
                     inBookmark = true;
                     bookmarkStartIdx = m;
+                    log.info("Found bookmark start: {} at index {}", bookmarkName, m);
                     continue;
                 }
                 if (obj instanceof com.spire.doc.BookmarkEnd && inBookmark) {
                     // TextRange не найден между start и end — добавляем новый
+                    log.info("Bookmark end found without TextRange, appending text: '{}'", newText);
                     com.spire.doc.fields.TextRange tr = para.appendText(newText);
                     tr.getCharacterFormat().isShadow(true);
                     return;
                 }
                 if (inBookmark && obj instanceof com.spire.doc.fields.TextRange tr) {
                     boolean changed = !newText.equals(tr.getText().trim());
+                    log.info("Updating TextRange for bookmark '{}': '{}' -> '{}'", bookmarkName, tr.getText(), newText);
                     tr.setText(newText);
                     if (changed) {
                         tr.getCharacterFormat().isShadow(true);
@@ -289,6 +294,8 @@ public abstract class AbstractDocEditor {
                 }
             }
         }
+        // Если закладка не найдена, логируем это
+        log.warn("Bookmark '{}' not found in cell", bookmarkName);
     }
 
     protected void updateHeader(Document doc, Map<String, String> oldData, Map<String, String> newData) {
@@ -302,20 +309,10 @@ public abstract class AbstractDocEditor {
     }
 
     private void replaceAllOccurrences(Document doc, String oldValue, String newValue) {
-        if (oldValue.isBlank()) {
+        if (oldValue == null || oldValue.isEmpty()) {
             return;
         }
-
-        // Spire may replace only one hit per call (including headers/footers),
-        // and header text is not always reflected in doc.getText().
-        int safetyCounter = 0;
-        while (safetyCounter < 10_000) {
-            doc.replace(oldValue, newValue, false, false);
-            safetyCounter++;
-            if (!doc.getText().contains(oldValue)) {
-                break;
-            }
-        }
+        doc.replace(oldValue, newValue, true, false);
     }
 
     protected TableRow addRowWithShading(Table table, int columnCount) {
@@ -327,7 +324,7 @@ public abstract class AbstractDocEditor {
     }
 
     protected TableRow insertRowAfterLastBookmark(Table table, String operBookmarkPrefix, int columnCount) {
-        int lastIdx = -1;
+        int lastOperStartIdx = -1;
         for (int i = 0; i < table.getRows().getCount(); i++) {
             TableRow row = table.getRows().get(i);
             for (int j = 0; j < row.getCells().getCount(); j++) {
@@ -337,23 +334,28 @@ public abstract class AbstractDocEditor {
                     for (int m = 0; m < para.getChildObjects().getCount(); m++) {
                         var obj = para.getChildObjects().get(m);
                         if (obj instanceof BookmarkStart bm && bm.getName().startsWith(operBookmarkPrefix)) {
-                            lastIdx = i;
+                            lastOperStartIdx = i;
                         }
                     }
                 }
             }
         }
-        TableRow newRow;
-        if (lastIdx >= 0) {
-            TableRow template = table.getRows().get(lastIdx);
-            newRow = (TableRow) template.deepClone();
-            for (int j = 0; j < newRow.getCells().getCount(); j++) {
-                TableCell cell = newRow.getCells().get(j);
-                for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
-                    cell.getParagraphs().get(k).setText("");
+        
+        // Находим конец блока последней операции
+        int insertIdx = lastOperStartIdx;
+        if (lastOperStartIdx >= 0) {
+            for (int i = lastOperStartIdx + 1; i < table.getRows().getCount(); i++) {
+                if (containsOperStartBookmark(table.getRows().get(i), operBookmarkPrefix)) {
+                    break;
                 }
+                insertIdx = i;
             }
-            table.getRows().insert(lastIdx + 1, newRow);
+        }
+        
+        TableRow newRow;
+        if (insertIdx >= 0) {
+            newRow = table.addRow();
+            table.getRows().insert(insertIdx + 1, newRow);
         } else {
             newRow = table.addRow();
         }
@@ -361,6 +363,22 @@ public abstract class AbstractDocEditor {
             newRow.addCell();
         }
         return newRow;
+    }
+
+    protected boolean containsOperStartBookmark(TableRow row, String operBookmarkPrefix) {
+        for (int j = 0; j < row.getCells().getCount(); j++) {
+            TableCell cell = row.getCells().get(j);
+            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
+                Paragraph para = cell.getParagraphs().get(k);
+                for (int m = 0; m < para.getChildObjects().getCount(); m++) {
+                    var obj = para.getChildObjects().get(m);
+                    if (obj instanceof BookmarkStart bm && bm.getName().startsWith(operBookmarkPrefix)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     protected void setShadedText(TableCell cell, String text) {

@@ -71,7 +71,7 @@ public class DocPackageEditController {
         TextField codeField = styled(new TextField(), "compact");
         codeField.setPromptText("Обозначение сборочной единицы");
         codeField.prefWidthProperty().bind(row.widthProperty().multiply(0.75));
-
+        HBox.setHgrow(codeField, Priority.ALWAYS);
         Button deleteButton = styled(new Button("Удалить"), "delButton");
         deleteButton.setOnAction(e -> assemblyUnitsContainer.getChildren().remove(row));
 

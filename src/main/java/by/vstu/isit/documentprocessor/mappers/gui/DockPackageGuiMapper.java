@@ -46,11 +46,13 @@ public class DockPackageGuiMapper {
 
         for (SborEdDto ed : dto.sborEds()) {
             HBox row = new HBox(10);
+            row.setMaxWidth(Double.MAX_VALUE);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setUserData(ed.id());
 
-            TextField oboz = styled(new TextField(), "compact");
-            oboz.setText(ed.oboznach());
+         //   TextField oboz = styled(new TextField(), "compact");
+         //   oboz.setText(ed.oboznach());
+            row.getChildren().add(createStyledField(ed.oboznach(), 140));
 
             Button del = styled(new Button("Удалить"), "delButton");
             del.setOnAction(e -> {
@@ -59,7 +61,7 @@ public class DockPackageGuiMapper {
                 cleanupFunctionHeader(parent);
             });
 
-            row.getChildren().addAll(oboz, del);
+            row.getChildren().addAll(del);
             container.getChildren().add(row);
         }
     }

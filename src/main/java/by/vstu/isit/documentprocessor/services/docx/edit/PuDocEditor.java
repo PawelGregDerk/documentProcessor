@@ -7,12 +7,16 @@ import com.spire.doc.BookmarkStart;
 import com.spire.doc.Table;
 import com.spire.doc.*;
 import com.spire.doc.documents.Paragraph;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+@Slf4j
 @Service
 public class PuDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 14;
@@ -29,14 +33,35 @@ public class PuDocEditor extends AbstractDocEditor {
         Document doc = loadCopyByBookmark(dto.path(), dto.puName(), savedDto.puName(), 0, sourceBookmark(dto));
         Table table = doc.getSections().get(0).getTables().get(0);
 
+        Set<Long> processedOperIds = new HashSet<>();
+
         for (OperDto oper : savedDto.opers()) {
-            updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
-            updateCell(table, "oper_" + oper.id() + "_col_1", oper.name());
-            updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
-            updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
-            updateCell(table, "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
+            processedOperIds.add(oper.id());
+            String bookmarkName = "oper_" + oper.id() + "_col_0";
+            boolean exists = findCellByBookmark(table, bookmarkName) != null;
+
+            log.info("Processing operation: id={}, name={}, exists={}", oper.id(), oper.name(), exists);
+
+            if (exists) {
+                log.info("Updating existing operation: {}", bookmarkName);
+                updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
+                updateCell(table, "oper_" + oper.id() + "_col_1", oper.name());
+                updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
+                updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
+                updateCell(table, "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
+            } else {
+                log.info("Adding new operation: {}", bookmarkName);
+                TableRow row = insertRowAfterLastBookmark(table, "oper_", COLUMN_COUNT);
+                setShadedBookmarkedText(row.getCells().get(0), "oper_" + oper.id() + "_col_0", oper.numOper());
+                setShadedBookmarkedText(row.getCells().get(1), "oper_" + oper.id() + "_col_1", oper.name());
+                appendShadedBookmark(row.getCells().get(1).getParagraphs().get(0), "oper_" + oper.id() + "_numZech", oper.numZech());
+                setShadedBookmarkedText(row.getCells().get(2), "oper_" + oper.id() + "_oborud", oper.oborud());
+                appendShadedBookmark(row.getCells().get(2).getParagraphs().get(0), "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
+            }
             rebuildOperationFunctionRows(table, oper);
         }
+
+        removeDeletedRows(table, processedOperIds, "oper_", "_col_0");
         rebuildOperMerges(table, savedDto);
 
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
@@ -90,16 +115,21 @@ public class PuDocEditor extends AbstractDocEditor {
     private void rebuildOperationFunctionRows(Table table, OperDto oper) {
         TableRow startRow = findRowByBookmark(table, "oper_" + oper.id() + "_col_0");
         if (startRow == null) {
+            log.warn("Start row not found for operation {}", oper.id());
             return;
         }
         int start = rowIndexOf(table, startRow);
         if (start < 0) {
+            log.warn("Row index not found for operation {}", oper.id());
             return;
         }
 
         int blockEnd = findOperationBlockEnd(table, start);
         int targetRows = Math.max(oper.funcs().size(), 1);
         int currentRows = blockEnd - start + 1;
+
+        log.info("Rebuilding function rows for operation {}: start={}, blockEnd={}, targetRows={}, currentRows={}",
+                oper.id(), start, blockEnd, targetRows, currentRows);
 
         while (currentRows < targetRows) {
             TableRow template = table.getRows().get(blockEnd);
@@ -108,12 +138,14 @@ public class PuDocEditor extends AbstractDocEditor {
             table.getRows().insert(blockEnd + 1, newRow);
             blockEnd++;
             currentRows++;
+            log.info("Added row for operation {}, currentRows={}", oper.id(), currentRows);
         }
 
         while (currentRows > targetRows) {
             table.getRows().remove(table.getRows().get(blockEnd));
             blockEnd--;
             currentRows--;
+            log.info("Removed row for operation {}, currentRows={}", oper.id(), currentRows);
         }
 
         for (int i = 0; i < oper.funcs().size(); i++) {
@@ -125,6 +157,7 @@ public class PuDocEditor extends AbstractDocEditor {
                     Boolean.TRUE.equals(func.isProd()) ? "" : func.name());
             setShadedBookmarkedText(row.getCells().get(6), "func_" + func.id() + "_col_6", func.specCharakt());
             setShadedBookmarkedText(row.getCells().get(7), "func_" + func.id() + "_col_7", func.param());
+            log.info("Set function bookmarks for func {} at row {}", func.id(), start + i);
         }
     }
 
@@ -139,30 +172,11 @@ public class PuDocEditor extends AbstractDocEditor {
 
     private int findOperationBlockEnd(Table table, int startIndex) {
         for (int i = startIndex + 1; i < table.getRows().getCount(); i++) {
-            if (containsOperStartBookmark(table.getRows().get(i))) {
+            if (containsOperStartBookmark(table.getRows().get(i), "oper_")) {
                 return i - 1;
             }
         }
         return table.getRows().getCount() - 1;
-    }
-
-    private boolean containsOperStartBookmark(TableRow row) {
-        for (int j = 0; j < row.getCells().getCount(); j++) {
-            TableCell cell = row.getCells().get(j);
-            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
-                Paragraph para = cell.getParagraphs().get(k);
-                for (int m = 0; m < para.getChildObjects().getCount(); m++) {
-                    Object obj = para.getChildObjects().get(m);
-                    if (obj instanceof BookmarkStart bm) {
-                        String name = bm.getName();
-                        if (name != null && name.startsWith("oper_") && name.endsWith("_col_0")) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     private void clearRowTexts(TableRow row) {

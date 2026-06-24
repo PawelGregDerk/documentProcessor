@@ -89,7 +89,7 @@ public class SxPuDocEditor extends AbstractDocEditor {
                     "puName", savedDto.puName(),
                     "spuName", savedDto.spuName(),
                     "nazv", savedDto.sborEds().getFirst().nazv(),
-                    "oboznach", savedDto.sborEds().getFirst().oboznach(),
+                    "oboznach", designationsAssemblyUnit(savedDto.sborEds()),
                     "packageName", savedDto.packageName()
             ));
 

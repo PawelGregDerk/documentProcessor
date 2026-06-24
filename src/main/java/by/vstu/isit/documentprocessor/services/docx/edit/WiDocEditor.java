@@ -44,7 +44,7 @@ public class WiDocEditor extends AbstractDocEditor {
                 TableRow newRow = addRowWithShading(table, COLUMN_COUNT);
                 setShadedText(newRow.getCells().get(0), oper.numOper());
                 setShadedText(newRow.getCells().get(1), oper.shifr() + " " + oper.name());
-                setShadedText(newRow.getCells().get(2), oper.numZech() + "-" + oper.nomInstr());
+                setShadedText(newRow.getCells().get(2), oper.numZech() + " " + oper.nomInstr());
             }
         }
 

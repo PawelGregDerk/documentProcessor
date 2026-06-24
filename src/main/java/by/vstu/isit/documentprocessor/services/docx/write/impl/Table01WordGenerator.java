@@ -37,12 +37,12 @@ public class Table01WordGenerator extends AbstractWordGenerator {
             // Генерация строк
             for (var se : dto.sborEds()) {
                 var row = table.createRow();
-                ensureCells(row, 7);
+                ensureCells(row, 6);
                 setCellWithBookmark(row.getCell(0), "t01_name_" + se.id(), fillFirstCell(dto.packageName(), se));
                 setCellWithBookmark(row.getCell(1),  "t01_obj_" + se.id(), se.nazv() + " " + se.oboznach());
 
                 // Остальные столбцы пустые
-                for (int c = 2; c < 7; c++) {
+                for (int c = 2; c < 6; c++) {
                     setCell(row.getCell(c), "");
                 }
             }
@@ -81,7 +81,7 @@ public class Table01WordGenerator extends AbstractWordGenerator {
         end.setId(id);
     }
 
-    private String fillFirstCell(String name, SborEdDto dto) {
+    public String fillFirstCell(String name, SborEdDto dto) {
         String cellData = name;
         String[] parts = dto.oboznach().split("--");
         outer:

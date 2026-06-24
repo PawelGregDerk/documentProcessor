@@ -45,8 +45,10 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                     var row = createRow(table, oper, /*dto.vedIName(),*/ fi == 0);
                     addBookmark(row.getCell(7), "func_" + func.id() + "_col_7", func.name());
                     if (isNotBlank(func.specCharakt())) {
-                        mergeHorizontalAndRemove(row, 17, 2);
+                    //    mergeHorizontalAndRemove(row, 17, 2);
                         addBookmark(row.getCell(17), "func_" + func.id() + "_col_17", func.specCharakt());
+                    } else {
+                        addBookmark(row.getCell(17), "func_" + func.id() + "_col_17", "");
                     }
                 }
 
