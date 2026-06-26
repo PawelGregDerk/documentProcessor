@@ -33,8 +33,10 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
     public void generate(DockPackageDto dto) throws Exception {
         try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
             var table = doc.getTables().getFirst();
+
             for (var oper : dto.opers()) {
                 int startRow = Math.max(table.getNumberOfRows(), DATA_START_ROW);
+
                 if (oper.funcs().isEmpty()) {
                     throw new NoFunctionException(oper.numOper(), oper.name());
                 }
@@ -42,24 +44,21 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
                 List<FuncDto> funcs = oper.funcs();
                 for (int fi = 0; fi < funcs.size(); fi++) {
                     FuncDto func = funcs.get(fi);
-                    var row = createRow(table, oper, /*dto.vedIName(),*/ fi == 0);
+                    var row = createRow(table, oper, fi == 0);
+
                     addBookmark(row.getCell(7), "func_" + func.id() + "_col_7", func.name());
+
                     if (isNotBlank(func.specCharakt())) {
-                    //    mergeHorizontalAndRemove(row, 17, 2);
-                        addBookmark(row.getCell(17), "func_" + func.id() + "_col_17", func.specCharakt());
+                        addSmallText(row.getCell(17), func.specCharakt());
                     } else {
-                        addBookmark(row.getCell(17), "func_" + func.id() + "_col_17", "");
+                        addSmallText(row.getCell(17), "");
                     }
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
-                mergeVertical(table, startRow, endRow, 0);
-                mergeVertical(table, startRow, endRow, 1);
-                mergeVertical(table, startRow, endRow, 2);
-                mergeVertical(table, startRow, endRow, 3);
-                mergeVertical(table, startRow, endRow, 4);
-                mergeVertical(table, startRow, endRow, 5);
-                mergeVertical(table, startRow, endRow, 6);
+                for (int col = 0; col <= 6; col++) {
+                    mergeVertical(table, startRow, endRow, col);
+                }
             }
 
             String article = dto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(dto.sborEds());
@@ -71,16 +70,24 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         }
     }
 
-    private XWPFTableRow createRow(XWPFTable table, OperDto oper, /*String vedIName,*/ boolean first) {
+    private XWPFTableRow createRow(XWPFTable table, OperDto oper, boolean first) {
         var row = table.createRow();
         ensureCells(row, COLUMN_COUNT);
+
         if (first) {
-        //    addBookmark(row.getCell(2), "oper_" + oper.id() + "_col_2", vedIName);
             appendBookmark(row.getCell(3), "oper_" + oper.id() + "_numOper", oper.numOper());
             appendBookmark(row.getCell(3), "oper_" + oper.id() + "_name", oper.name());
             appendBookmark(row.getCell(3), "oper_" + oper.id() + "_numZech", oper.numZech());
         }
         return row;
+    }
+
+    private void addSmallText(XWPFTableCell cell, String text) {
+        cell.removeParagraph(0);
+        XWPFParagraph p = cell.addParagraph();
+        XWPFRun run = p.createRun();
+        run.setText(text);
+        run.setFontSize(8); // уменьшенный шрифт
     }
 
     private void mergeHorizontalAndRemove(XWPFTableRow row, int col, int span) {
@@ -94,7 +101,6 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             tcPr.addNewGridSpan().setVal(BigInteger.valueOf(span));
         }
 
-        // Удаляем последующие <w:tc> из CTRow (в обратном порядке)
         var ctRow = row.getCtRow();
         for (int i = col + span - 1; i > col; i--) {
             if (i < ctRow.sizeOfTcArray()) {

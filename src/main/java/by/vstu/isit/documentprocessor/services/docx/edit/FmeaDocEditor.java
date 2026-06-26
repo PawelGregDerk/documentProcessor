@@ -3,8 +3,9 @@ package by.vstu.isit.documentprocessor.services.docx.edit;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
-import com.spire.doc.Table;
 import com.spire.doc.*;
+import com.spire.doc.documents.Paragraph;
+import com.spire.doc.fields.TextRange;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,7 @@ import java.util.Set;
 public class FmeaDocEditor extends AbstractDocEditor {
     private static final int COLUMN_COUNT = 25;
 
-    public FmeaDocEditor(
-            @Value("${out.fmea.path}") String src
-    ) {
+    public FmeaDocEditor(@Value("${out.fmea.path}") String src) {
         super(src, src);
     }
 
@@ -37,39 +36,36 @@ public class FmeaDocEditor extends AbstractDocEditor {
         for (int oi = 0; oi < savedDto.opers().size(); oi++) {
             OperDto oper = savedDto.opers().get(oi);
             OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
-         //   updateCell(table, "oper_" + oper.id() + "_col_2", savedDto.vedIName());
+
             boolean operExists = findCellByBookmark(table, "oper_" + oper.id() + "_numOper") != null;
             processedOperIds.add(oper.id());
-            
-            log.info("Processing operation: id={}, name={}, operExists={}", oper.id(), oper.name(), operExists);
-            
-            if (operExists) {
-                updateCell(table, "oper_" + oper.id() + "_numOper", oper.numOper());
-                updateCell(table, "oper_" + oper.id() + "_name", oper.name());
-                updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
-            }
 
             int firstFuncRowIdx = -1;
+
             for (int fi = 0; fi < oper.funcs().size(); fi++) {
                 FuncDto func = oper.funcs().get(fi);
                 processedFuncIds.add(func.id());
+
                 boolean exists = findCellByBookmark(table, "func_" + func.id() + "_col_7") != null;
 
                 if (exists) {
                     updateCell(table, "func_" + func.id() + "_col_7", func.name());
                     updateCell(table, "func_" + func.id() + "_col_17", func.specCharakt());
+
+                    TableCell specCell = findCellByBookmark(table, "func_" + func.id() + "_col_17");
+                    applySmallFont(specCell);
+
                     if (fi == 0) {
                         TableRow funcRow = findRowByBookmark(table, "func_" + func.id() + "_col_7");
                         firstFuncRowIdx = rowIndexOf(table, funcRow);
                     }
                 } else {
-                    log.info("Adding new function: id={}, name={}, fi={}, operExists={}", func.id(), func.name(), fi, operExists);
                     TableRow newRow = insertRowAfterLastBookmark(table, "oper_" + oper.id(), COLUMN_COUNT);
+
                     if (fi == 0) {
                         firstFuncRowIdx = rowIndexOf(table, newRow);
-                        // Заполняем ячейку 3 данными операции только для первой функции
+
                         if (!operExists) {
-                            log.info("Filling cell 3 with operation data: numOper={}, name={}, numZech={}", oper.numOper(), oper.name(), oper.numZech());
                             setShadedBookmarkedText(newRow.getCells().get(3), "oper_" + oper.id() + "_numOper", oper.numOper());
                             newRow.getCells().get(3).getParagraphs().get(0).appendText(" ");
                             appendShadedBookmark(newRow.getCells().get(3).getParagraphs().get(0), "oper_" + oper.id() + "_name", oper.name());
@@ -77,32 +73,56 @@ public class FmeaDocEditor extends AbstractDocEditor {
                             appendShadedBookmark(newRow.getCells().get(3).getParagraphs().get(0), "oper_" + oper.id() + "_numZech", oper.numZech());
                         }
                     }
+
                     setShadedText(newRow.getCells().get(7), func.name());
                     setShadedText(newRow.getCells().get(17), func.specCharakt());
+
+                    applySmallFont(newRow.getCells().get(17));
                 }
             }
-            
-            // Выполняем вертикальное слияние ячеек 0-6 для операции
+
             if (firstFuncRowIdx >= 0 && oper.funcs().size() > 1) {
                 int endRow = firstFuncRowIdx + oper.funcs().size() - 1;
                 for (int col = 0; col <= 6; col++) {
                     table.applyVerticalMerge(col, firstFuncRowIdx, endRow);
                 }
-                log.info("Applied vertical merge for operation {} from row {} to {}", oper.id(), firstFuncRowIdx, endRow);
             }
         }
 
         removeDeletedRows(table, processedFuncIds, "func_", "_col_7");
 
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
-        String origArticle = dto.sborEds().getFirst().nazv() + " "
-                + dto.sborEds().getFirst().oboznach();
+        String origArticle = dto.sborEds().getFirst().nazv() + " " + dto.sborEds().getFirst().oboznach();
+
         Map<String, String> oldHeader = resolveHeaderOldData(
                 Map.of("d", origArticle, "n", dto.fmeaName(), "p", dto.packageName())
         );
-        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.fmeaName(), "p", savedDto.packageName()));
+
+        updateHeader(doc, oldHeader, Map.of(
+                "d", article,
+                "n", savedDto.fmeaName(),
+                "p", savedDto.packageName()
+        ));
 
         save(doc, savedDto.path(), savedDto.fmeaName());
+    }
+
+    private void applySmallFont(TableCell cell) {
+        if (cell == null) return;
+
+        // ParagraphCollection не Iterable → идём по индексам
+        for (int i = 0; i < cell.getParagraphs().getCount(); i++) {
+            Paragraph p = cell.getParagraphs().get(i);
+
+            // DocumentObjectCollection тоже не Iterable
+            for (int j = 0; j < p.getChildObjects().getCount(); j++) {
+                DocumentObject obj = p.getChildObjects().get(j);
+                if (obj instanceof TextRange) {
+                    TextRange tr = (TextRange) obj;
+                    tr.getCharacterFormat().setFontSize(8);
+                }
+            }
+        }
     }
 
     private String sourceBookmark(DockPackageDto dto) {
