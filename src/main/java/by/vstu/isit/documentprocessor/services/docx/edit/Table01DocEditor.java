@@ -71,18 +71,17 @@ public class Table01DocEditor extends AbstractDocEditor {
             processed.add(se.id());
 
             TableCell cellName = findCellByBookmark(table, "t01_name_" + se.id());
-            TableCell cellObj  = findCellByBookmark(table, "t01_obj_" + se.id());
 
-            if (cellName != null && cellObj != null) {
-                updateBookmark(cellName, "t01_name_" + se.id(), generator.fillFirstCell(savedDto.packageName(), se));
-                updateBookmark(cellObj,  "t01_obj_"  + se.id(), se.nazv() + " " + se.oboznach());
+            if (cellName != null) {
+                updateBookmark(cellName, "t01_name_" + se.id(),
+                        se.nazv() + ", " + se.oboznach() + ", " + generator.fillFirstCell(savedDto.packageName(), se));
             } else {
                 // Добавляем новую строку
                 TableRow row = table.addRow();
-                while (row.getCells().getCount() < 6) row.addCell();
+                while (row.getCells().getCount() < 5) row.addCell();
 
-                setBookmarked(row.getCells().get(0), "t01_name_" + se.id(), generator.fillFirstCell(savedDto.packageName(), se));
-                setBookmarked(row.getCells().get(1), "t01_obj_"  + se.id(), se.nazv() + " " + se.oboznach());
+                setBookmarked(row.getCells().get(0), "t01_name_" + se.id(),
+                        se.nazv() + ", " + se.oboznach() + ", " + generator.fillFirstCell(savedDto.packageName(), se));
             }
         }
 

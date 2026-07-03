@@ -61,7 +61,7 @@ public class PuWordGenerator extends AbstractWordGenerator implements HorizontMe
             postProcess(doc, dto.path(), dto.puName(), Map.of(
                     "d", article,
                     "n", dto.puName(),
-                    "p", dto.packageName()
+                    "p", dseText(dto.sborEds(), dto.packageName())
             ));
         }
     }

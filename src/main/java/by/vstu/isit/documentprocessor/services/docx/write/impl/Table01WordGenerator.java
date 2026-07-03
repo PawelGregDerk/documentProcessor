@@ -37,12 +37,12 @@ public class Table01WordGenerator extends AbstractWordGenerator {
             // Генерация строк
             for (var se : dto.sborEds()) {
                 var row = table.createRow();
-                ensureCells(row, 6);
-                setCellWithBookmark(row.getCell(0), "t01_name_" + se.id(), fillFirstCell(dto.packageName(), se));
-                setCellWithBookmark(row.getCell(1),  "t01_obj_" + se.id(), se.nazv() + " " + se.oboznach());
+                ensureCells(row, 5);
+                setCellWithBookmark(row.getCell(0), "t01_name_" + se.id(),
+                        se.nazv() + ", " + se.oboznach() + ", " + fillFirstCell(dto.packageName(), se));
 
                 // Остальные столбцы пустые
-                for (int c = 2; c < 6; c++) {
+                for (int c = 1; c < 5; c++) {
                     setCell(row.getCell(c), "");
                 }
             }

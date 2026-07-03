@@ -62,7 +62,7 @@
         </HBox>
     </GridPane>
 
-    <Button text="Добавить сборочную единицу"
+    <Button text="Добавить описание сборочной единицы"
             onAction="#onAddAssemblyUnit"
             styleClass="newButton"
             maxWidth="300"/>
@@ -107,12 +107,15 @@
         <Label text="Режим:" styleClass="labelFont"/>
         <ToggleButton fx:id="regularModeBtn"
                       text="Операция"
+                      styleClass="buttonSave"
                       prefWidth="120"/>
         <ToggleButton fx:id="typeModeBtn"
                       text="Типовая операция"
+                      styleClass="buttonSave"
                       prefWidth="150"/>
         <Button fx:id="addTypeOperBtn"
                 text="Создать типовую операцию"
+                styleClass="buttonSave"
                 onAction="#onAddTypeOper"/>
     </HBox>
 
@@ -173,7 +176,7 @@
 
             <Separator/>
 
-            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" prefHeight="470" VBox.vgrow="ALWAYS">
                 <content>
                     <VBox fx:id="typeOperationsListContainer" spacing="10"/>
                 </content>
@@ -187,12 +190,12 @@
             <Insets top="50"/>
         </padding>
 
-        <Button text="Сохранить в базу данных"
+        <Button text="Сохранить в БД"
                 onAction="#onSaveToDbOnly"
                 styleClass="buttonSave"
                 minWidth="200"/>
 
-        <Button text="Сохранить"
+        <Button text="Создать пакет на диске и в БД"
                 onAction="#onSave"
                 styleClass="buttonSave"
                 minWidth="200"/>

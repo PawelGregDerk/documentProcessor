@@ -46,10 +46,11 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
                 mergeVertical(table, DATA_START_ROW, endRow, 3);
 
                 String article = designationsAssemblyUnit(dto.sborEds());
-                postProcess(doc, dto.path(), "ri", oper.name(), Map.of(
+                String fileName = oper.numOper() + " " + oper.name();
+                postProcess(doc, dto.path(), "ri", fileName, Map.of(
                         "d", article,
-                        "d1", dto.sborEds().getFirst().nazv(),
-                        "p", dto.packageName(),
+                        "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
+                        "p", dseText(dto.sborEds(), dto.packageName()),
                         "shop", oper.shifr(),
                         "namOp", oper.name(),
                         "numOp", oper.numOper(),

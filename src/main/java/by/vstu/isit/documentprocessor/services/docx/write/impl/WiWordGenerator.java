@@ -33,14 +33,13 @@ public class WiWordGenerator extends AbstractWordGenerator {
                 addBookmark(row.getCell(0), "oper_" + oper.id() + "_col_0", oper.numOper());
                 addBookmark(row.getCell(1), "oper_" + oper.id() + "_shifr", oper.shifr());
                 appendBookmark(row.getCell(1), "oper_" + oper.id() + "_name", oper.name());
-                addBookmark(row.getCell(2), "oper_" + oper.id() + "_numZech", oper.numZech());
-                appendBookmark(row.getCell(2), "oper_" + oper.id() + "_nomInstr", oper.nomInstr());
+                addBookmark(row.getCell(2), "oper_" + oper.id() + "_nomInstr", oper.nomInstr());
             }
 
             postProcess(doc, dto.path(), dto.vedIName(), Map.of(
                     "d", designationsAssemblyUnit(dto.sborEds()),
-                    "d1", dto.sborEds().getFirst().nazv(),
-                    "p", dto.packageName()));
+                    "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
+                    "p", dseText(dto.sborEds(), dto.packageName())));
         }
     }
 

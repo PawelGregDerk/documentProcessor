@@ -451,4 +451,8 @@ public abstract class AbstractDocEditor {
     protected String designationsAssemblyUnit(List<SborEdDto> list) {
         return list.size() > 1 ? "согласно таблице 1" : list.getFirst().oboznach();
     }
+
+    protected String dseText(List<SborEdDto> sborEds, String singleValue) {
+        return sborEds.size() > 1 ? "Таблица 01" : singleValue;
+    }
 }

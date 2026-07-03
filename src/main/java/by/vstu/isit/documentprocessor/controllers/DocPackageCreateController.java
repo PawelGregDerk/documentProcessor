@@ -7,6 +7,7 @@ import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import javafx.fxml.FXML;
+import org.springframework.beans.factory.annotation.Value;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,6 +22,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import io.vavr.control.Try;
 import org.springframework.stereotype.Controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +78,9 @@ public class DocPackageCreateController {
     private final List<AbstractWordGenerator> generators;
     private final List<TypeOperDto> selectedTypeOperations = new ArrayList<>();
     private final FxWeaver fxWeaver;
+
+    @Value("${out.pu.path}")
+    private String outPuPath;
 
     private List<TypeOperDto> allTypeOperations;
     private List<TypeOperDto> filteredTypeOperations;
@@ -494,6 +499,11 @@ public class DocPackageCreateController {
             if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
             if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
             if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+
+            String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
+            if (new File(base + pckgDto.path()).exists()) {
+                throw new IllegalStateException("Папка с оригиналами уже существует: " + base + pckgDto.path());
+            }
 
             var dto = service.saveFullPackage(pckgDto);
             generators.forEach(g -> Try.run(() -> g.generate(dto))

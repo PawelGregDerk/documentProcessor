@@ -68,9 +68,9 @@ public class PuDocEditor extends AbstractDocEditor {
         String origArticle = dto.sborEds().getFirst().nazv() + " "
                 + dto.sborEds().getFirst().oboznach();
         Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origArticle, "n", dto.puName(), "p", dto.packageName())
+                Map.of("d", origArticle, "n", dto.puName(), "p", dseText(dto.sborEds(), dto.packageName()))
         );
-        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.puName(), "p", savedDto.packageName()));
+        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.puName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
 
         save(doc, savedDto.path(), savedDto.puName());
     }

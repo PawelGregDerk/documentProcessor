@@ -7,6 +7,8 @@
 <VBox xmlns="http://javafx.com/javafx/23"
       xmlns:fx="http://javafx.com/fxml/1"
       maxWidth="Infinity"
+      styleClass="rootVBox"
+      stylesheets="@/css/mainStyle.css"
       fx:controller="by.vstu.isit.documentprocessor.controllers.TypeOperEditController">
 
     <padding>
@@ -59,9 +61,13 @@
     <Separator/>
 
     <!-- ===== Функции ===== -->
-    <Label text="Функции"/>
+    <Label text="Функции">
+        <VBox.margin><Insets top="10" bottom="4"/></VBox.margin>
+    </Label>
 
-    <Button text="Добавить функцию" onAction="#onAddFunction"/>
+    <Button text="Добавить функцию" styleClass="newButton" onAction="#onAddFunction">
+        <VBox.margin><Insets bottom="8"/></VBox.margin>
+    </Button>
 
     <ScrollPane fitToWidth="true" prefHeight="250">
         <content>
@@ -73,8 +79,8 @@
 
     <!-- ===== кнопки ===== -->
     <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Сохранить" onAction="#onSave"/>
-        <Button text="Отмена" onAction="#onCancel"/>
+        <Button text="Сохранить" styleClass="buttonSave" onAction="#onSave"/>
+        <Button text="Отмена" styleClass="buttonSave" onAction="#onCancel"/>
     </HBox>
 
 </VBox>

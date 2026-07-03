@@ -65,7 +65,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
             postProcess(doc, dto.path(), dto.fmeaName(), Map.of(
                     "d", article,
                     "n", dto.fmeaName(),
-                    "p", dto.packageName()
+                    "p", dseText(dto.sborEds(), dto.packageName())
             ));
         }
     }

@@ -38,13 +38,12 @@ public class WiDocEditor extends AbstractDocEditor {
                 updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
                 updateCell(table, "oper_" + oper.id() + "_shifr", oper.shifr());
                 updateCell(table, "oper_" + oper.id() + "_name", oper.name());
-                updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
                 updateCell(table, "oper_" + oper.id() + "_nomInstr", oper.nomInstr());
             } else {
                 TableRow newRow = addRowWithShading(table, COLUMN_COUNT);
                 setShadedText(newRow.getCells().get(0), oper.numOper());
                 setShadedText(newRow.getCells().get(1), oper.shifr() + " " + oper.name());
-                setShadedText(newRow.getCells().get(2), oper.numZech() + " " + oper.nomInstr());
+                setShadedText(newRow.getCells().get(2), oper.nomInstr());
             }
         }
 
@@ -52,12 +51,12 @@ public class WiDocEditor extends AbstractDocEditor {
 
         String origDesig = dto.sborEds().getFirst().oboznach();
         Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origDesig, "d1", dto.sborEds().getFirst().nazv(), "p", dto.packageName())
+                Map.of("d", origDesig, "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()), "p", dseText(dto.sborEds(), dto.packageName()))
         );
         updateHeader(doc, oldHeader, Map.of(
                 "d", designationsAssemblyUnit(savedDto.sborEds()),
-                "d1", savedDto.sborEds().getFirst().nazv(),
-                "p", savedDto.packageName()
+                "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
+                "p", dseText(savedDto.sborEds(), savedDto.packageName())
         ));
 
         save(doc, savedDto.path(), savedDto.vedIName());

@@ -54,7 +54,7 @@ public class KpWordGenerator extends AbstractWordGenerator {
             postProcess(doc, dto.path(), dto.kpName(), Map.of(
                     "d", article,
                     "n", dto.kpName(),
-                    "p", dto.packageName()
+                    "p", dseText(dto.sborEds(), dto.packageName())
             ));
         }
     }

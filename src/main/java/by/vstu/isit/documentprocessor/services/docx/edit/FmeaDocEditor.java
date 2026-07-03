@@ -95,13 +95,13 @@ public class FmeaDocEditor extends AbstractDocEditor {
         String origArticle = dto.sborEds().getFirst().nazv() + " " + dto.sborEds().getFirst().oboznach();
 
         Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origArticle, "n", dto.fmeaName(), "p", dto.packageName())
+                Map.of("d", origArticle, "n", dto.fmeaName(), "p", dseText(dto.sborEds(), dto.packageName()))
         );
 
         updateHeader(doc, oldHeader, Map.of(
                 "d", article,
                 "n", savedDto.fmeaName(),
-                "p", savedDto.packageName()
+                "p", dseText(savedDto.sborEds(), savedDto.packageName())
         ));
 
         save(doc, savedDto.path(), savedDto.fmeaName());

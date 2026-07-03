@@ -140,4 +140,8 @@ public abstract class AbstractWordGenerator {
     protected String designationsAssemblyUnit(List<SborEdDto> sborEdList) {
         return sborEdList.size() > 1 ? "согласно таблице 1" : sborEdList.getFirst().oboznach();
     }
+
+    protected String dseText(List<SborEdDto> sborEds, String singleValue) {
+        return sborEds.size() > 1 ? "Таблица 01" : singleValue;
+    }
 }

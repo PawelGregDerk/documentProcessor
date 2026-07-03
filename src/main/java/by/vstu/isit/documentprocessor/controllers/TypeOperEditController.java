@@ -5,12 +5,15 @@ import by.vstu.isit.documentprocessor.entities.TypeOperFunc;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
+
+import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 import org.springframework.stereotype.Controller;
 
 import java.net.URL;
@@ -65,9 +68,10 @@ public class TypeOperEditController implements Initializable {
         TextField spec = new TextField();
         spec.setPromptText("Spec");
 
-        Button del = new Button("X");
+        Button del = styled(new Button("X"), "btn-danger", "btn-small");
 
         HBox row = new HBox(10, name, param, isProd, spec, del);
+        row.setAlignment(Pos.CENTER_LEFT);
 
         del.setOnAction(e -> {
             funcContainer.getChildren().remove(row);

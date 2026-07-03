@@ -44,8 +44,8 @@ public class RiDocEditor extends AbstractDocEditor {
                 doc = loadCopySubByBookmark(
                         dto.path(),
                         "ri",
-                        origOper.name(),
-                        oper.name(),
+                        fileName(origOper),
+                        fileName(oper),
                         2,
                         sourceBookmark(origOper)
                 );
@@ -88,8 +88,8 @@ public class RiDocEditor extends AbstractDocEditor {
             // и метод updateHeader просто перезапишет плейсхолдеры шаблона на реальные данные
             Map<String, String> oldHeader = resolveHeaderOldData(Map.of(
                     "d", origDesig,
-                    "d1", dto.sborEds().getFirst().nazv(),
-                    "p", dto.packageName(),
+                    "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
+                    "p", dseText(dto.sborEds(), dto.packageName()),
                     "shop", origOper.shifr(),
                     "namOp", origOper.name(),
                     "numOp", origOper.numOper(),
@@ -99,8 +99,8 @@ public class RiDocEditor extends AbstractDocEditor {
             ));
             updateHeader(doc, oldHeader, Map.of(
                     "d", designationsAssemblyUnit(savedDto.sborEds()),
-                    "d1", savedDto.sborEds().getFirst().nazv(),
-                    "p", savedDto.packageName(),
+                    "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
+                    "p", dseText(savedDto.sborEds(), savedDto.packageName()),
                     "shop", oper.shifr(),
                     "namOp", oper.name(),
                     "numOp", oper.numOper(),
@@ -109,13 +109,17 @@ public class RiDocEditor extends AbstractDocEditor {
                     "nZech", oper.numZech()
             ));
 
-            saveSub(doc, savedDto.path(), "ri", oper.name());
+            saveSub(doc, savedDto.path(), "ri", fileName(oper));
 
-            if (!origOper.name().equals(oper.name())) {
-                Path oldFile = Path.of(format(destPath, copyFolder(savedDto.path()), "ri", origOper.name()));
+            if (!fileName(origOper).equals(fileName(oper))) {
+                Path oldFile = Path.of(format(destPath, copyFolder(savedDto.path()), "ri", fileName(origOper)));
                 Files.deleteIfExists(oldFile);
             }
         }
+    }
+
+    private String fileName(OperDto oper) {
+        return oper.numOper() + " " + oper.name();
     }
 
     private String sourceBookmark(OperDto oper) {
