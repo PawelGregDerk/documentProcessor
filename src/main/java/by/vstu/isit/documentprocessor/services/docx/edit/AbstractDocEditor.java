@@ -10,14 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static java.text.MessageFormat.format;
 @Slf4j
@@ -26,6 +29,17 @@ public abstract class AbstractDocEditor {
     protected final String srcPath;
     protected final String destPath;
     private Path lastResolvedSource;
+    private String copyFolderPrefix = "";
+    private String sourceFolderOverride = "";
+    private Map<String, String> lastHeaderData;
+
+    public void setSourceFolderOverride(String sourceFolderOverride) {
+        this.sourceFolderOverride = sourceFolderOverride;
+    }
+
+    protected String getSourceFolderOverride() {
+        return sourceFolderOverride;
+    }
 
     protected AbstractDocEditor(String srcPath, String destPath) {
         this.srcPath = srcPath;
@@ -38,12 +52,13 @@ public abstract class AbstractDocEditor {
     public abstract void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception;
 
     protected String copyFolder(String folder) {
-        return "копия_" + folder;
+        return copyFolderPrefix + folder;
     }
 
     protected Document loadCopy(String folder, String srcName, String destName) throws IOException {
-        Path src = Path.of(format(srcPath, folder, srcName));
-        Path altSrc = Path.of(format(srcPath, folder, destName));
+        String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+        Path src = Path.of(format(srcPath, srcFolder, srcName));
+        Path altSrc = Path.of(format(srcPath, srcFolder, destName));
         Path dest = Path.of(format(destPath, copyFolder(folder), destName));
         Path resolvedSrc = resolveSource(src, altSrc);
 
@@ -52,7 +67,9 @@ public abstract class AbstractDocEditor {
         }
 
         Files.createDirectories(dest.getParent());
-        Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        if (!resolvedSrc.equals(dest)) {
+            Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        }
         lastResolvedSource = resolvedSrc;
 
         Document doc = new Document();
@@ -65,8 +82,9 @@ public abstract class AbstractDocEditor {
     }
 
     protected Document loadCopySub(String folder, String sub, String srcName, String destName) throws IOException {
-        Path src = Path.of(format(srcPath, folder, sub, srcName));
-        Path altSrc = Path.of(format(srcPath, folder, sub, destName));
+        String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+        Path src = Path.of(format(srcPath, srcFolder, sub, srcName));
+        Path altSrc = Path.of(format(srcPath, srcFolder, sub, destName));
         Path dest = Path.of(format(destPath, copyFolder(folder), sub, destName));
         Path resolvedSrc = resolveSource(src, altSrc);
 
@@ -75,7 +93,9 @@ public abstract class AbstractDocEditor {
         }
 
         Files.createDirectories(dest.getParent());
-        Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        if (!resolvedSrc.equals(dest)) {
+            Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
+        }
         lastResolvedSource = resolvedSrc;
 
         Document doc = new Document();
@@ -103,7 +123,8 @@ public abstract class AbstractDocEditor {
             if (bookmarkName == null || bookmarkName.isBlank()) {
                 throw ex;
             }
-            Path sourceDir = Path.of(format(srcPath, folder, srcName)).getParent();
+            String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+            Path sourceDir = Path.of(format(srcPath, srcFolder, srcName)).getParent();
             Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
             if (found == null) {
                 throw ex;
@@ -119,7 +140,8 @@ public abstract class AbstractDocEditor {
             if (bookmarkName == null || bookmarkName.isBlank()) {
                 throw ex;
             }
-            Path sourceDir = Path.of(format(srcPath, folder, sub, srcName)).getParent();
+            String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+            Path sourceDir = Path.of(format(srcPath, srcFolder, sub, srcName)).getParent();
             Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
             if (found == null) {
                 throw ex;
@@ -130,7 +152,9 @@ public abstract class AbstractDocEditor {
 
     private Document loadCopyFromExplicitSource(Path source, Path dest) throws IOException {
         Files.createDirectories(dest.getParent());
-        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        if (!source.equals(dest)) {
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        }
         lastResolvedSource = source;
         Document doc = new Document();
         doc.loadFromFile(dest.toString());
@@ -204,13 +228,45 @@ public abstract class AbstractDocEditor {
     }
 
     protected void save(Document doc, String folder, String name) {
-        doc.saveToFile(Path.of(format(destPath, copyFolder(folder), name)).toString(), FileFormat.Docx);
+        Path outPath = Path.of(format(destPath, copyFolder(folder), name));
+        doc.saveToFile(outPath.toString(), FileFormat.Docx);
         doc.close();
+        if (lastHeaderData != null) {
+            saveHeaderMeta(outPath, lastHeaderData);
+        }
     }
 
     protected void saveSub(Document doc, String folder, String sub, String name) {
-        doc.saveToFile(Path.of(format(destPath, copyFolder(folder), sub, name)).toString(), FileFormat.Docx);
+        Path outPath = Path.of(format(destPath, copyFolder(folder), sub, name));
+        doc.saveToFile(outPath.toString(), FileFormat.Docx);
         doc.close();
+        if (lastHeaderData != null) {
+            saveHeaderMeta(outPath, lastHeaderData);
+        }
+    }
+
+    private void saveHeaderMeta(Path outDoc, Map<String, String> headerData) {
+        try {
+            Path metaDir = outDoc.getParent().resolve(".docproc-meta");
+            Files.createDirectories(metaDir);
+            setHidden(metaDir);
+            Path meta = metaDir.resolve(outDoc.getFileName() + ".hdr.properties");
+            Properties props = new Properties();
+            headerData.forEach((k, v) -> {
+                if (v != null) props.setProperty(k, v);
+            });
+            try (var writer = Files.newBufferedWriter(meta, StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+                props.store(writer, "Header source values");
+            }
+            setHidden(meta);
+        } catch (Exception e) {
+            log.warn("Failed to save header metadata for {}: {}", outDoc, e.getMessage());
+        }
+    }
+
+    private void setHidden(Path path) {
+        try { Files.setAttribute(path, "dos:hidden", true); } catch (Exception ignored) {}
     }
 
     protected TableRow findRowByBookmark(Table table, String bookmarkName) {
@@ -280,16 +336,13 @@ public abstract class AbstractDocEditor {
                     // TextRange не найден между start и end — добавляем новый
                     log.info("Bookmark end found without TextRange, appending text: '{}'", newText);
                     com.spire.doc.fields.TextRange tr = para.appendText(newText);
-                    tr.getCharacterFormat().isShadow(true);
+                    tr.getCharacterFormat().setFontName("Arial Narrow");
                     return;
                 }
                 if (inBookmark && obj instanceof com.spire.doc.fields.TextRange tr) {
                     boolean changed = !newText.equals(tr.getText().trim());
                     log.info("Updating TextRange for bookmark '{}': '{}' -> '{}'", bookmarkName, tr.getText(), newText);
                     tr.setText(newText);
-                    if (changed) {
-                        tr.getCharacterFormat().isShadow(true);
-                    }
                     return;
                 }
             }
@@ -302,10 +355,16 @@ public abstract class AbstractDocEditor {
         for (var key : oldData.keySet()) {
             String oldVal = oldData.get(key);
             String newVal = newData.get(key);
+            if (newVal != null) {
+                log.info("updateHeader: replace placeholder [{}] with [{}]", "{{" + key + "}}", newVal);
+                replaceAllOccurrences(doc, "{{" + key + "}}", newVal);
+            }
             if (oldVal != null && newVal != null && !oldVal.equals(newVal)) {
+                log.info("updateHeader: replace value [{}] with [{}] (key={})", oldVal, newVal, key);
                 replaceAllOccurrences(doc, oldVal, newVal);
             }
         }
+        this.lastHeaderData = newData;
     }
 
     private void replaceAllOccurrences(Document doc, String oldValue, String newValue) {
@@ -387,14 +446,22 @@ public abstract class AbstractDocEditor {
                 : cell.addParagraph();
         para.setText("");
         com.spire.doc.fields.TextRange tr = para.appendText(text);
-        tr.getCharacterFormat().isShadow(true);
+        tr.getCharacterFormat().setFontName("Arial Narrow");
     }
 
     protected void clearCell(TableCell cell) {
-        Paragraph para = cell.getParagraphs().getCount() > 0
-                ? cell.getParagraphs().get(0)
-                : cell.addParagraph();
-        para.setText("");
+        for (int k = cell.getParagraphs().getCount() - 1; k >= 0; k--) {
+            Paragraph para = cell.getParagraphs().get(k);
+            while (para.getChildObjects().getCount() > 0) {
+                para.getChildObjects().remove(para.getChildObjects().get(0));
+            }
+            if (k > 0) {
+                cell.getParagraphs().remove(para);
+            }
+        }
+        if (cell.getParagraphs().getCount() == 0) {
+            cell.addParagraph();
+        }
     }
 
     protected void setShadedBookmarkedText(TableCell cell, String bookmarkName, String text) {
@@ -408,7 +475,7 @@ public abstract class AbstractDocEditor {
     protected void appendShadedBookmark(Paragraph para, String bookmarkName, String text) {
         para.appendBookmarkStart(bookmarkName);
         com.spire.doc.fields.TextRange tr = para.appendText(text == null ? "" : text);
-        tr.getCharacterFormat().isShadow(true);
+        tr.getCharacterFormat().setFontName("Arial Narrow");
         para.appendBookmarkEnd(bookmarkName);
     }
 

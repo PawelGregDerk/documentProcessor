@@ -87,83 +87,50 @@
         <TextField fx:id="vedInstrField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <!-- Панель переключения режимов -->
+    <!-- Панель типовой операции -->
     <HBox spacing="15" alignment="CENTER_LEFT">
-        <Label text="Режим:" styleClass="labelFont"/>
-        <ToggleButton fx:id="regularModeBtn"
-                      text="Операция"
-                      styleClass="buttonSave"
-                      prefWidth="120"/>
-        <ToggleButton fx:id="typeModeBtn"
-                      text="Типовая операция"
-                      styleClass="buttonSave"
-                      prefWidth="150"/>
-        <Button fx:id="addTypeOperBtn"
-                text="Создать типовую операцию"
-                styleClass="buttonSave"
-                onAction="#onAddTypeOper"/>
+        <Label text="Типовая операция" styleClass="labelFont"/>
+        <Button text="Добавить"
+                styleClass="newButton"
+                onAction="#onOpenTypeOperList"
+                prefWidth="120"/>
+        <Button text="Создать"
+                styleClass="newButton"
+                onAction="#onCreateTypeOper"
+                prefWidth="120"/>
     </HBox>
 
-    <!-- Разделение на левую и правую части -->
-    <HBox spacing="20" VBox.vgrow="ALWAYS">
+    <!-- Обычные операции -->
+    <VBox spacing="10" VBox.vgrow="ALWAYS">
 
-        <!-- ЛЕВАЯ ЧАСТЬ: Обычные операции -->
-        <VBox fx:id="regularPanel" spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <Label text="Обычные операции" styleClass="labelFont"/>
-
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Операции:" style="-fx-font-weight: bold;"/>
             <Button text="Добавить операцию"
                     onAction="#onAddOperation"
                     styleClass="newButton"
                     maxWidth="200"/>
+        </HBox>
 
-            <HBox spacing="6" maxWidth="Infinity" style="-fx-font-weight: bold;">
-                <Label text="№ опер." minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="№ инструкции" minWidth="110" prefWidth="110" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="Оборудование" minWidth="120" prefWidth="120" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="Оснастка / Инстр." minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="Наименование" minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="Шифр" minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Label text="Цех" minWidth="60" prefWidth="60" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Region minWidth="140" prefWidth="140" maxWidth="140"/>
-                <Region minWidth="90" prefWidth="90" maxWidth="90"/>
-            </HBox>
+        <HBox spacing="6" maxWidth="Infinity" style="-fx-font-weight: bold;">
+            <Label text="№ опер." minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="№ инструкции" minWidth="110" prefWidth="110" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="Оборудование" minWidth="120" prefWidth="120" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="Оснастка / Инстр." minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="Наименование" minWidth="140" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="Шифр" minWidth="80" prefWidth="80" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Label text="Цех" minWidth="60" prefWidth="60" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Region minWidth="140" prefWidth="140" maxWidth="140"/>
+            <Region minWidth="90" prefWidth="90" maxWidth="90"/>
+        </HBox>
 
-            <Separator/>
+        <Separator/>
 
-            <ScrollPane fitToWidth="true" prefHeight="470">
-                <content>
-                    <VBox fx:id="operationsContainer" spacing="10"/>
-                </content>
-            </ScrollPane>
-        </VBox>
-
-        <!-- ПРАВАЯ ЧАСТЬ: Типовые операции (справочник) -->
-        <VBox fx:id="typePanel" spacing="10" HBox.hgrow="ALWAYS" visible="false" managed="false">
-            <Label text="Типовые операции (справочник)" styleClass="labelFont"/>
-
-            <!-- Поиск -->
-            <HBox spacing="10">
-                <TextField fx:id="typeOperSearchField"
-                           promptText="Поиск по номеру или наименованию..."
-                           HBox.hgrow="ALWAYS"/>
-                <Button text="Поиск" onAction="#onSearchTypeOper" styleClass="newButton"/>
-                <Button text="Сброс" onAction="#onResetTypeOperSearch" styleClass="delButton"/>
-            </HBox>
-
-            <!-- Заголовки таблицы -->
-            <HBox spacing="10" style="-fx-font-weight: bold;">
-                <Label text="Наименование типовой операции"/>
-            </HBox>
-
-            <Separator/>
-
-            <ScrollPane fitToWidth="true" prefHeight="470" VBox.vgrow="ALWAYS">
-                <content>
-                    <VBox fx:id="typeOperationsListContainer" spacing="10"/>
-                </content>
-            </ScrollPane>
-        </VBox>
-    </HBox>
+        <ScrollPane fitToWidth="true" prefHeight="470">
+            <content>
+                <VBox fx:id="operationsContainer" spacing="10"/>
+            </content>
+        </ScrollPane>
+    </VBox>
 
     <!-- Сохранить: две строки кнопок, чтобы не уменьшать размеры остальных элементов -->
     <VBox spacing="8" alignment="CENTER_RIGHT">
@@ -172,19 +139,14 @@
                     onAction="#onBack"
                     styleClass="newButton"
                     minWidth="200"/>
-            <Button text="Обновить пакет только в БД"
+            <Button fx:id="updateDbOnlyBtn"
+                    text="Обновить пакет только в БД"
                     onAction="#onUpdateDbOnly"
                     styleClass="newButton"
                     minWidth="200"/>
-        </HBox>
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <Button fx:id="saveToDiskBtn"
-                    text="Создать пакет на диске из БД"
-                    onAction="#onSaveToDiskOnly"
-                    styleClass="buttonSave"
-                    minWidth="200"/>
-            <Button text="Обновить пакет на диске и в БД"
-                    onAction="#onSave"
+            <Button fx:id="saveBtn"
+                    text="Создать пакет на диске"
+                    onAction="#onSaveOrCreate"
                     styleClass="buttonSave"
                     minWidth="200"/>
         </HBox>

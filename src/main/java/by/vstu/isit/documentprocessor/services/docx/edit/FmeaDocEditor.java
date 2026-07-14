@@ -74,14 +74,14 @@ public class FmeaDocEditor extends AbstractDocEditor {
                         }
                     }
 
-                    setShadedText(newRow.getCells().get(7), func.name());
-                    setShadedText(newRow.getCells().get(17), func.specCharakt());
+                    setShadedBookmarkedText(newRow.getCells().get(7), "func_" + func.id() + "_col_7", func.name());
+                    setShadedBookmarkedText(newRow.getCells().get(17), "func_" + func.id() + "_col_17", func.specCharakt());
 
                     applySmallFont(newRow.getCells().get(17));
                 }
             }
 
-            if (firstFuncRowIdx >= 0 && oper.funcs().size() > 1) {
+            if (firstFuncRowIdx >= 0) {
                 int endRow = firstFuncRowIdx + oper.funcs().size() - 1;
                 for (int col = 0; col <= 6; col++) {
                     table.applyVerticalMerge(col, firstFuncRowIdx, endRow);
@@ -119,6 +119,7 @@ public class FmeaDocEditor extends AbstractDocEditor {
                 DocumentObject obj = p.getChildObjects().get(j);
                 if (obj instanceof TextRange) {
                     TextRange tr = (TextRange) obj;
+                    tr.getCharacterFormat().setFontName("Arial Narrow");
                     tr.getCharacterFormat().setFontSize(8);
                 }
             }

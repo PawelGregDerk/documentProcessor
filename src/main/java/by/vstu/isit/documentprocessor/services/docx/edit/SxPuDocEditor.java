@@ -67,9 +67,9 @@ public class SxPuDocEditor extends AbstractDocEditor {
                     updateCell(table, "func_" + func.id() + "_col_3", func.specCharakt());
                 } else {
                     var row = insertRowAfterLastBookmark(table, "func_", COLUMN_COUNT);
-                    setShadedText(row.getCells().get(1), func.name());
-                    setShadedText(row.getCells().get(2), func.param());
-                    setShadedText(row.getCells().get(3), func.specCharakt());
+                    setShadedBookmarkedText(row.getCells().get(1), "func_" + func.id() + "_col_1", func.name());
+                    setShadedBookmarkedText(row.getCells().get(2), "func_" + func.id() + "_col_2", func.param());
+                    setShadedBookmarkedText(row.getCells().get(3), "func_" + func.id() + "_col_3", func.specCharakt());
                 }
             }
 

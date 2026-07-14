@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/23.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="@/css/mainStyle.css"
+      styleClass="rootVBox"
+      fx:controller="by.vstu.isit.documentprocessor.controllers.TypeOperListController"
+      prefWidth="700"
+      spacing="10">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Типовые операции (справочник)" styleClass="labelFont"/>
+
+    <!-- Поиск -->
+    <HBox spacing="10">
+        <TextField fx:id="searchField"
+                   promptText="Поиск по номеру цеха или наименованию..."
+                   HBox.hgrow="ALWAYS"/>
+        <Button text="Поиск" onAction="#onSearch" styleClass="newButton"
+                minHeight="28" prefHeight="28" maxHeight="28"/>
+        <Button text="Сброс" onAction="#onResetSearch" styleClass="delButton"
+                minHeight="28" prefHeight="28" maxHeight="28"/>
+    </HBox>
+
+    <!-- Заголовки -->
+    <HBox spacing="10" style="-fx-font-weight: bold;">
+        <Label text="Наименование типовой операции" HBox.hgrow="ALWAYS"/>
+        <Region prefWidth="300"/>
+    </HBox>
+
+    <Separator/>
+
+    <ScrollPane fitToWidth="true" prefHeight="500" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox fx:id="listContainer" spacing="10"/>
+        </content>
+    </ScrollPane>
+</VBox>

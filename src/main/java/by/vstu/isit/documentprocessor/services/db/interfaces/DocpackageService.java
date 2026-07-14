@@ -7,9 +7,11 @@ import by.vstu.isit.documentprocessor.repositories.DocpackageRepository;
 import java.util.List;
 
 public interface DocpackageService extends Service<Docpackage, Long, DocpackageRepository> {
+    record UpdateResult(DockPackageDto dto, boolean orderChanged) {}
+
     Docpackage updateDocpackage(Docpackage docpackage);
     DockPackageDto saveFullPackage(DockPackageDto dto);
-    DockPackageDto updateFullPackage(DockPackageDto dto);
+    UpdateResult updateFullPackage(DockPackageDto dto);
     DockPackageDto findDtoById(Long id);
     
     // Методы поиска

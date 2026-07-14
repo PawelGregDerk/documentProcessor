@@ -39,7 +39,8 @@ public class WiWordGenerator extends AbstractWordGenerator {
             postProcess(doc, dto.path(), dto.vedIName(), Map.of(
                     "d", designationsAssemblyUnit(dto.sborEds()),
                     "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
-                    "p", dseText(dto.sborEds(), dto.packageName())));
+                    "p", dseText(dto.sborEds(), dto.packageName()),
+                    "wi", dto.vedIName()));
         }
     }
 

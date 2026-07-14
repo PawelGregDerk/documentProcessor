@@ -29,29 +29,28 @@ public class Table01DocEditor extends AbstractDocEditor {
     }
 
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
-        Path original = Path.of(MessageFormat.format(srcPath, savedDto.path()));
-        String copyFolder = "копия_" + savedDto.path();
-        Path copy = Path.of(MessageFormat.format(srcPath, copyFolder));
-
+        String folder = savedDto.path();
         int size = savedDto.sborEds().size();
 
-        if (!Files.exists(original) && size <= 1) {
+        if (size <= 1) {
             return;
         }
 
-        if (!Files.exists(original) && size > 1) {
+        // Попробуем загрузить из архива, если он есть
+        Path target = Path.of(MessageFormat.format(srcPath, folder));
+        String srcFolder = !getSourceFolderOverride().isEmpty() ? getSourceFolderOverride() : folder;
+        Path archiveTarget = Path.of(MessageFormat.format(srcPath, srcFolder));
+
+        if (Files.exists(archiveTarget)) {
+            // Копируем из архива в корень
+            Files.createDirectories(target.getParent());
+            Files.copy(archiveTarget, target, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            // Нет архива — генерируем заново
             generator.generate(savedDto);
-            Files.createDirectories(copy.getParent());
-            Files.copy(original, copy, StandardCopyOption.REPLACE_EXISTING);
-            editCopy(copy, savedDto);
-            return;
         }
 
-        if (Files.exists(original) && size > 1) {
-            Files.createDirectories(copy.getParent());
-            Files.copy(original, copy, StandardCopyOption.REPLACE_EXISTING);
-            editCopy(copy, savedDto);
-        }
+        editCopy(target, savedDto);
     }
 
     // ---------------------------------------------------------
@@ -73,15 +72,13 @@ public class Table01DocEditor extends AbstractDocEditor {
             TableCell cellName = findCellByBookmark(table, "t01_name_" + se.id());
 
             if (cellName != null) {
-                updateBookmark(cellName, "t01_name_" + se.id(),
-                        se.nazv() + ", " + se.oboznach() + ", " + generator.fillFirstCell(savedDto.packageName(), se));
+                updateBookmark(cellName, "t01_name_" + se.id(), se.oboznach());
             } else {
                 // Добавляем новую строку
                 TableRow row = table.addRow();
                 while (row.getCells().getCount() < 5) row.addCell();
 
-                setBookmarked(row.getCells().get(0), "t01_name_" + se.id(),
-                        se.nazv() + ", " + se.oboznach() + ", " + generator.fillFirstCell(savedDto.packageName(), se));
+                setBookmarked(row.getCells().get(0), "t01_name_" + se.id(), se.oboznach());
             }
         }
 
@@ -157,7 +154,8 @@ public class Table01DocEditor extends AbstractDocEditor {
     private void setBookmarked(TableCell cell, String name, String text) {
         Paragraph para = cell.addParagraph();
         para.appendBookmarkStart(name);
-        para.appendText(text == null ? "" : text);
+        var tr = para.appendText(text == null ? "" : text);
+        tr.getCharacterFormat().setFontName("Arial Narrow");
         para.appendBookmarkEnd(name);
     }
 }

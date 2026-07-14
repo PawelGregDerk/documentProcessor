@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
@@ -79,13 +80,13 @@ public class DockPackageGuiMapper {
         row.setAlignment(Pos.CENTER_LEFT);
 
         row.getChildren().addAll(
-                createStyledField(dto.numOper(), 80),
-                createStyledField(dto.nomInstr(), 110),
-                createStyledField(dto.oborud(), 120),
-                createStyledField(dto.ostnasInstr(), 140),
-                createStyledField(dto.name(), 160),
-                createStyledField(dto.shifr(), 80),
-                createStyledField(dto.numZech(), 60)
+                createStyledArea(dto.numOper(), 80),
+                createStyledArea(dto.nomInstr(), 110),
+                createStyledArea(dto.oborud(), 120),
+                createStyledArea(dto.ostnasInstr(), 140),
+                createStyledArea(dto.name(), 160),
+                createStyledArea(dto.shifr(), 80),
+                createStyledArea(dto.numZech(), 60)
         );
 
         Button addFunc = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
@@ -114,12 +115,13 @@ public class DockPackageGuiMapper {
         row.getStyleClass().add("function-data-row");
         row.setUserData(dto.id());
         row.setMaxWidth(Double.MAX_VALUE);
-        TextField name = createStyledField(dto.name(), 140);
-        TextField param = param = createStyledField(dto.param(), 140);
+        TextArea name = createStyledArea(dto.name(), 140);
+        TextArea param = createStyledArea(dto.param(), 140);
         CheckBox prod = new CheckBox();
         prod.setSelected(dto.isProd());
-        prod.setPrefWidth(20);
-        TextField spec = createStyledField(dto.specCharakt(), 140);
+        StackPane checkWrap = new StackPane(prod);
+        checkWrap.setAlignment(Pos.CENTER);
+        TextArea spec = createStyledArea(dto.specCharakt(), 140);
 
         Button del = styled(new Button("Удалить"), "delButton");
         del.setOnAction(e -> {
@@ -128,7 +130,9 @@ public class DockPackageGuiMapper {
             cleanupFunctionHeader(parent);
         });
 
-        row.getChildren().addAll(name, param, prod, spec, del);
+        row.getChildren().addAll(name, param, checkWrap, spec, del);
+        setFixedWidth(checkWrap, 70);
+        setFixedWidth(del, 90);
         return row;
     }
 
@@ -149,12 +153,22 @@ public class DockPackageGuiMapper {
 
         HBox header = styled(new HBox(6), "function-header");
         header.getStyleClass().add("function-header-row");
+        header.setMaxWidth(Double.MAX_VALUE);
         header.getChildren().addAll(
                 styled(new Label("Описание функции"), "table-header"),
                 styled(new Label("Параметры / Требования"), "table-header"),
                 styled(new Label("Продукт"), "table-header"),
                 styled(new Label("Спец. характеристики"), "table-header")
         );
+        Region buttonGap = new Region();
+        header.getChildren().add(buttonGap);
+        growFunctionHeader(
+                (Label) header.getChildren().get(0),
+                (Label) header.getChildren().get(1),
+                (Label) header.getChildren().get(3)
+        );
+        setFixedWidth((Region) header.getChildren().get(2), 70);
+        setFixedWidth(buttonGap, 90);
         funcs.getChildren().add(0, header);
     }
 
@@ -177,6 +191,18 @@ public class DockPackageGuiMapper {
         HBox.setHgrow(region, Priority.ALWAYS);
     }
 
+    private void setFixedWidth(Region region, double width) {
+        region.setMinWidth(width);
+        region.setPrefWidth(width);
+        region.setMaxWidth(width);
+    }
+
+    private void growFunctionHeader(Label name, Label param, Label spec) {
+        setGrow(name, 140);
+        setGrow(param, 140);
+        setGrow(spec, 140);
+    }
+
 
     private TextField createStyledField(String text, int width) {
         TextField f = styled(new TextField(), "compact");
@@ -185,6 +211,17 @@ public class DockPackageGuiMapper {
         }
         setGrow(f, width);
         return f;
+    }
+
+    private TextArea createStyledArea(String text, int width) {
+        TextArea a = styled(new TextArea(), "compact");
+        a.setPrefRowCount(2);
+        a.setWrapText(true);
+        if (text != null && !text.isEmpty()) {
+            a.setText(text);
+        }
+        setGrow(a, width);
+        return a;
     }
 }
 

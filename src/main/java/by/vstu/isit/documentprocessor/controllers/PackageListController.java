@@ -9,6 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -34,20 +35,48 @@ public class PackageListController {
     private VBox packagesContainer;
 
     @FXML
+    private TextField searchField;
+
+    @FXML
     public void initialize() {
         loadPackages();
     }
 
     private void loadPackages() {
+        loadPackages("");
+    }
+
+    @FXML
+    private void onSearch() {
+        String query = searchField.getText() != null ? searchField.getText().trim() : "";
+        loadPackages(query);
+    }
+
+    @FXML
+    private void onResetSearch() {
+        searchField.clear();
+        loadPackages("");
+    }
+
+    private void loadPackages(String query) {
         packagesContainer.getChildren().clear();
-        List<DockPackageDto> packages = docpackageService.searchByPackageName("");
+        List<DockPackageDto> packages = docpackageService.searchByPackageName(query);
+        if (!query.isEmpty()) {
+            packages.addAll(docpackageService.searchByOboznach(query));
+            packages = packages.stream().distinct().toList();
+        }
         for (DockPackageDto pkg : packages) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setStyle("-fx-padding: 10; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-background-radius: 5;");
 
-            Label nameLabel = new Label(pkg.packageName());
-            nameLabel.setPrefWidth(400);
+            String desig = pkg.sborEds() != null && !pkg.sborEds().isEmpty()
+                    ? pkg.sborEds().getFirst().oboznach()
+                    : "";
+            String labelText = pkg.packageName() + " " + desig;
+
+            Label nameLabel = new Label(labelText);
+            nameLabel.setPrefWidth(450);
             nameLabel.setStyle("-fx-font-size: 14px;");
 
             Button openButton = new Button("Открыть");
@@ -85,9 +114,12 @@ public class PackageListController {
                 controller.getOperationsContainer(),
                 controller.getAssemblyUnitsContainer()
         );
+        controller.wrapOperationDeleteHandlers();
+        controller.rebuildSeparators();
         Stage editStage = new Stage();
         editStage.initOwner(mainStage);
         editStage.setOnHidden(e -> {
+            searchField.clear();
             loadPackages();
             currentStage.show();
         });

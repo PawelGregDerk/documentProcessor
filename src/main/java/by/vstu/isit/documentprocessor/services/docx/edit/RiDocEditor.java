@@ -36,29 +36,44 @@ public class RiDocEditor extends AbstractDocEditor {
     @Override
     @Transactional(readOnly = true)
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
-        for (int oi = 0; oi < savedDto.opers().size(); oi++) {
-            OperDto oper = savedDto.opers().get(oi);
-            OperDto origOper = oi < dto.opers().size() ? dto.opers().get(oi) : oper;
+        Set<String> savedFileNames = new HashSet<>();
+        for (OperDto oper : savedDto.opers()) {
+            savedFileNames.add(fileName(oper));
+        }
+
+        for (OperDto oper : savedDto.opers()) {
+            OperDto origOper = dto.opers().stream()
+                    .filter(o -> o.id().equals(oper.id()))
+                    .findFirst()
+                    .orElse(null);
+
+            boolean isNew = origOper == null;
+            if (isNew) {
+                origOper = oper;
+            }
+
             Document doc;
-            try {
-                doc = loadCopySubByBookmark(
-                        dto.path(),
-                        "ri",
-                        fileName(origOper),
-                        fileName(oper),
-                        2,
-                        sourceBookmark(origOper)
-                );
-            } catch (NoSuchFileException ex) {
-                // 👉 Новая операция → Берём ЧИСТЫЙ исходный шаблон системы
+            if (isNew) {
                 doc = new Document();
                 try (InputStream is = templateResource.getInputStream()) {
                     doc.loadFromStream(is, FileFormat.Docx);
                 }
-
-                // Инициализируем origOper как пустой шаблонный контейнер,
-                // чтобы генерация старых Header-данных не упала с ошибками (опционально)
-                origOper = oper;
+            } else {
+                try {
+                    doc = loadCopySubByBookmark(
+                            dto.path(),
+                            "ri",
+                            fileName(origOper),
+                            fileName(oper),
+                            2,
+                            sourceBookmark(origOper)
+                    );
+                } catch (NoSuchFileException ex) {
+                    doc = new Document();
+                    try (InputStream is = templateResource.getInputStream()) {
+                        doc.loadFromStream(is, FileFormat.Docx);
+                    }
+                }
             }
 
             Table table = doc.getSections().get(0).getTables().get(2);
@@ -75,32 +90,35 @@ public class RiDocEditor extends AbstractDocEditor {
                     updateCell(table, "func_" + func.id() + "_col_2", func.specCharakt());
                 } else {
                     TableRow newRow = insertRowAfterLastBookmark(table, "func_", COLUMN_COUNT);
-                    setShadedText(newRow.getCells().get(1), func.name() + "\n" + func.param());
-                    setShadedText(newRow.getCells().get(2), func.specCharakt());
+                    var cell1 = newRow.getCells().get(1);
+                    setShadedBookmarkedText(cell1, "func_" + func.id() + "_name", func.name());
+                    cell1.getParagraphs().get(0).appendText("\n");
+                    appendShadedBookmark(cell1.getParagraphs().get(0), "func_" + func.id() + "_param", func.param());
+                    setShadedBookmarkedText(newRow.getCells().get(2), "func_" + func.id() + "_col_2", func.specCharakt());
                 }
             }
 
             removeDeletedRows(table, processedFuncIds, "func_", "_name");
 
-            String origDesig = dto.sborEds().getFirst().oboznach() + "\u2014" + dto.sborEds().getLast().oboznach();
+            String origDesig = designationsAssemblyUnit(dto.sborEds());
 
-            // Если сработал catch, старый заголовок будет равен новому (так как origOper = oper),
-            // и метод updateHeader просто перезапишет плейсхолдеры шаблона на реальные данные
             Map<String, String> oldHeader = resolveHeaderOldData(Map.of(
                     "d", origDesig,
                     "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
                     "p", dseText(dto.sborEds(), dto.packageName()),
-                    "shop", origOper.shifr(),
-                    "namOp", origOper.name(),
-                    "numOp", origOper.numOper(),
-                    "oObr", origOper.oborud(),
-                    "oOst", origOper.ostnasInstr(),
+                    "wi", dto.vedIName(),
+                    "shop", isNew ? oper.shifr() : origOper.shifr(),
+                    "namOp", isNew ? oper.name() : origOper.name(),
+                    "numOp", isNew ? oper.numOper() : origOper.numOper(),
+                    "oObr", isNew ? oper.oborud() : origOper.oborud(),
+                    "oOst", isNew ? oper.ostnasInstr() : origOper.ostnasInstr(),
                     "nZech", oper.numZech()
             ));
             updateHeader(doc, oldHeader, Map.of(
                     "d", designationsAssemblyUnit(savedDto.sborEds()),
                     "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
                     "p", dseText(savedDto.sborEds(), savedDto.packageName()),
+                    "wi", savedDto.vedIName(),
                     "shop", oper.shifr(),
                     "namOp", oper.name(),
                     "numOp", oper.numOper(),
@@ -111,9 +129,11 @@ public class RiDocEditor extends AbstractDocEditor {
 
             saveSub(doc, savedDto.path(), "ri", fileName(oper));
 
-            if (!fileName(origOper).equals(fileName(oper))) {
+            if (!isNew && !fileName(origOper).equals(fileName(oper))) {
                 Path oldFile = Path.of(format(destPath, copyFolder(savedDto.path()), "ri", fileName(origOper)));
-                Files.deleteIfExists(oldFile);
+                if (!savedFileNames.contains(fileName(origOper))) {
+                    Files.deleteIfExists(oldFile);
+                }
             }
         }
     }

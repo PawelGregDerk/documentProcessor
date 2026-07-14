@@ -58,7 +58,9 @@ public abstract class AbstractWordGenerator {
         var p = para.getCTP();
         BigInteger id = BigInteger.valueOf(Math.abs(bookmarkName.hashCode()));
 
-        para.createRun().setText(" ");
+        var spaceRun = para.createRun();
+        spaceRun.setText(" ");
+        spaceRun.setFontFamily("Arial Narrow");
 
         CTBookmark start = p.addNewBookmarkStart();
         start.setName(bookmarkName);
@@ -66,11 +68,14 @@ public abstract class AbstractWordGenerator {
 
         var run = para.createRun();
         run.setText(text);
+        run.setFontFamily("Arial Narrow");
 
         CTMarkupRange end = p.addNewBookmarkEnd();
         end.setId(id);
 
-        para.createRun().setText(" ");
+        var endSpaceRun = para.createRun();
+        endSpaceRun.setText(" ");
+        endSpaceRun.setFontFamily("Arial Narrow");
     }
 
     protected void postProcess(XWPFDocument doc, String folder, String name, Map<String, String> headerData) throws Exception {

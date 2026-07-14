@@ -101,7 +101,7 @@ public class PuDocEditor extends AbstractDocEditor {
             }
             int rowSpan = Math.max(oper.funcs().size(), 1);
             int end = Math.min(table.getRows().getCount() - 1, start + rowSpan - 1);
-            if (end <= start) {
+            if (end < start) {
                 continue;
             }
             table.applyVerticalMerge(0, start, end);

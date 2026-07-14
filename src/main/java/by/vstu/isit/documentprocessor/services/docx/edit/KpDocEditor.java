@@ -46,9 +46,13 @@ public class KpDocEditor extends AbstractDocEditor {
                 updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
                 updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
             } else {
-                row = addRowWithShading(table, COLUMN_COUNT);
-                setShadedText(row.getCells().get(0), oper.numOper());
-                setShadedText(row.getCells().get(7), oper.name() + "\n" + oper.numZech() + "\n" + oper.oborud());
+                row = insertRowAfterLastBookmark(table, "oper_", COLUMN_COUNT);
+                setShadedBookmarkedText(row.getCells().get(0), "oper_" + oper.id() + "_col_0", oper.numOper());
+                setShadedBookmarkedText(row.getCells().get(7), "oper_" + oper.id() + "_name", oper.name());
+                row.getCells().get(7).getParagraphs().get(0).appendText(" ");
+                appendShadedBookmark(row.getCells().get(7).getParagraphs().get(0), "oper_" + oper.id() + "_numZech", oper.numZech());
+                row.getCells().get(7).getParagraphs().get(0).appendText(" ");
+                appendShadedBookmark(row.getCells().get(7).getParagraphs().get(0), "oper_" + oper.id() + "_oborud", oper.oborud());
             }
             rebuildSpecCell(row, oper);
             rebuildFunctionGroups(row, oper);

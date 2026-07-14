@@ -87,7 +87,8 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         XWPFParagraph p = cell.addParagraph();
         XWPFRun run = p.createRun();
         run.setText(text);
-        run.setFontSize(8); // уменьшенный шрифт
+        run.setFontFamily("Arial Narrow");
+        run.setFontSize(8);
     }
 
     private void mergeHorizontalAndRemove(XWPFTableRow row, int col, int span) {

@@ -38,8 +38,7 @@ public class Table01WordGenerator extends AbstractWordGenerator {
             for (var se : dto.sborEds()) {
                 var row = table.createRow();
                 ensureCells(row, 5);
-                setCellWithBookmark(row.getCell(0), "t01_name_" + se.id(),
-                        se.nazv() + ", " + se.oboznach() + ", " + fillFirstCell(dto.packageName(), se));
+                setCellWithBookmark(row.getCell(0), "t01_name_" + se.id(), se.oboznach());
 
                 // Остальные столбцы пустые
                 for (int c = 1; c < 5; c++) {
@@ -61,7 +60,9 @@ public class Table01WordGenerator extends AbstractWordGenerator {
     private void setCell(XWPFTableCell cell, String text) {
         cell.removeParagraph(0);
         var p = cell.addParagraph();
-        p.createRun().setText(text == null ? "" : text);
+        var run = p.createRun();
+        run.setText(text == null ? "" : text);
+        run.setFontFamily("Arial Narrow");
     }
 
     private void setCellWithBookmark(XWPFTableCell cell, String name, String text) {
@@ -75,7 +76,9 @@ public class Table01WordGenerator extends AbstractWordGenerator {
         start.setName(name);
         start.setId(id);
 
-        p.createRun().setText(text == null ? "" : text);
+        var run = p.createRun();
+        run.setText(text == null ? "" : text);
+        run.setFontFamily("Arial Narrow");
 
         var end = ctp.addNewBookmarkEnd();
         end.setId(id);

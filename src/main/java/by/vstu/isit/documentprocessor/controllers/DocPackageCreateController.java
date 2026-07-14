@@ -23,11 +23,9 @@ import io.vavr.control.Try;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Controller
@@ -54,136 +52,17 @@ public class DocPackageCreateController {
     private VBox operationsContainer;
     @FXML
     private TextField packagePathField;
-    // Элементы для переключения режимов
-    @FXML
-    private ToggleButton regularModeBtn;
-    @FXML
-    private ToggleButton typeModeBtn;
-    @FXML
-    private VBox regularPanel;
-    @FXML
-    private VBox typePanel;
-    @FXML
-    private Button addTypeOperBtn;
-
-    // Элементы для типовых операций
-    @FXML
-    private VBox typeOperationsListContainer;
-    @FXML
-    private TextField typeOperSearchField;
-
     private final DockPackageFormMapper formMapper;
     private final DocpackageService service;
     private final TypeOperService typeOperService;
     private final List<AbstractWordGenerator> generators;
-    private final List<TypeOperDto> selectedTypeOperations = new ArrayList<>();
     private final FxWeaver fxWeaver;
 
     @Value("${out.pu.path}")
     private String outPuPath;
 
-    private List<TypeOperDto> allTypeOperations;
-    private List<TypeOperDto> filteredTypeOperations;
-
     @FXML
     private void initialize() {
-        ToggleGroup group = new ToggleGroup();
-        regularModeBtn.setToggleGroup(group);
-        typeModeBtn.setToggleGroup(group);
-
-        regularModeBtn.setSelected(true);
-
-        // Запрещаем снятие выделения с уже выбранной кнопки
-        group.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) {
-                // Если пытаются снять выделение - возвращаем старую выбранную кнопку
-                group.selectToggle(oldVal);
-                return;
-            }
-
-            if (newVal == regularModeBtn) {
-                regularPanel.setVisible(true);
-                regularPanel.setManaged(true);
-                typePanel.setVisible(false);
-                typePanel.setManaged(false);
-            } else if (newVal == typeModeBtn) {
-                regularPanel.setVisible(false);
-                regularPanel.setManaged(false);
-                typePanel.setVisible(true);
-                typePanel.setManaged(true);
-                loadTypeOperations();
-            }
-        });
-    }
-
-    private void addSelectedTypeOperation() {
-        new Alert(Alert.AlertType.INFORMATION, "Выберите типовую операцию из списка и нажмите 'Добавить' у неё").showAndWait();
-    }
-
-    private void loadTypeOperations() {
-        try {
-            System.out.println("=== ЗАГРУЗКА ТИПОВЫХ ОПЕРАЦИЙ ===");
-            allTypeOperations = typeOperService.findAll();
-            System.out.println("Загружено типовых операций: " + allTypeOperations.size());
-
-            for (TypeOperDto to : allTypeOperations) {
-                System.out.println("  - №" + to.numOper() + ": " + to.name());
-            }
-
-            filteredTypeOperations = new ArrayList<>(allTypeOperations);
-            displayTypeOperations(filteredTypeOperations);
-        } catch (Exception e) {
-            System.err.println("Ошибка загрузки типовых операций: " + e.getMessage());
-            e.printStackTrace();
-            allTypeOperations = new ArrayList<>();
-            filteredTypeOperations = new ArrayList<>();
-            displayTypeOperations(filteredTypeOperations);
-        }
-    }
-
-    private void displayTypeOperations(List<TypeOperDto> operations) {
-        if (typeOperationsListContainer == null) {
-            return;
-        }
-
-        typeOperationsListContainer.getChildren().clear();
-
-        for (TypeOperDto typeOper : operations) {
-
-            HBox row = new HBox(10);
-            row.setAlignment(Pos.CENTER_LEFT);
-            row.setMaxWidth(Double.MAX_VALUE);
-
-            Label nameLabel = new Label(
-                    typeOper.name() != null
-                            ? typeOper.name()
-                            : "<без названия>"
-            );
-
-            nameLabel.setWrapText(true);
-            nameLabel.setPrefWidth(500);
-            nameLabel.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(nameLabel, Priority.ALWAYS);
-
-            Button addBtn = styled(
-                    new Button("Добавить"),
-                    "btn-primary",
-                    "btn-small"
-            );
-
-            addBtn.setOnAction(e -> addTypeOperationToRegular(typeOper));
-
-            row.getChildren().addAll(nameLabel, addBtn);
-
-            typeOperationsListContainer.getChildren().add(row);
-        }
-    }
-
-    private Label createLabel(String text, double width) {
-        Label label = new Label(text != null ? text : "");
-        label.setPrefWidth(width);
-        label.setWrapText(true);
-        return label;
     }
 
     private void addTypeOperationToRegular(TypeOperDto typeOper) {
@@ -193,18 +72,30 @@ public class DocPackageCreateController {
         HBox operRow = styled(new HBox(6), "operation-row");
         operRow.setAlignment(Pos.CENTER_LEFT);
 
-        TextField numOper = styled(new TextField(typeOper.numOper()), "compact");
-        TextField nomInstr = styled(new TextField(typeOper.nomInstr()), "compact");
-        TextField oborud = styled(new TextField(typeOper.oborud()), "compact");
-        TextField ostnas = styled(new TextField(typeOper.ostnasInstr()), "compact");
-        TextField name = styled(new TextField(typeOper.name()), "compact");
-        TextField shifr = styled(new TextField(typeOper.shifr()), "compact");
-        TextField zech = styled(new TextField(typeOper.numZech()), "compact");
+        TextArea numOper = styled(new TextArea(typeOper.numOper()), "compact");
+        numOper.setPrefRowCount(2);
+        numOper.setWrapText(true);
+        TextArea nomInstr = styled(new TextArea(typeOper.nomInstr()), "compact");
+        nomInstr.setPrefRowCount(2);
+        nomInstr.setWrapText(true);
+        TextArea oborud = styled(new TextArea(typeOper.oborud()), "compact");
+        oborud.setPrefRowCount(2);
+        oborud.setWrapText(true);
+        TextArea ostnas = styled(new TextArea(typeOper.ostnasInstr()), "compact");
+        ostnas.setPrefRowCount(2);
+        ostnas.setWrapText(true);
+        TextArea name = styled(new TextArea(typeOper.name()), "compact");
+        name.setPrefRowCount(2);
+        name.setWrapText(true);
+        TextArea shifr = styled(new TextArea(typeOper.shifr()), "compact");
+        shifr.setPrefRowCount(2);
+        shifr.setWrapText(true);
+        TextArea zech = styled(new TextArea(typeOper.numZech()), "compact");
+        zech.setPrefRowCount(2);
+        zech.setWrapText(true);
         growOperationFields(numOper, nomInstr, oborud, ostnas, name, shifr, zech);
         Button addFuncBtn = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
-        addFuncBtn.setPrefWidth(140);
         Button delOperBtn = styled(new Button("Удалить"), "btn-danger", "btn-small");
-        delOperBtn.setPrefWidth(90);
 
         operRow.getChildren().addAll(
                 numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
@@ -239,21 +130,26 @@ public class DocPackageCreateController {
         funcRow.getStyleClass().add("function-data-row");
         funcRow.setUserData(null);
 
-        TextField name = styled(new TextField(typeFunc.name() != null ? typeFunc.name() : ""), "compact");
+        TextArea name = styled(new TextArea(typeFunc.name() != null ? typeFunc.name() : ""), "compact");
         name.setPromptText("Описание");
-        name.setPrefWidth(140);
+        name.setPrefRowCount(2);
+        name.setWrapText(true);
 
-        TextField param = styled(new TextField(typeFunc.param() != null ? typeFunc.param() : ""), "no-compact");
+        TextArea param = styled(new TextArea(typeFunc.param() != null ? typeFunc.param() : ""), "compact");
         param.setPromptText("Параметры");
-        param.setPrefWidth(140);
+        param.setPrefRowCount(2);
+        param.setWrapText(true);
 
         CheckBox isProd = new CheckBox();
         isProd.setSelected(typeFunc.isProd());
         isProd.setPrefWidth(120);
+        StackPane checkWrap = new StackPane(isProd);
+        checkWrap.setAlignment(Pos.CENTER);
 
-        TextField spec = styled(new TextField(typeFunc.specCharakt() != null ? typeFunc.specCharakt() : ""), "compact");
+        TextArea spec = styled(new TextArea(typeFunc.specCharakt() != null ? typeFunc.specCharakt() : ""), "compact");
         spec.setPromptText("Спец. характеристики");
-        spec.setPrefWidth(140);
+        spec.setPrefRowCount(2);
+        spec.setWrapText(true);
 
         Button delBtn = styled(new Button("Удалить"), "delButton");
         delBtn.setOnAction(e -> {
@@ -262,34 +158,11 @@ public class DocPackageCreateController {
             cleanupFunctionHeader(parent);
         });
 
-        funcRow.getChildren().addAll(name, param, isProd, spec, delBtn);
+        funcRow.getChildren().addAll(name, param, checkWrap, spec, delBtn);
         growFunctionFields(name, param, spec);
-        setFixedWidth(isProd, 70);
+        setFixedWidth(checkWrap, 70);
         setFixedWidth(delBtn, 90);
         return funcRow;
-    }
-
-    @FXML
-    private void onSearchTypeOper() {
-        String searchText = typeOperSearchField.getText().toLowerCase();
-        if (searchText.isEmpty()) {
-            filteredTypeOperations = new ArrayList<>(allTypeOperations);
-        } else {
-            filteredTypeOperations = allTypeOperations.stream()
-                    .filter(to ->
-                            (to.numOper() != null && to.numOper().toLowerCase().contains(searchText)) ||
-                                    (to.name() != null && to.name().toLowerCase().contains(searchText))
-                    )
-                    .collect(toList());
-        }
-        displayTypeOperations(filteredTypeOperations);
-    }
-
-    @FXML
-    private void onResetTypeOperSearch() {
-        typeOperSearchField.clear();
-        filteredTypeOperations = new ArrayList<>(allTypeOperations);
-        displayTypeOperations(filteredTypeOperations);
     }
 
     @FXML
@@ -309,20 +182,26 @@ public class DocPackageCreateController {
     }
 
     @FXML
-    private void onAddTypeOper() {
-
+    private void onCreateTypeOper() {
+        TypeOperEditController.prepareForCreate();
         Stage stage = new Stage();
-
         Parent root = fxWeaver.loadView(TypeOperEditController.class);
-
         stage.setScene(new Scene(root));
         stage.setTitle("Создание типовой операции");
         stage.initModality(Modality.APPLICATION_MODAL);
-
         stage.showAndWait();
+    }
 
-        // после закрытия — обновляем список
-        loadTypeOperations();
+    @FXML
+    private void onOpenTypeOperList() {
+        TypeOperListController.setOnAddCallback(this::addTypeOperationToRegular);
+        Stage stage = new Stage();
+        Parent root = fxWeaver.loadView(TypeOperListController.class);
+        stage.setScene(new Scene(root));
+        stage.setTitle("Типовые операции");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        TypeOperListController.clearCallback();
     }
 
     @FXML
@@ -334,25 +213,37 @@ public class DocPackageCreateController {
         HBox operRow = styled(new HBox(6), "operation-row");
         operRow.setMaxWidth(Double.MAX_VALUE);
         operRow.setAlignment(Pos.CENTER_LEFT);
-        TextField numOper = styled(new TextField(), "compact");
+        TextArea numOper = styled(new TextArea(), "compact");
         numOper.setPromptText("№ операции");
-        TextField nomInstr = styled(new TextField(), "compact");
+        numOper.setPrefRowCount(2);
+        numOper.setWrapText(true);
+        TextArea nomInstr = styled(new TextArea(), "compact");
         nomInstr.setPromptText("№ инструкции");
-        TextField oborud = new TextField();
+        nomInstr.setPrefRowCount(2);
+        nomInstr.setWrapText(true);
+        TextArea oborud = styled(new TextArea(), "compact");
         oborud.setPromptText("Оборудование");
-        TextField ostnas = new TextField();
+        oborud.setPrefRowCount(2);
+        oborud.setWrapText(true);
+        TextArea ostnas = styled(new TextArea(), "compact");
         ostnas.setPromptText("Оснастка / Инструмент");
-        TextField name = new TextField();
+        ostnas.setPrefRowCount(2);
+        ostnas.setWrapText(true);
+        TextArea name = styled(new TextArea(), "compact");
         name.setPromptText("Наименование");
-        TextField shifr = styled(new TextField(), "compact");
+        name.setPrefRowCount(2);
+        name.setWrapText(true);
+        TextArea shifr = styled(new TextArea(), "compact");
         shifr.setPromptText("Шифр");
-        TextField zech = styled(new TextField(), "compact");
+        shifr.setPrefRowCount(2);
+        shifr.setWrapText(true);
+        TextArea zech = styled(new TextArea(), "compact");
         zech.setPromptText("Цех");
+        zech.setPrefRowCount(2);
+        zech.setWrapText(true);
 
         Button addFuncBtn = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
-        addFuncBtn.setPrefWidth(140);
         Button delOperBtn = styled(new Button("Удалить"), "btn-danger", "btn-small");
-        delOperBtn.setPrefWidth(90);
 
         operRow.getChildren().addAll(
                 numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
@@ -380,13 +271,21 @@ public class DocPackageCreateController {
         funcRow.setMaxWidth(Double.MAX_VALUE);
         funcRow.setAlignment(Pos.CENTER_LEFT);
 
-        TextField name = styled(new TextField(), "compact");
+        TextArea name = styled(new TextArea(), "compact");
         name.setPromptText("Описание");
-        TextField param = styled(new TextField(), "no-compact");
+        name.setPrefRowCount(2);
+        name.setWrapText(true);
+        TextArea param = styled(new TextArea(), "compact");
         param.setPromptText("Параметры");
+        param.setPrefRowCount(2);
+        param.setWrapText(true);
         CheckBox isProd = new CheckBox();
-        TextField spec = styled(new TextField(), "compact");
+        StackPane checkWrap = new StackPane(isProd);
+        checkWrap.setAlignment(Pos.CENTER);
+        TextArea spec = styled(new TextArea(), "compact");
         spec.setPromptText("Спец. характеристики");
+        spec.setPrefRowCount(2);
+        spec.setWrapText(true);
 
         Button delBtn = styled(new Button("Удалить"), "delButton");
         delBtn.setOnAction(e -> {
@@ -402,15 +301,15 @@ public class DocPackageCreateController {
 
         });
 
-        funcRow.getChildren().addAll(name, param, isProd, spec, delBtn);
+        funcRow.getChildren().addAll(name, param, checkWrap, spec, delBtn);
         growFunctionFields(name, param, spec);
-        setFixedWidth(isProd, 70);
+        setFixedWidth(checkWrap, 70);
         setFixedWidth(delBtn, 90);
         funcsContainer.getChildren().add(funcRow);
     }
 
-    private void growOperationFields(TextField numOper, TextField nomInstr, TextField oborud,
-                                     TextField ostnas, TextField name, TextField shifr, TextField zech) {
+    private void growOperationFields(Region numOper, Region nomInstr, Region oborud,
+                                     Region ostnas, Region name, Region shifr, Region zech) {
         setGrow(numOper, 80);
         setGrow(nomInstr, 110);
         setGrow(oborud, 120);
@@ -420,16 +319,16 @@ public class DocPackageCreateController {
         setGrow(zech, 60);
     }
 
-    private void growFunctionFields(TextField name, TextField param, TextField spec) {
-        setGrow(name, 180);
-        setGrow(param, 220);
-        setGrow(spec, 180);
+    private void growFunctionFields(Region name, Region param, Region spec) {
+        setGrow(name, 140);
+        setGrow(param, 140);
+        setGrow(spec, 140);
     }
 
     private void growFunctionHeader(Label name, Label param, Label spec) {
-        setGrow(name, 180);
-        setGrow(param, 220);
-        setGrow(spec, 180);
+        setGrow(name, 140);
+        setGrow(param, 140);
+        setGrow(spec, 140);
     }
 
     private void setGrow(Region region, double minWidth) {

@@ -22,43 +22,45 @@
             <ColumnConstraints hgrow="ALWAYS" fillWidth="true"/>
         </columnConstraints>
         <Label text="№ операции" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="numOperField" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="numOperField" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Инструкция" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="nomInstrField" GridPane.rowIndex="1" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="nomInstrField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Оборудование" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="oborudField" GridPane.rowIndex="2" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="oborudField" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Оснастка" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="ostnasInstrField" GridPane.rowIndex="3" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="ostnasInstrField" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Наименование" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-        <TextField fx:id="nameField" GridPane.rowIndex="4" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="nameField" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Шифр" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-        <TextField fx:id="shifrField" GridPane.rowIndex="5" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="shifrField" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
         <Label text="Цех" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-        <TextField fx:id="numZechField" GridPane.rowIndex="6" GridPane.columnIndex="1"
-                   maxWidth="Infinity"
-                   GridPane.hgrow="ALWAYS"/>
+        <TextArea fx:id="numZechField" GridPane.rowIndex="6" GridPane.columnIndex="1"
+                  maxWidth="Infinity" prefRowCount="2" wrapText="true"
+                  GridPane.hgrow="ALWAYS"/>
 
     </GridPane>
 
-    <Separator/>
+    <Separator>
+        <VBox.margin><Insets top="20"/></VBox.margin>
+    </Separator>
 
     <!-- ===== Функции ===== -->
     <Label text="Функции">
@@ -68,6 +70,8 @@
     <Button text="Добавить функцию" styleClass="newButton" onAction="#onAddFunction">
         <VBox.margin><Insets bottom="8"/></VBox.margin>
     </Button>
+
+    <HBox fx:id="funcHeader" spacing="10" alignment="CENTER_LEFT"/>
 
     <ScrollPane fitToWidth="true" prefHeight="250">
         <content>

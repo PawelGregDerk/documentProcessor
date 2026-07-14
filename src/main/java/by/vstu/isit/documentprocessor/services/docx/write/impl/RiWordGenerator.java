@@ -38,6 +38,7 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
                 for (var fun : oper.funcs()) {
                     var row = createRow(table, fun);
                     addBookmark(row.getCell(1), "func_" + fun.id() + "_name", fun.name());
+                    row.getCell(1).getParagraphs().getFirst().createRun().addBreak();
                     appendBookmark(row.getCell(1), "func_" + fun.id() + "_param", fun.param());
                     addBookmark(row.getCell(2), "func_" + fun.id() + "_col_2", fun.specCharakt());
                 }
@@ -51,6 +52,7 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
                         "d", article,
                         "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
                         "p", dseText(dto.sborEds(), dto.packageName()),
+                        "wi", dto.vedIName(),
                         "shop", oper.shifr(),
                         "namOp", oper.name(),
                         "numOp", oper.numOper(),
@@ -72,6 +74,7 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
         for (var fun : oper.funcs()) {
             var row = createRow(table, fun);
             addBookmark(row.getCell(1), "func_" + fun.id() + "_name", fun.name());
+            row.getCell(1).getParagraphs().getFirst().createRun().addBreak();
             appendBookmark(row.getCell(1), "func_" + fun.id() + "_param", fun.param());
             addBookmark(row.getCell(2), "func_" + fun.id() + "_col_2", fun.specCharakt());
         }

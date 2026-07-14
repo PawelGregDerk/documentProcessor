@@ -17,7 +17,13 @@
 
     <Label text="Список пакетов документов" styleClass="labelFont" style="-fx-font-size: 18px;"/>
 
-    <ScrollPane fitToWidth="true" prefHeight="600">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Поиск по названию пакета или обозначению сборочной единицы..." maxWidth="500" HBox.hgrow="ALWAYS"/>
+        <Button text="Поиск" onAction="#onSearch" styleClass="newButton" minHeight="28" prefHeight="28" maxHeight="28"/>
+        <Button text="Сброс" onAction="#onResetSearch" styleClass="delButton" minHeight="28" prefHeight="28" maxHeight="28"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" prefHeight="550">
         <content>
             <VBox fx:id="packagesContainer" spacing="10"/>
         </content>

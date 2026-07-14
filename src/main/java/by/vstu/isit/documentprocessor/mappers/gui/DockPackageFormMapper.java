@@ -4,9 +4,12 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.dto.SborEdDto;
+import by.vstu.isit.documentprocessor.utils.FileUtils;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.springframework.stereotype.Component;
 
@@ -31,13 +34,13 @@ public class DockPackageFormMapper {
     ) {
         return new DockPackageDto(
                 packageId,
-                packageName.getText(),
-                packagePath,
-                pu.getText(),
-                spu.getText(),
-                kp.getText(),
-                fmea.getText(),
-                vedInstr.getText(),
+                FileUtils.sanitize(packageName.getText().trim()),
+                FileUtils.sanitize(packagePath),
+                FileUtils.sanitize(pu.getText()),
+                FileUtils.sanitize(spu.getText()),
+                FileUtils.sanitize(kp.getText()),
+                FileUtils.sanitize(fmea.getText()),
+                FileUtils.sanitize(vedInstr.getText()),
                 mapChildren(opersContainer, VBox.class, this::mapOperation),
                 mapChildren(assemblyContainer, HBox.class, row -> mapSborEdDto(sborEdNazv, row))
         );
@@ -45,7 +48,7 @@ public class DockPackageFormMapper {
 
     private SborEdDto mapSborEdDto(TextField nazv, HBox row) {
         Long id = (Long) row.getUserData();
-        return new SborEdDto(id, null, nazv.getText(), text(row, 0));
+        return new SborEdDto(id, null, FileUtils.sanitize(nazv.getText()), text(row, 0));
     }
 
     private OperDto mapOperation(VBox operBlock) {
@@ -55,11 +58,11 @@ public class DockPackageFormMapper {
         return new OperDto(
                 id,
                 null,
-                text(operRow, 0),
+                FileUtils.sanitize(text(operRow, 0)),
                 text(operRow, 1),
                 text(operRow, 2),
                 text(operRow, 3),
-                text(operRow, 4),
+                FileUtils.sanitize(text(operRow, 4)),
                 text(operRow, 5),
                 text(operRow, 6),
                 mapChildren(funcsContainer, HBox.class, this::mapFunction)
@@ -79,9 +82,19 @@ public class DockPackageFormMapper {
                 text(row, 0),
                 null,
                 text(row, 1),
-                ((CheckBox) row.getChildren().get(2)).isSelected(),
+                isProdSelected(row.getChildren().get(2)),
                 text(row, 3)
         );
+    }
+
+    private boolean isProdSelected(javafx.scene.Node node) {
+        if (node instanceof StackPane sp && sp.getChildren().getFirst() instanceof CheckBox cb) {
+            return cb.isSelected();
+        }
+        if (node instanceof CheckBox cb) {
+            return cb.isSelected();
+        }
+        return false;
     }
 
     private <N, R> List<R> mapChildren(VBox container, Class<N> nodeType, Function<N, R> mapper) {
@@ -93,6 +106,9 @@ public class DockPackageFormMapper {
     }
 
     private String text(HBox box, int idx) {
-        return ((TextField) box.getChildren().get(idx)).getText();
+        var node = box.getChildren().get(idx);
+        if (node instanceof TextField tf) return tf.getText();
+        if (node instanceof TextArea ta) return ta.getText();
+        return "";
     }
 }

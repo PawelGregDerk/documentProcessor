@@ -13,6 +13,7 @@ import java.io.Serializable;
 @MappedSuperclass
 @SuperBuilder
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

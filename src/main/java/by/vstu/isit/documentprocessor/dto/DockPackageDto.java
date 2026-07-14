@@ -1,7 +1,6 @@
 package by.vstu.isit.documentprocessor.dto;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public record DockPackageDto(
@@ -20,14 +19,6 @@ public record DockPackageDto(
         opers = (opers == null) ? new ArrayList<>() : new ArrayList<>(opers);
         sborEds = (sborEds == null) ? new ArrayList<>() : new ArrayList<>(sborEds);
 
-        opers.sort(Comparator.comparing(
-                OperDto::id,
-                Comparator.nullsLast(Long::compareTo)
-        ));
-
-        sborEds.sort(Comparator.comparing(
-                SborEdDto::id,
-                Comparator.nullsLast(Long::compareTo)
-        ));
+        // no sort — form order must be preserved
     }
 }
