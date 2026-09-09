@@ -58,16 +58,16 @@ public class Table01WordGenerator extends AbstractWordGenerator {
     }
 
     private void setCell(XWPFTableCell cell, String text) {
-        cell.removeParagraph(0);
-        var p = cell.addParagraph();
+        var p = cell.getParagraphs().getFirst();
+        p.getRuns().forEach(r -> r.setText("", 0));
         var run = p.createRun();
         run.setText(text == null ? "" : text);
         run.setFontFamily("Arial Narrow");
     }
 
     private void setCellWithBookmark(XWPFTableCell cell, String name, String text) {
-        cell.removeParagraph(0);
-        var p = cell.addParagraph();
+        var p = cell.getParagraphs().getFirst();
+        p.getRuns().forEach(r -> r.setText("", 0));
         var ctp = p.getCTP();
 
         BigInteger id = BigInteger.valueOf(Math.abs(name.hashCode()));

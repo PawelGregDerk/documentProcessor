@@ -77,6 +77,8 @@ public class Table01DocEditor extends AbstractDocEditor {
                 // Добавляем новую строку
                 TableRow row = table.addRow();
                 while (row.getCells().getCount() < 5) row.addCell();
+                setDefaultRowFont(row);
+                setDefaultRowPaddings(row);
 
                 setBookmarked(row.getCells().get(0), "t01_name_" + se.id(), se.oboznach());
             }

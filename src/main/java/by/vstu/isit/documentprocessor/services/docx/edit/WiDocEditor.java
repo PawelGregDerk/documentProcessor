@@ -41,9 +41,10 @@ public class WiDocEditor extends AbstractDocEditor {
                 updateCell(table, "oper_" + oper.id() + "_nomInstr", oper.nomInstr());
             } else {
                 TableRow newRow = addRowWithShading(table, COLUMN_COUNT);
-                setShadedText(newRow.getCells().get(0), oper.numOper());
-                setShadedText(newRow.getCells().get(1), oper.shifr() + " " + oper.name());
-                setShadedText(newRow.getCells().get(2), oper.nomInstr());
+                setShadedBookmarkedText(newRow.getCells().get(0), "oper_" + oper.id() + "_col_0", oper.numOper());
+                setShadedBookmarkedText(newRow.getCells().get(1), "oper_" + oper.id() + "_shifr", oper.shifr());
+                appendShadedBookmark(newRow.getCells().get(1).getParagraphs().get(0), "oper_" + oper.id() + "_name", oper.name());
+                setShadedBookmarkedText(newRow.getCells().get(2), "oper_" + oper.id() + "_nomInstr", oper.nomInstr());
             }
         }
 

@@ -4,6 +4,7 @@ import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import com.spire.doc.*;
 import com.spire.doc.BookmarkStart;
+import com.spire.doc.documents.CellMerge;
 import com.spire.doc.documents.Paragraph;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
@@ -322,32 +323,32 @@ public abstract class AbstractDocEditor {
     private void updateBookmarkText(TableCell cell, String bookmarkName, String newText) {
         for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
             Paragraph para = cell.getParagraphs().get(k);
-            boolean inBookmark = false;
-            int bookmarkStartIdx = -1;
+            int startIdx = -1;
+            int endIdx = -1;
+
             for (int m = 0; m < para.getChildObjects().getCount(); m++) {
                 var obj = para.getChildObjects().get(m);
                 if (obj instanceof BookmarkStart bm && bookmarkName.equals(bm.getName())) {
-                    inBookmark = true;
-                    bookmarkStartIdx = m;
-                    log.info("Found bookmark start: {} at index {}", bookmarkName, m);
-                    continue;
+                    startIdx = m;
                 }
-                if (obj instanceof com.spire.doc.BookmarkEnd && inBookmark) {
-                    // TextRange не найден между start и end — добавляем новый
-                    log.info("Bookmark end found without TextRange, appending text: '{}'", newText);
-                    com.spire.doc.fields.TextRange tr = para.appendText(newText);
-                    tr.getCharacterFormat().setFontName("Arial Narrow");
-                    return;
-                }
-                if (inBookmark && obj instanceof com.spire.doc.fields.TextRange tr) {
-                    boolean changed = !newText.equals(tr.getText().trim());
-                    log.info("Updating TextRange for bookmark '{}': '{}' -> '{}'", bookmarkName, tr.getText(), newText);
-                    tr.setText(newText);
-                    return;
+                if (startIdx >= 0 && obj instanceof com.spire.doc.BookmarkEnd && endIdx < 0) {
+                    endIdx = m;
+                    break;
                 }
             }
+
+            if (startIdx >= 0 && endIdx >= 0) {
+                for (int m = endIdx - 1; m > startIdx; m--) {
+                    para.getChildObjects().remove(para.getChildObjects().get(m));
+                }
+                com.spire.doc.fields.TextRange tr = para.appendText(newText);
+                tr.getCharacterFormat().setFontName("Arial Narrow");
+                para.getChildObjects().remove(tr);
+                para.getChildObjects().insert(startIdx + 1, tr);
+                log.info("Updated bookmark '{}' with text '{}'", bookmarkName, newText);
+                return;
+            }
         }
-        // Если закладка не найдена, логируем это
         log.warn("Bookmark '{}' not found in cell", bookmarkName);
     }
 
@@ -376,10 +377,45 @@ public abstract class AbstractDocEditor {
 
     protected TableRow addRowWithShading(Table table, int columnCount) {
         TableRow row = table.addRow();
+        clearVerticalMerge(row);
         while (row.getCells().getCount() < columnCount) {
             row.addCell();
         }
+        setDefaultRowFont(row);
+        setDefaultRowPaddings(row);
         return row;
+    }
+
+    protected void setDefaultRowFont(TableRow row) {
+        com.spire.doc.documents.ParagraphStyle normalStyle =
+                (com.spire.doc.documents.ParagraphStyle) row.getDocument().getStyles().findByName("Normal");
+        if (normalStyle != null) {
+            normalStyle.getCharacterFormat().setFontName("Arial Narrow");
+            normalStyle.getCharacterFormat().setFontNameAscii("Arial Narrow");
+            normalStyle.getCharacterFormat().setFontNameNonFarEast("Arial Narrow");
+        }
+    }
+
+    protected void setDefaultRowPaddings(TableRow row) {
+        for (int j = 0; j < row.getCells().getCount(); j++) {
+            row.getCells().get(j).getCellFormat().getPaddings().setAll(1.1f);
+        }
+    }
+
+    protected void clearVerticalMerge(TableRow row) {
+        for (int i = 0; i < row.getCells().getCount(); i++) {
+            row.getCells().get(i).getCellFormat().setVerticalMerge(CellMerge.None);
+        }
+    }
+
+    protected void copySpireCellWidths(TableRow template, TableRow target) {
+        for (int i = 0; i < template.getCells().getCount()
+                && i < target.getCells().getCount(); i++) {
+            float width = template.getCells().get(i).getWidth();
+            if (width > 0) {
+                target.getCells().get(i).setWidth(width);
+            }
+        }
     }
 
     protected TableRow insertRowAfterLastBookmark(Table table, String operBookmarkPrefix, int columnCount) {
@@ -414,13 +450,17 @@ public abstract class AbstractDocEditor {
         TableRow newRow;
         if (insertIdx >= 0) {
             newRow = table.addRow();
+            clearVerticalMerge(newRow);
             table.getRows().insert(insertIdx + 1, newRow);
         } else {
             newRow = table.addRow();
+            clearVerticalMerge(newRow);
         }
         while (newRow.getCells().getCount() < columnCount) {
             newRow.addCell();
         }
+        setDefaultRowFont(newRow);
+        setDefaultRowPaddings(newRow);
         return newRow;
     }
 
@@ -441,10 +481,8 @@ public abstract class AbstractDocEditor {
     }
 
     protected void setShadedText(TableCell cell, String text) {
-        Paragraph para = cell.getParagraphs().getCount() > 0
-                ? cell.getParagraphs().get(0)
-                : cell.addParagraph();
-        para.setText("");
+        clearCell(cell);
+        Paragraph para = cell.getParagraphs().get(0);
         com.spire.doc.fields.TextRange tr = para.appendText(text);
         tr.getCharacterFormat().setFontName("Arial Narrow");
     }
@@ -465,14 +503,23 @@ public abstract class AbstractDocEditor {
     }
 
     protected void setShadedBookmarkedText(TableCell cell, String bookmarkName, String text) {
-        Paragraph para = cell.getParagraphs().getCount() > 0
-                ? cell.getParagraphs().get(0)
-                : cell.addParagraph();
-        para.setText("");
+        clearCell(cell);
+        Paragraph para = cell.getParagraphs().get(0);
         appendShadedBookmark(para, bookmarkName, text);
     }
 
     protected void appendShadedBookmark(Paragraph para, String bookmarkName, String text) {
+        if (para.getChildObjects().getCount() == 1) {
+            var first = para.getChildObjects().get(0);
+            if (first instanceof com.spire.doc.fields.TextRange tr
+                    && (tr.getText() == null || tr.getText().isEmpty())) {
+                para.getChildObjects().remove(tr);
+            }
+        }
+        if (para.getChildObjects().getCount() > 0) {
+            com.spire.doc.fields.TextRange space = para.appendText(" ");
+            space.getCharacterFormat().setFontName("Arial Narrow");
+        }
         para.appendBookmarkStart(bookmarkName);
         com.spire.doc.fields.TextRange tr = para.appendText(text == null ? "" : text);
         tr.getCharacterFormat().setFontName("Arial Narrow");

@@ -45,10 +45,18 @@ public class PuDocEditor extends AbstractDocEditor {
             if (exists) {
                 log.info("Updating existing operation: {}", bookmarkName);
                 updateCell(table, "oper_" + oper.id() + "_col_0", oper.numOper());
-                updateCell(table, "oper_" + oper.id() + "_col_1", oper.name());
-                updateCell(table, "oper_" + oper.id() + "_numZech", oper.numZech());
-                updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
-                updateCell(table, "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
+
+                TableCell nameCell = findCellByBookmark(table, "oper_" + oper.id() + "_col_1");
+                clearCell(nameCell);
+                Paragraph namePara = nameCell.getParagraphs().get(0);
+                appendShadedBookmark(namePara, "oper_" + oper.id() + "_col_1", oper.name());
+                appendShadedBookmark(namePara, "oper_" + oper.id() + "_numZech", oper.numZech());
+
+                TableCell oborudCell = findCellByBookmark(table, "oper_" + oper.id() + "_oborud");
+                clearCell(oborudCell);
+                Paragraph oborudPara = oborudCell.getParagraphs().get(0);
+                appendShadedBookmark(oborudPara, "oper_" + oper.id() + "_oborud", oper.oborud());
+                appendShadedBookmark(oborudPara, "oper_" + oper.id() + "_ostnasInstr", oper.ostnasInstr());
             } else {
                 log.info("Adding new operation: {}", bookmarkName);
                 TableRow row = insertRowAfterLastBookmark(table, "oper_", COLUMN_COUNT);

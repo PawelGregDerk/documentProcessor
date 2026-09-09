@@ -67,9 +67,7 @@ public class FmeaDocEditor extends AbstractDocEditor {
 
                         if (!operExists) {
                             setShadedBookmarkedText(newRow.getCells().get(3), "oper_" + oper.id() + "_numOper", oper.numOper());
-                            newRow.getCells().get(3).getParagraphs().get(0).appendText(" ");
                             appendShadedBookmark(newRow.getCells().get(3).getParagraphs().get(0), "oper_" + oper.id() + "_name", oper.name());
-                            newRow.getCells().get(3).getParagraphs().get(0).appendText(" ");
                             appendShadedBookmark(newRow.getCells().get(3).getParagraphs().get(0), "oper_" + oper.id() + "_numZech", oper.numZech());
                         }
                     }
@@ -82,10 +80,10 @@ public class FmeaDocEditor extends AbstractDocEditor {
             }
 
             if (firstFuncRowIdx >= 0) {
-                int endRow = firstFuncRowIdx + oper.funcs().size() - 1;
-                for (int col = 0; col <= 6; col++) {
-                    table.applyVerticalMerge(col, firstFuncRowIdx, endRow);
-                }
+                int targetFuncCount = oper.funcs().size();
+                int operEndIdx = findOperationBlockEnd(table, firstFuncRowIdx);
+                rebuildOperationFunctionRows(table, firstFuncRowIdx, operEndIdx, targetFuncCount);
+                rebuildOperMerges(table, firstFuncRowIdx, firstFuncRowIdx + targetFuncCount - 1);
             }
         }
 
@@ -141,5 +139,51 @@ public class FmeaDocEditor extends AbstractDocEditor {
             }
         }
         return -1;
+    }
+
+    private int findOperationBlockEnd(Table table, int startIndex) {
+        for (int i = startIndex + 1; i < table.getRows().getCount(); i++) {
+            if (containsOperStartBookmark(table.getRows().get(i), "oper_")) {
+                return i - 1;
+            }
+        }
+        return table.getRows().getCount() - 1;
+    }
+
+    private void rebuildOperationFunctionRows(Table table, int startIdx, int currentEndIdx, int targetFuncCount) {
+        int currentRows = currentEndIdx - startIdx + 1;
+        int blockEnd = currentEndIdx;
+
+        while (currentRows < targetFuncCount) {
+            TableRow template = table.getRows().get(blockEnd);
+            TableRow newRow = (TableRow) template.deepClone();
+            clearRowTexts(newRow);
+            clearVerticalMerge(newRow);
+            table.getRows().insert(blockEnd + 1, newRow);
+            blockEnd++;
+            currentRows++;
+        }
+
+        while (currentRows > targetFuncCount) {
+            table.getRows().remove(table.getRows().get(blockEnd));
+            blockEnd--;
+            currentRows--;
+        }
+    }
+
+    private void rebuildOperMerges(Table table, int startIdx, int endIdx) {
+        if (startIdx < 0 || endIdx < startIdx) return;
+        for (int col = 0; col <= 6; col++) {
+            table.applyVerticalMerge(col, startIdx, endIdx);
+        }
+    }
+
+    private void clearRowTexts(TableRow row) {
+        for (int j = 0; j < row.getCells().getCount(); j++) {
+            TableCell cell = row.getCells().get(j);
+            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
+                cell.getParagraphs().get(k).setText("");
+            }
+        }
     }
 }

@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class FmeaWordGenerator extends AbstractWordGenerator implements VerticalMerger {
@@ -48,11 +47,7 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
 
                     addBookmark(row.getCell(7), "func_" + func.id() + "_col_7", func.name());
 
-                    if (isNotBlank(func.specCharakt())) {
-                        addSmallText(row.getCell(17), func.specCharakt());
-                    } else {
-                        addSmallText(row.getCell(17), "");
-                    }
+                    addSmallBookmark(row.getCell(17), "func_" + func.id() + "_col_17", func.specCharakt());
                 }
 
                 int endRow = table.getNumberOfRows() - 1;
@@ -75,20 +70,19 @@ public class FmeaWordGenerator extends AbstractWordGenerator implements Vertical
         ensureCells(row, COLUMN_COUNT);
 
         if (first) {
-            appendBookmark(row.getCell(3), "oper_" + oper.id() + "_numOper", oper.numOper());
+            addBookmark(row.getCell(3), "oper_" + oper.id() + "_numOper", oper.numOper());
             appendBookmark(row.getCell(3), "oper_" + oper.id() + "_name", oper.name());
             appendBookmark(row.getCell(3), "oper_" + oper.id() + "_numZech", oper.numZech());
         }
         return row;
     }
 
-    private void addSmallText(XWPFTableCell cell, String text) {
-        cell.removeParagraph(0);
-        XWPFParagraph p = cell.addParagraph();
-        XWPFRun run = p.createRun();
-        run.setText(text);
-        run.setFontFamily("Arial Narrow");
-        run.setFontSize(8);
+    private void addSmallBookmark(XWPFTableCell cell, String bookmarkName, String text) {
+        addBookmark(cell, bookmarkName, text);
+        var para = cell.getParagraphs().getFirst();
+        for (var run : para.getRuns()) {
+            run.setFontSize(8);
+        }
     }
 
     private void mergeHorizontalAndRemove(XWPFTableRow row, int col, int span) {

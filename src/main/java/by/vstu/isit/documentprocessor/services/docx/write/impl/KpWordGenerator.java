@@ -30,6 +30,7 @@ public class KpWordGenerator extends AbstractWordGenerator {
             for (var oper : dto.opers()) {
                 var row = table.createRow();
                 ensureCells(row, COLUMN_COUNT);
+                copyCellWidths(table.getRow(0), row);
                 var funcs = oper.funcs();
                 addBookmark(row.getCell(0), "oper_" + oper.id() + "_col_0", oper.numOper());
                 addBookmark(row.getCell(7), "oper_" + oper.id() + "_name", oper.name());

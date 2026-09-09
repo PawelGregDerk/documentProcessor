@@ -47,11 +47,10 @@ public class KpDocEditor extends AbstractDocEditor {
                 updateCell(table, "oper_" + oper.id() + "_oborud", oper.oborud());
             } else {
                 row = insertRowAfterLastBookmark(table, "oper_", COLUMN_COUNT);
+                copySpireCellWidths(table.getRows().get(0), row);
                 setShadedBookmarkedText(row.getCells().get(0), "oper_" + oper.id() + "_col_0", oper.numOper());
                 setShadedBookmarkedText(row.getCells().get(7), "oper_" + oper.id() + "_name", oper.name());
-                row.getCells().get(7).getParagraphs().get(0).appendText(" ");
                 appendShadedBookmark(row.getCells().get(7).getParagraphs().get(0), "oper_" + oper.id() + "_numZech", oper.numZech());
-                row.getCells().get(7).getParagraphs().get(0).appendText(" ");
                 appendShadedBookmark(row.getCells().get(7).getParagraphs().get(0), "oper_" + oper.id() + "_oborud", oper.oborud());
             }
             rebuildSpecCell(row, oper);
@@ -85,16 +84,11 @@ public class KpDocEditor extends AbstractDocEditor {
         clearCell(cell);
         Paragraph para = cell.getParagraphs().getCount() > 0 ? cell.getParagraphs().get(0) : cell.addParagraph();
 
-        boolean first = true;
         for (FuncDto func : oper.funcs()) {
             if (StringUtils.isBlank(func.specCharakt())) {
                 continue;
             }
-            if (!first) {
-                para.appendText("\n");
-            }
             appendShadedBookmark(para, "func_" + func.id() + "_col_8", func.specCharakt());
-            first = false;
         }
     }
 
@@ -106,25 +100,13 @@ public class KpDocEditor extends AbstractDocEditor {
         Paragraph prodPara = prodCell.getParagraphs().getCount() > 0 ? prodCell.getParagraphs().get(0) : prodCell.addParagraph();
         Paragraph procPara = procCell.getParagraphs().getCount() > 0 ? procCell.getParagraphs().get(0) : procCell.addParagraph();
 
-        boolean firstProd = true;
-        boolean firstProc = true;
         for (FuncDto func : oper.funcs()) {
             if (Boolean.TRUE.equals(func.isProd())) {
-                if (!firstProd) {
-                    prodPara.appendText("\n");
-                }
                 appendShadedBookmark(prodPara, "func_" + func.id() + "_name", func.name());
-                prodPara.appendText("\n");
                 appendShadedBookmark(prodPara, "func_" + func.id() + "_param", func.param());
-                firstProd = false;
             } else {
-                if (!firstProc) {
-                    procPara.appendText("\n");
-                }
                 appendShadedBookmark(procPara, "func_" + func.id() + "_name", func.name());
-                procPara.appendText("\n");
                 appendShadedBookmark(procPara, "func_" + func.id() + "_param", func.param());
-                firstProc = false;
             }
         }
     }

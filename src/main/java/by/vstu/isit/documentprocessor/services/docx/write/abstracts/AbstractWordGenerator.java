@@ -42,6 +42,54 @@ public abstract class AbstractWordGenerator {
         while (row.getTableCells().size() < columnCount) {
             row.createCell();
         }
+        for (var cell : row.getTableCells()) {
+            setCellDefaultFont(cell);
+            setCellMargins(cell);
+        }
+    }
+
+    protected void setCellDefaultFont(XWPFTableCell cell) {
+        for (var para : cell.getParagraphs()) {
+            var ctp = para.getCTP();
+            var pPr = ctp.isSetPPr() ? ctp.getPPr() : ctp.addNewPPr();
+            var rPr = pPr.addNewRPr();
+            var fonts = rPr.addNewRFonts();
+            fonts.setAscii("Arial Narrow");
+            fonts.setHAnsi("Arial Narrow");
+        }
+    }
+
+    protected void setCellMargins(XWPFTableCell cell) {
+        var tcPr = cell.getCTTc().isSetTcPr()
+                ? cell.getCTTc().getTcPr()
+                : cell.getCTTc().addNewTcPr();
+        var tcMar = tcPr.addNewTcMar();
+        var margin = BigInteger.valueOf(23);
+        var type = org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth.Enum.forString("dxa");
+        tcMar.addNewTop().setW(margin);
+        tcMar.getTop().setType(type);
+        tcMar.addNewBottom().setW(margin);
+        tcMar.getBottom().setType(type);
+        tcMar.addNewLeft().setW(margin);
+        tcMar.getLeft().setType(type);
+        tcMar.addNewRight().setW(margin);
+        tcMar.getRight().setType(type);
+    }
+
+    protected void copyCellWidths(XWPFTableRow template, XWPFTableRow target) {
+        for (int i = 0; i < template.getTableCells().size()
+                && i < target.getTableCells().size(); i++) {
+            var srcPr = template.getCell(i).getCTTc().getTcPr();
+            if (srcPr != null && srcPr.isSetTcW()) {
+                var tgtCell = target.getCell(i);
+                var tgtPr = tgtCell.getCTTc().isSetTcPr()
+                        ? tgtCell.getCTTc().getTcPr()
+                        : tgtCell.getCTTc().addNewTcPr();
+                if (!tgtPr.isSetTcW()) {
+                    tgtPr.addNewTcW().setW(srcPr.getTcW().getW());
+                }
+            }
+        }
     }
 
     protected void addBookmark(XWPFTableCell cell, String bookmarkName, String text) {
@@ -51,16 +99,16 @@ public abstract class AbstractWordGenerator {
     }
 
     protected void appendBookmark(XWPFTableCell cell, String bookmarkName, String text) {
-        appendBookmark(cell.getParagraphs().getFirst(), bookmarkName, text);
+        var para = cell.getParagraphs().getFirst();
+        var spaceRun = para.createRun();
+        spaceRun.setText(" ");
+        spaceRun.setFontFamily("Arial Narrow");
+        appendBookmark(para, bookmarkName, text);
     }
 
     private void appendBookmark(XWPFParagraph para, String bookmarkName, String text) {
         var p = para.getCTP();
         BigInteger id = BigInteger.valueOf(Math.abs(bookmarkName.hashCode()));
-
-        var spaceRun = para.createRun();
-        spaceRun.setText(" ");
-        spaceRun.setFontFamily("Arial Narrow");
 
         CTBookmark start = p.addNewBookmarkStart();
         start.setName(bookmarkName);
@@ -72,10 +120,6 @@ public abstract class AbstractWordGenerator {
 
         CTMarkupRange end = p.addNewBookmarkEnd();
         end.setId(id);
-
-        var endSpaceRun = para.createRun();
-        endSpaceRun.setText(" ");
-        endSpaceRun.setFontFamily("Arial Narrow");
     }
 
     protected void postProcess(XWPFDocument doc, String folder, String name, Map<String, String> headerData) throws Exception {
