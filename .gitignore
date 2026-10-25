@@ -19,3 +19,6 @@ Thumbs.db
 /AGENTS.md
 /PROJECT_STRUCTURE.md
 /SPEC.md
+
+# Local machine settings
+/config/application.properties
