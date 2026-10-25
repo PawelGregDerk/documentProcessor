@@ -120,6 +120,43 @@ class FmeaDocEditorRealDocumentTest {
         }
     }
 
+    @Test
+    @DisplayName("FMEA: добавление операции создаёт блок с операцией и функцией")
+    void edit_addOperation_createsNewBlock() throws Exception {
+        String pattern = pattern();
+        FuncDto firstFunc = DocxTestData.func(201L, "Контроль диаметра", "Ø20±0,1", true, "S");
+        OperDto firstOper = DocxTestData.oper(101L, "005", "Токарная", List.of(firstFunc));
+        DockPackageDto orig = DocxTestData.dto(firstOper,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new FmeaWordGenerator(TEMPLATE, pattern).generate(orig);
+        Path out = outputPath(orig);
+        DocxTestSupport.putManualText(out, "func_201_col_7", 8, "MANUAL-FMEA-ADD-OPER");
+
+        FuncDto secondFunc = DocxTestData.func(203L, "Контроль длины", "100±0,5", true, "K");
+        OperDto secondOper = DocxTestData.oper(102L, "010", "Фрезерная", List.of(secondFunc));
+        DockPackageDto saved = DocxTestData.dto(List.of(firstOper, secondOper),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new FmeaDocEditor(pattern).edit(orig, saved);
+
+        try (XWPFDocument doc = DocxTestSupport.open(out)) {
+            XWPFTable table = doc.getTables().getFirst();
+            int start = DocxTestSupport.templateRows(TEMPLATE, 0);
+            assertThat(table.getNumberOfRows()).isEqualTo(start + 2);
+
+            XWPFTableRow added = DocxTestSupport.rowByBookmark(table, "oper_102_numOper");
+            assertThat(added.getCell(3).getText())
+                    .contains("010")
+                    .contains("Фрезерная")
+                    .contains("15");
+            assertThat(added.getCell(7).getText()).contains("Контроль длины");
+            assertThat(added.getCell(17).getText()).contains("K");
+            assertThat(DocxTestSupport.bookmarkNames(doc)).contains("func_203_col_7", "func_203_col_17");
+            assertThat(DocxTestSupport.manualText(out, "func_201_col_7", 8)).contains("MANUAL-FMEA-ADD-OPER");
+        }
+    }
+
     private String pattern() {
         return tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/FMEA{1}.docx";
     }

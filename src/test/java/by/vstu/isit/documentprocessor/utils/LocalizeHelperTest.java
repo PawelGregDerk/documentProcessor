@@ -1,10 +1,8 @@
 package by.vstu.isit.documentprocessor.utils;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,26 +57,27 @@ class LocalizeHelperTest {
     }
 
     @Test
-    @Disabled("KNOWN BUG: Ключ 'file.saving' объявлен в MessageCodes, но отсутствует в messages.properties. Fix after refactor.")
-    @DisplayName("getMessage: ключ FILE_SAVING должен возвращать сообщение (в текущей версии отсутствует в properties)")
+    @DisplayName("getMessage: ключ FILE_SAVING возвращает сообщение")
     void getMessage_fileSavingCode_returnsMessage() {
-        // Текущее поведение без @Disabled: бросает MissingResourceException
         String message = LocalizeHelper.getMessage(MessageCodes.FILE_SAVING);
-        assertThat(message).isNotNull();
+        assertThat(message).isNotNull().isNotEmpty();
     }
 
     @Test
-    @Disabled("KNOWN BUG: Ключ 'save.title' объявлен в MessageCodes, но отсутствует в messages.properties. Fix after refactor.")
-    @DisplayName("getMessage: ключ SAVE_TITLE должен возвращать сообщение (в текущей версии отсутствует в properties)")
+    @DisplayName("getMessage: ключ SAVE_TITLE возвращает сообщение")
     void getMessage_saveTitleCode_returnsMessage() {
         String message = LocalizeHelper.getMessage(MessageCodes.SAVE_TITLE);
-        assertThat(message).isNotNull();
+        assertThat(message).isNotNull().isNotEmpty();
     }
 
     @Test
-    @DisplayName("getMessage: подтверждение текущего поведения выброса MissingResourceException для отсутствующих ключей")
-    void getMessage_missingResourceKey_throwsMissingResourceException() {
-        assertThatThrownBy(() -> LocalizeHelper.getMessage(MessageCodes.FILE_SAVING))
-                .isInstanceOf(MissingResourceException.class);
+    @DisplayName("getMessage: все коды MessageCodes имеют непустое сообщение")
+    void getMessage_allCodes_haveMessages() {
+        for (MessageCodes code : MessageCodes.values()) {
+            assertThat(LocalizeHelper.getMessage(code))
+                    .as("code=%s", code)
+                    .isNotNull()
+                    .isNotEmpty();
+        }
     }
 }

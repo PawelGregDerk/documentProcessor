@@ -83,6 +83,35 @@ class WiDocEditorRealDocumentTest {
         assertThat(meta.getProperty("wi")).isEqualTo(DocxTestData.VED_I_NAME);
     }
 
+    @Test
+    @DisplayName("ВИ: удаление операции убирает строку, ручная пометка остаётся")
+    void edit_removeOperation_removesRow() throws Exception {
+        String pattern = pattern();
+        OperDto first = DocxTestData.oper(101L, "005", "Токарная",
+                List.of(DocxTestData.func(201L, "Контроль", "Параметр", true, "")));
+        OperDto second = DocxTestData.oper(102L, "010", "Фрезерная",
+                List.of(DocxTestData.func(202L, "Контроль", "Параметр", true, "")));
+        DockPackageDto orig = DocxTestData.dto(List.of(first, second),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new WiWordGenerator(TEMPLATE, pattern).generate(orig);
+        Path out = outputPath(orig);
+        DocxTestSupport.putManualText(out, "oper_101_col_0", 3, "MANUAL-WI-KEEP");
+
+        DockPackageDto saved = DocxTestData.dto(first,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new WiDocEditor(pattern).edit(orig, saved);
+
+        try (XWPFDocument doc = DocxTestSupport.open(out)) {
+            XWPFTable table = doc.getTables().get(1);
+            int start = DocxTestSupport.templateRows(TEMPLATE, 1);
+            assertThat(table.getNumberOfRows()).isEqualTo(start + 1);
+            assertThat(DocxTestSupport.bookmarkNames(doc)).doesNotContain("oper_102_col_0");
+            assertThat(DocxTestSupport.manualText(out, "oper_101_col_0", 3)).contains("MANUAL-WI-KEEP");
+        }
+    }
+
     private String pattern() {
         return tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/ВИ{1}.docx";
     }

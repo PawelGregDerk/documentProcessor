@@ -43,6 +43,10 @@ public final class DocxTestSupport {
         new KpWordGenerator(template, pattern).generate(dto);
     }
 
+    public static KpWordGenerator kpGenerator(Resource template, String pattern) {
+        return new KpWordGenerator(template, pattern);
+    }
+
     public static Properties headerMeta(Path out) throws Exception {
         Path meta = out.getParent().resolve(".docproc-meta").resolve(out.getFileName() + ".hdr.properties");
         Properties props = new Properties();

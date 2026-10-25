@@ -92,6 +92,45 @@ class RiDocEditorRealDocumentTest {
         assertThat(meta.getProperty("wi")).isEqualTo("15-132/005");
     }
 
+    @Test
+    @DisplayName("РИ: добавление операции создаёт отдельный документ")
+    void edit_addOperation_createsNewDocument() throws Exception {
+        String pattern = pattern();
+        FuncDto firstFunc = DocxTestData.func(201L, "Контроль диаметра", "Ø20±0,1", true, "S");
+        OperDto firstOper = DocxTestData.oper(101L, "005", "Токарная", List.of(firstFunc));
+        DockPackageDto orig = DocxTestData.dto(firstOper,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        RiWordGenerator generator = new RiWordGenerator(TEMPLATE, pattern);
+        generator.generate(orig);
+        Path firstFile = outputPath(orig);
+        DocxTestSupport.putManualText(firstFile, "func_201_name", 0, "MANUAL-RI-ADD-OPER");
+
+        FuncDto secondFunc = DocxTestData.func(203L, "Контроль длины", "100±0,5", true, "");
+        OperDto secondOper = DocxTestData.oper(102L, "010", "Фрезерная", List.of(secondFunc));
+        DockPackageDto saved = DocxTestData.dto(List.of(firstOper, secondOper),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new RiDocEditor(pattern, TEMPLATE, generator).edit(orig, saved);
+
+        Path secondFile = tempDir.resolve(saved.path()).resolve("ri").resolve("010 Фрезерная.docx");
+        assertThat(secondFile).exists();
+        assertThat(DocxTestSupport.manualText(firstFile, "func_201_name", 0))
+                .contains("MANUAL-RI-ADD-OPER");
+
+        try (XWPFDocument doc = DocxTestSupport.open(secondFile)) {
+            XWPFTable table = doc.getTables().get(2);
+            int start = DocxTestSupport.templateRows(TEMPLATE, 2);
+            assertThat(table.getNumberOfRows()).isEqualTo(start + 1);
+            assertThat(table.getRow(start).getCell(1).getText())
+                    .contains("Контроль длины")
+                    .contains("100±0,5");
+            assertThat(DocxTestSupport.headerText(doc))
+                    .contains("Фрезерная")
+                    .contains("010");
+        }
+    }
+
     private String pattern() {
         return tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/{1}/{2}.docx";
     }

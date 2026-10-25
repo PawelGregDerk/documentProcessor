@@ -115,6 +115,69 @@ class PuDocEditorRealDocumentTest {
         }
     }
 
+    @Test
+    @DisplayName("PU: добавление операции создаёт новый блок и не стирает ручную пометку")
+    void edit_addOperation_createsNewBlock() throws Exception {
+        String pattern = pattern();
+        FuncDto firstFunc = DocxTestData.func(201L, "Контроль диаметра", "Ø20±0,1", true, "S");
+        OperDto firstOper = DocxTestData.oper(101L, "005", "Токарная", List.of(firstFunc));
+        DockPackageDto orig = DocxTestData.dto(firstOper,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new PuWordGenerator(TEMPLATE, pattern).generate(orig);
+        Path out = outputPath(orig);
+        DocxTestSupport.putManualText(out, "oper_101_col_0", 3, "MANUAL-PU-ADD-OPER");
+
+        FuncDto secondFunc = DocxTestData.func(203L, "Контроль длины", "100±0,5", true, "");
+        OperDto secondOper = DocxTestData.oper(102L, "010", "Фрезерная", List.of(secondFunc));
+        DockPackageDto saved = DocxTestData.dto(List.of(firstOper, secondOper),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new PuDocEditor(pattern).edit(orig, saved);
+
+        try (XWPFDocument doc = DocxTestSupport.open(out)) {
+            XWPFTable table = doc.getTables().getFirst();
+            int start = DocxTestSupport.templateRows(TEMPLATE, 0);
+            assertThat(table.getNumberOfRows()).isEqualTo(start + 2);
+
+            XWPFTableRow added = DocxTestSupport.rowByBookmark(table, "oper_102_col_0");
+            assertThat(added.getCell(0).getText()).contains("010");
+            assertThat(added.getCell(1).getText()).contains("Фрезерная").contains("15");
+            assertThat(added.getCell(4).getText()).contains("Контроль длины");
+            assertThat(DocxTestSupport.bookmarkNames(doc)).contains("func_203_col_4");
+            assertThat(DocxTestSupport.manualText(out, "oper_101_col_0", 3)).contains("MANUAL-PU-ADD-OPER");
+        }
+    }
+
+    @Test
+    @DisplayName("PU: удаление операции убирает её блок, ручная пометка другой операции остаётся")
+    void edit_removeOperation_removesBlock() throws Exception {
+        String pattern = pattern();
+        FuncDto firstFunc = DocxTestData.func(201L, "Контроль диаметра", "Ø20±0,1", true, "S");
+        OperDto firstOper = DocxTestData.oper(101L, "005", "Токарная", List.of(firstFunc));
+        FuncDto secondFunc = DocxTestData.func(202L, "Контроль длины", "100±0,5", true, "");
+        OperDto secondOper = DocxTestData.oper(102L, "010", "Фрезерная", List.of(secondFunc));
+        DockPackageDto orig = DocxTestData.dto(List.of(firstOper, secondOper),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new PuWordGenerator(TEMPLATE, pattern).generate(orig);
+        Path out = outputPath(orig);
+        DocxTestSupport.putManualText(out, "oper_101_col_0", 3, "MANUAL-PU-KEEP");
+
+        DockPackageDto saved = DocxTestData.dto(firstOper,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new PuDocEditor(pattern).edit(orig, saved);
+
+        try (XWPFDocument doc = DocxTestSupport.open(out)) {
+            XWPFTable table = doc.getTables().getFirst();
+            int start = DocxTestSupport.templateRows(TEMPLATE, 0);
+            assertThat(table.getNumberOfRows()).isEqualTo(start + 1);
+            assertThat(DocxTestSupport.bookmarkNames(doc)).doesNotContain("oper_102_col_0");
+            assertThat(DocxTestSupport.manualText(out, "oper_101_col_0", 3)).contains("MANUAL-PU-KEEP");
+        }
+    }
+
     private String pattern() {
         return tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/PU{1}.docx";
     }
