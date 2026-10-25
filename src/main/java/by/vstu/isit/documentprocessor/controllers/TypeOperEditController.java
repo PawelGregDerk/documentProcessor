@@ -250,15 +250,4 @@ public class TypeOperEditController implements Initializable {
         ((javafx.stage.Stage) numOperField.getScene().getWindow()).close();
     }
 
-    private void setGrow(Region region, double minWidth) {
-        region.setMinWidth(minWidth);
-        region.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(region, Priority.ALWAYS);
-    }
-
-    private void setFixedWidth(Region region, double width) {
-        region.setMinWidth(width);
-        region.setPrefWidth(width);
-        region.setMaxWidth(width);
-    }
 }

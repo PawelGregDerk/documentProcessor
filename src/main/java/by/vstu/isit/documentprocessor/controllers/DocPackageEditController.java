@@ -394,24 +394,6 @@ public class DocPackageEditController {
         }
     }
 
-    private void setGrow(Region region, double minWidth) {
-        region.setMinWidth(minWidth);
-        region.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(region, Priority.ALWAYS);
-    }
-
-    private void setFixedWidth(Region region, double width) {
-        region.setMinWidth(width);
-        region.setPrefWidth(width);
-        region.setMaxWidth(width);
-    }
-
-    private void growFunctionHeader(Label name, Label param, Label spec) {
-        setGrow(name, 140);
-        setGrow(param, 140);
-        setGrow(spec, 140);
-    }
-
     /* ========= helpers: operation separators ========= */
 
     private List<Node> getOperationBlocks() {

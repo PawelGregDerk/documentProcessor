@@ -327,23 +327,6 @@ public class DocPackageCreateController {
         setGrow(spec, 140);
     }
 
-    private void growFunctionHeader(Label name, Label param, Label spec) {
-        setGrow(name, 140);
-        setGrow(param, 140);
-        setGrow(spec, 140);
-    }
-
-    private void setGrow(Region region, double minWidth) {
-        region.setMinWidth(minWidth);
-        region.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(region, Priority.ALWAYS);
-    }
-
-    private void setFixedWidth(Region region, double width) {
-        region.setMinWidth(width);
-        region.setPrefWidth(width);
-        region.setMaxWidth(width);
-    }
 
     private void ensureFunctionHeader(VBox funcsContainer) {
         boolean hasHeader = funcsContainer.getChildren().stream()

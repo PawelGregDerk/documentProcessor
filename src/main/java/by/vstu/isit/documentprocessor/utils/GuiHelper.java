@@ -4,8 +4,12 @@ import io.vavr.control.Option;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.experimental.UtilityClass;
@@ -26,6 +30,24 @@ public class GuiHelper {
             }
         }
         return node;
+    }
+
+    public void setGrow(Region region, double minWidth) {
+        region.setMinWidth(minWidth);
+        region.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(region, Priority.ALWAYS);
+    }
+
+    public void setFixedWidth(Region region, double width) {
+        region.setMinWidth(width);
+        region.setPrefWidth(width);
+        region.setMaxWidth(width);
+    }
+
+    public void growFunctionHeader(Label name, Label param, Label spec) {
+        setGrow(name, 140);
+        setGrow(param, 140);
+        setGrow(spec, 140);
     }
 
     public <T> void loadStage(Class<T> controller, FxWeaver fxWeaver, MessageCodes sceneTitle, Stage primaryStage) {
