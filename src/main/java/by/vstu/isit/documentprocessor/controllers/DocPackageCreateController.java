@@ -6,6 +6,7 @@ import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.ui.AlertService;
 import javafx.fxml.FXML;
 import org.springframework.beans.factory.annotation.Value;
 import javafx.geometry.Pos;
@@ -57,6 +58,7 @@ public class DocPackageCreateController {
     private final TypeOperService typeOperService;
     private final List<AbstractWordGenerator> generators;
     private final FxWeaver fxWeaver;
+    private final AlertService alertService;
 
     @Value("${out.pu.path}")
     private String outPuPath;
@@ -408,10 +410,10 @@ public class DocPackageCreateController {
             generators.forEach(g -> Try.run(() -> g.generate(dto))
                     .onFailure(ex -> log.error("Ошибка генерации документа", ex))
                     .getOrElseThrow(ex -> new RuntimeException(ex)));
-            new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
+            alertService.showInfo("Документ сформирован");
         } catch (Exception ex) {
             log.error("Ошибка генерации", ex);
-            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+            alertService.showError(ex.getMessage());
         }
     }
 
@@ -437,10 +439,10 @@ public class DocPackageCreateController {
 
             service.saveFullPackage(pckgDto);
 
-            new Alert(Alert.AlertType.INFORMATION, "Пакет сохранён в базу данных").showAndWait();
+            alertService.showInfo("Пакет сохранён в базу данных");
         } catch (Exception ex) {
             log.error("Ошибка сохранения в БД", ex);
-            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+            alertService.showError(ex.getMessage());
         }
     }
 }

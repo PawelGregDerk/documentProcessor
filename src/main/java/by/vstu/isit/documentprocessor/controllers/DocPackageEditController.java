@@ -10,6 +10,7 @@ import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.ui.AlertService;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -88,6 +89,7 @@ public class DocPackageEditController {
     private final DocpackageService service;
     private final TypeOperService typeOperService;
     private final FxWeaver fxWeaver;
+    private final AlertService alertService;
 
     public void setPath(String path) {
         this.path = path;
@@ -510,17 +512,12 @@ public class DocPackageEditController {
             boolean folderExists = Files.exists(packageDir);
 
             if (folderExists && checkOrderChanged(dto, originalDto)) {
-                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-                confirm.setTitle("Изменение порядка операций");
-                confirm.setHeaderText("Последовательность операций изменена");
-                confirm.setContentText("Рукописные изменения в документах будут утеряны. Вы согласны?");
-
-                ButtonType yesBtn = new ButtonType("Да", ButtonBar.ButtonData.YES);
-                ButtonType cancelBtn = new ButtonType("Отмена", ButtonBar.ButtonData.NO);
-                confirm.getButtonTypes().setAll(yesBtn, cancelBtn);
-
-                var response = confirm.showAndWait();
-                if (response.isEmpty() || response.get() != yesBtn) {
+                boolean confirmed = alertService.confirm(
+                        "Изменение порядка операций",
+                        "Последовательность операций изменена",
+                        "Рукописные изменения в документах будут утеряны. Вы согласны?"
+                );
+                if (!confirmed) {
                     return;
                 }
             }
@@ -548,18 +545,18 @@ public class DocPackageEditController {
                     });
                 }
 
-                new Alert(Alert.AlertType.INFORMATION, "Документы сохранены в папку " + dto.path()).showAndWait();
+                alertService.showInfo("Документы сохранены в папку " + dto.path());
             } else {
                 generators.forEach(g -> Try.run(() -> g.generate(savedDto))
                         .onFailure(ex -> log.error("Ошибка генерации документа", ex))
                         .getOrElseThrow(ex -> new RuntimeException(ex)));
-                new Alert(Alert.AlertType.INFORMATION, "Документ сформирован").showAndWait();
+                alertService.showInfo("Документ сформирован");
             }
 
             refreshFromDb();
         } catch (Exception ex) {
             log.error("Ошибка сохранения", ex);
-            new Alert(Alert.AlertType.ERROR, "Ошибка сохранения: " + ex.getMessage()).showAndWait();
+            alertService.showError("Ошибка сохранения: " + ex.getMessage());
         }
     }
 
@@ -680,11 +677,11 @@ public class DocPackageEditController {
 
             service.updateFullPackage(dto);
 
-            new Alert(Alert.AlertType.INFORMATION, "Данные обновлены в базе данных").showAndWait();
+            alertService.showInfo("Данные обновлены в базе данных");
             refreshFromDb();
         } catch (Exception ex) {
             log.error("Ошибка обновления", ex);
-            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+            alertService.showError(ex.getMessage());
         }
     }
 
