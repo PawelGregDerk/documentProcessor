@@ -11,6 +11,8 @@ import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.ui.AlertService;
+import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
+import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -103,17 +105,8 @@ public class DocPackageEditController {
 
     @FXML
     private void onAddAssemblyUnit() {
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        TextField codeField = styled(new TextField(), "compact");
-        codeField.setPromptText("Обозначение сборочной единицы");
-        codeField.prefWidthProperty().bind(row.widthProperty().multiply(0.75));
-        HBox.setHgrow(codeField, Priority.ALWAYS);
-        Button deleteButton = styled(new Button("Удалить"), "delButton");
-        deleteButton.setOnAction(e -> assemblyUnitsContainer.getChildren().remove(row));
-
-        row.getChildren().addAll(codeField, deleteButton);
+        HBox row = AssemblyUnitRowFactory.createRow(null, null,
+                r -> assemblyUnitsContainer.getChildren().remove(r));
         assemblyUnitsContainer.getChildren().add(row);
     }
 
@@ -122,45 +115,6 @@ public class DocPackageEditController {
     }
 
 
-
-    private HBox createFunctionRowFromType(TypeOperFuncDto typeFunc) {
-        HBox funcRow = styled(new HBox(6), "function-row");
-        funcRow.getStyleClass().add("function-data-row");
-        funcRow.setAlignment(Pos.CENTER_LEFT);
-
-        TextArea name = styled(new TextArea(typeFunc.name() != null ? typeFunc.name() : ""), "compact");
-        name.setPromptText("Описание");
-        name.setPrefRowCount(2);
-        name.setWrapText(true);
-        TextArea param = styled(new TextArea(typeFunc.param() != null ? typeFunc.param() : ""), "compact");
-        param.setPromptText("Параметры");
-        param.setPrefRowCount(2);
-        param.setWrapText(true);
-        CheckBox isProd = new CheckBox();
-        isProd.setSelected(typeFunc.isProd());
-        StackPane checkWrap = new StackPane(isProd);
-        checkWrap.setAlignment(Pos.CENTER);
-        TextArea spec = styled(new TextArea(typeFunc.specCharakt() != null ? typeFunc.specCharakt() : ""), "compact");
-        spec.setPromptText("Спец. характеристики");
-        spec.setPrefRowCount(2);
-        spec.setWrapText(true);
-
-        setGrow(name, 140);
-        setGrow(param, 140);
-        setGrow(spec, 140);
-
-        Button delBtn = styled(new Button("Удалить"), "delButton");
-        delBtn.setOnAction(e -> {
-            VBox parent = (VBox) funcRow.getParent();
-            parent.getChildren().remove(funcRow);
-            removeFunctionHeaderIfEmpty(parent);
-        });
-
-        funcRow.getChildren().addAll(name, param, checkWrap, spec, delBtn);
-        setFixedWidth(checkWrap, 70);
-        setFixedWidth(delBtn, 90);
-        return funcRow;
-    }
 
     @FXML
     private void onCreateTypeOper() {
@@ -191,207 +145,16 @@ public class DocPackageEditController {
     }
 
     private VBox createEmptyOperationBlock() {
-        VBox operationBlock = styled(new VBox(5), "operation-block");
-        operationBlock.setUserData(null);
-        operationBlock.setMaxWidth(Double.MAX_VALUE);
-        HBox operRow = styled(new HBox(6), "operation-row");
-        operRow.setMaxWidth(Double.MAX_VALUE);
-        operRow.setAlignment(Pos.CENTER_LEFT);
-        TextArea numOper = styled(new TextArea(), "compact");
-        numOper.setPromptText("№ операции");
-        numOper.setPrefRowCount(2);
-        numOper.setWrapText(true);
-        TextArea nomInstr = styled(new TextArea(), "compact");
-        nomInstr.setPromptText("№ инструкции");
-        nomInstr.setPrefRowCount(2);
-        nomInstr.setWrapText(true);
-        TextArea oborud = styled(new TextArea(), "compact");
-        oborud.setPromptText("Оборудование");
-        oborud.setPrefRowCount(2);
-        oborud.setWrapText(true);
-        TextArea ostnas = styled(new TextArea(), "compact");
-        ostnas.setPromptText("Оснастка / Инструмент");
-        ostnas.setPrefRowCount(2);
-        ostnas.setWrapText(true);
-        TextArea name = styled(new TextArea(), "compact");
-        name.setPromptText("Наименование");
-        name.setPrefRowCount(2);
-        name.setWrapText(true);
-        TextArea shifr = styled(new TextArea(), "compact");
-        shifr.setPromptText("Шифр");
-        shifr.setPrefRowCount(2);
-        shifr.setWrapText(true);
-        TextArea zech = styled(new TextArea(), "compact");
-        zech.setPromptText("Цех");
-        zech.setPrefRowCount(2);
-        zech.setWrapText(true);
-
-        Button addFuncBtn = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
-        Button delOperBtn = styled(new Button("Удалить"), "btn-danger", "btn-small");
-
-        setGrow(numOper, 80);
-        setGrow(nomInstr, 110);
-        setGrow(oborud, 120);
-        setGrow(ostnas, 140);
-        setGrow(name, 160);
-        setGrow(shifr, 80);
-        setGrow(zech, 60);
-
-        operRow.getChildren().addAll(
-                numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
-        );
-
-        VBox funcsContainer = styled(new VBox(4), "funcs-container");
-
-        addFuncBtn.setOnAction(e -> addFunctionRow(funcsContainer));
-        delOperBtn.setOnAction(e -> removeOperation(operationBlock));
-
-        operationBlock.getChildren().addAll(operRow, funcsContainer);
-        return operationBlock;
+        return OperationBlockFactory.createEmptyOperationBlock(this::removeOperation);
     }
 
     private VBox createOperationBlock(TypeOperDto typeOper) {
-        VBox operationBlock = styled(new VBox(5), "operation-block");
-        operationBlock.setUserData(null);
-        operationBlock.setMaxWidth(Double.MAX_VALUE);
-
-        HBox operRow = styled(new HBox(6), "operation-row");
-        operRow.setMaxWidth(Double.MAX_VALUE);
-        operRow.setAlignment(Pos.CENTER_LEFT);
-
-        TextArea numOper = styled(new TextArea(typeOper.numOper()), "compact");
-        numOper.setPrefRowCount(2);
-        numOper.setWrapText(true);
-        TextArea nomInstr = styled(new TextArea(typeOper.nomInstr()), "compact");
-        nomInstr.setPrefRowCount(2);
-        nomInstr.setWrapText(true);
-        TextArea oborud = styled(new TextArea(typeOper.oborud()), "compact");
-        oborud.setPrefRowCount(2);
-        oborud.setWrapText(true);
-        TextArea ostnas = styled(new TextArea(typeOper.ostnasInstr()), "compact");
-        ostnas.setPrefRowCount(2);
-        ostnas.setWrapText(true);
-        TextArea name = styled(new TextArea(typeOper.name()), "compact");
-        name.setPrefRowCount(2);
-        name.setWrapText(true);
-        TextArea shifr = styled(new TextArea(typeOper.shifr()), "compact");
-        shifr.setPrefRowCount(2);
-        shifr.setWrapText(true);
-        TextArea zech = styled(new TextArea(typeOper.numZech()), "compact");
-        zech.setPrefRowCount(2);
-        zech.setWrapText(true);
-
-        List<Node> fields = List.of(numOper, nomInstr, oborud, ostnas, name, shifr, zech);
-        setGrow(numOper, 80);
-        setGrow(nomInstr, 110);
-        setGrow(oborud, 120);
-        setGrow(ostnas, 140);
-        setGrow(name, 160);
-        setGrow(shifr, 80);
-        setGrow(zech, 60);
-
-        Button addFuncBtn = styled(new Button("Добавить функцию"), "btn-primary", "btn-small");
-        Button delOperBtn = styled(new Button("Удалить"), "btn-danger", "btn-small");
-
-        operRow.getChildren().addAll(
-                numOper, nomInstr, oborud, ostnas, name, shifr, zech, addFuncBtn, delOperBtn
-        );
-
-        VBox funcsContainer = styled(new VBox(4), "funcs-container");
-
-        if (typeOper.funcs() != null && !typeOper.funcs().isEmpty()) {
-            addFunctionHeader(funcsContainer);
-            for (TypeOperFuncDto typeFunc : typeOper.funcs()) {
-                HBox funcRow = createFunctionRowFromType(typeFunc);
-                funcsContainer.getChildren().add(funcRow);
-            }
-        }
-
-        addFuncBtn.setOnAction(e -> addFunctionRow(funcsContainer));
-        delOperBtn.setOnAction(e -> removeOperation(operationBlock));
-
-        operationBlock.getChildren().addAll(operRow, funcsContainer);
-        return operationBlock;
+        return OperationBlockFactory.createOperationBlock(typeOper, this::removeOperation);
     }
 
     @FXML
     private void onAddOperation() {
         insertOperationAt(getOperationBlocks().size(), null);
-    }
-
-    private void addFunctionRow(VBox funcsContainer) {
-        addFunctionHeader(funcsContainer);
-
-        HBox funcRow = styled(new HBox(6), "function-row");
-        funcRow.getStyleClass().add("function-data-row");
-        funcRow.setAlignment(Pos.CENTER_LEFT);
-
-        TextArea name = styled(new TextArea(), "compact");
-        name.setPromptText("Описание");
-        name.setPrefRowCount(2);
-        name.setWrapText(true);
-        TextArea param = styled(new TextArea(), "compact");
-        param.setPromptText("Параметры");
-        param.setPrefRowCount(2);
-        param.setWrapText(true);
-        CheckBox isProd = new CheckBox();
-        StackPane checkWrap = new StackPane(isProd);
-        checkWrap.setAlignment(Pos.CENTER);
-        TextArea spec = styled(new TextArea(), "compact");
-        spec.setPromptText("Спец. характеристики");
-        spec.setPrefRowCount(2);
-        spec.setWrapText(true);
-
-        setGrow(name, 140);
-        setGrow(param, 140);
-        setGrow(spec, 140);
-
-        Button delBtn = styled(new Button("Удалить"), "delButton");
-        delBtn.setOnAction(e -> {
-            funcsContainer.getChildren().remove(funcRow);
-            removeFunctionHeaderIfEmpty(funcsContainer);
-        });
-
-        funcRow.getChildren().addAll(name, param, checkWrap, spec, delBtn);
-        setFixedWidth(checkWrap, 70);
-        setFixedWidth(delBtn, 90);
-        funcsContainer.getChildren().add(funcRow);
-    }
-
-    private void addFunctionHeader(VBox funcsContainer) {
-        boolean hasHeader = funcsContainer.getChildren().stream()
-                .anyMatch(n -> n.getStyleClass().contains("function-header-row"));
-        if (!hasHeader) {
-            HBox header = styled(new HBox(6), "function-header");
-            header.getStyleClass().add("function-header-row");
-            header.setMaxWidth(Double.MAX_VALUE);
-            header.getChildren().addAll(
-                    styled(new Label("Описание функции"), "table-header"),
-                    styled(new Label("Параметры / Требования"), "table-header"),
-                    styled(new Label("Продукт"), "table-header"),
-                    styled(new Label("Спец. характеристики"), "table-header")
-            );
-            Region buttonGap = new Region();
-            header.getChildren().add(buttonGap);
-            growFunctionHeader(
-                    (Label) header.getChildren().get(0),
-                    (Label) header.getChildren().get(1),
-                    (Label) header.getChildren().get(3)
-            );
-            setFixedWidth((Region) header.getChildren().get(2), 70);
-            setFixedWidth(buttonGap, 90);
-            funcsContainer.getChildren().add(header);
-        }
-    }
-
-    private void removeFunctionHeaderIfEmpty(VBox funcsContainer) {
-        boolean hasDataRows = funcsContainer.getChildren().stream()
-                .anyMatch(n -> n.getStyleClass().contains("function-data-row"));
-        if (!hasDataRows) {
-            funcsContainer.getChildren().removeIf(
-                    n -> n.getStyleClass().contains("function-header-row")
-            );
-        }
     }
 
     /* ========= helpers: operation separators ========= */
