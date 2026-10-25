@@ -6,6 +6,7 @@ import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
+import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
@@ -63,7 +64,8 @@ class DocPackageEditControllerTest {
     @BeforeEach
     void setUp() {
         controller = new DocPackageEditController(
-                formMapper, guiMapper, List.of(), List.of(), docpackageService, typeOperService, fxWeaver, alertService
+                formMapper, guiMapper, List.of(), List.of(), docpackageService, typeOperService, fxWeaver, alertService,
+                new PackageFileManager()
         );
 
         packageNameField = new TextField();

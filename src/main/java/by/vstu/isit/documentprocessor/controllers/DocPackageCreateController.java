@@ -1,7 +1,6 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
-import by.vstu.isit.documentprocessor.dto.TypeOperFuncDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
@@ -9,6 +8,7 @@ import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWord
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
+import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
 import javafx.fxml.FXML;
 import org.springframework.beans.factory.annotation.Value;
 import javafx.geometry.Pos;
@@ -126,9 +126,7 @@ public class DocPackageCreateController {
                     operationsContainer,
                     assemblyUnitsContainer
             );
-            if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
-            if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
-            if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+            DockPackageDtoValidator.validate(pckgDto);
 
             String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
             if (new File(base + pckgDto.path()).exists()) {
@@ -162,9 +160,7 @@ public class DocPackageCreateController {
                     operationsContainer,
                     assemblyUnitsContainer
             );
-            if (pckgDto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
-            if (pckgDto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
-            if (pckgDto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+            DockPackageDtoValidator.validate(pckgDto);
 
             service.saveFullPackage(pckgDto);
 

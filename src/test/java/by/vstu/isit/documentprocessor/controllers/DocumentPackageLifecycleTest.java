@@ -26,6 +26,7 @@ import by.vstu.isit.documentprocessor.services.docx.write.impl.RiWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.write.impl.SxPuWordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.write.impl.Table01WordGenerator;
 import by.vstu.isit.documentprocessor.services.docx.write.impl.WiWordGenerator;
+import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -170,7 +171,7 @@ class DocumentPackageLifecycleTest {
 
         DocPackageEditController controller = new DocPackageEditController(
                 formMapper, guiMapper, editors, generators,
-                service, typeOperService, fxWeaver, alertService);
+                service, typeOperService, fxWeaver, alertService, new PackageFileManager());
         ReflectionTestUtils.setField(controller, "outPuPath", puPattern);
         ReflectionTestUtils.setField(controller, "packageId", 1L);
         ReflectionTestUtils.setField(controller, "path", FOLDER);

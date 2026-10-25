@@ -8,6 +8,7 @@ import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
+import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.ui.AlertService;
@@ -72,7 +73,7 @@ class DocPackageEditControllerSaveTest {
     void setUp() {
         controller = new DocPackageEditController(
                 formMapper, guiMapper, List.of(docEditor), List.of(wordGenerator),
-                service, typeOperService, fxWeaver, alertService
+                service, typeOperService, fxWeaver, alertService, new PackageFileManager()
         );
 
         String outPuPathTemplate = tempDir.toString().replace('\\', '/') + "/{0}/pu.docx";

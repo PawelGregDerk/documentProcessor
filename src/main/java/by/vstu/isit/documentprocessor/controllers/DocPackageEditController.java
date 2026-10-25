@@ -3,16 +3,17 @@ package by.vstu.isit.documentprocessor.controllers;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
-import by.vstu.isit.documentprocessor.dto.TypeOperFuncDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
+import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -38,11 +39,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,6 +90,7 @@ public class DocPackageEditController {
     private final TypeOperService typeOperService;
     private final FxWeaver fxWeaver;
     private final AlertService alertService;
+    private final PackageFileManager fileManager;
 
     public void setPath(String path) {
         this.path = path;
@@ -246,9 +245,7 @@ public class DocPackageEditController {
                     assemblyUnitsContainer
             );
 
-            if (dto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
-            if (dto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
-            if (dto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+            DockPackageDtoValidator.validate(dto);
 
             var originalDto = service.findDtoById(packageId);
 
@@ -274,8 +271,8 @@ public class DocPackageEditController {
                 String oldPackageName = originalDto.packageName();
                 String archiveRelPath = path + "/Предыдущая версия " + oldPackageName;
                 Path archiveDir = packageDir.resolve("Предыдущая версия " + oldPackageName);
-                archivePackageDir(packageDir, archiveDir);
-                deleteDirContents(packageDir, archiveDir);
+                fileManager.archivePackageDir(packageDir, archiveDir);
+                fileManager.deleteDirContents(packageDir, archiveDir);
 
                 if (result.orderChanged()) {
                     generators.forEach(g -> Try.run(() -> g.generate(savedDto))
@@ -326,79 +323,6 @@ public class DocPackageEditController {
         setPackageId(freshDto.id());
     }
 
-    private void archivePackageDir(Path sourceDir, Path archiveDir) throws IOException {
-        if (Files.exists(archiveDir)) {
-            deleteDirRecursively(archiveDir);
-        }
-        Files.createDirectories(archiveDir);
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
-            for (Path entry : stream) {
-                if (entry.equals(archiveDir)) continue;
-                if (entry.getFileName().toString().startsWith("Предыдущая версия")) continue;
-                copyRecursively(entry, archiveDir.resolve(entry.getFileName()));
-            }
-        }
-    }
-
-    private void copyToPackageDir(Path sourceDir, Path targetDir) throws IOException {
-        Files.createDirectories(targetDir);
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
-            for (Path entry : stream) {
-                copyRecursively(entry, targetDir.resolve(entry.getFileName()));
-            }
-        }
-    }
-
-    private void deleteDirContents(Path dir, Path exclude) throws IOException {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-            for (Path entry : stream) {
-                if (entry.equals(exclude)) continue;
-                if (Files.isDirectory(entry)) {
-                    deleteDirRecursively(entry);
-                } else {
-                    Files.delete(entry);
-                }
-            }
-        }
-    }
-
-    private void copyRecursively(Path source, Path target) throws IOException {
-        if (Files.isDirectory(source)) {
-            Files.createDirectories(target);
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(source)) {
-                for (Path entry : stream) {
-                    copyRecursively(entry, target.resolve(entry.getFileName()));
-                }
-            }
-        } else {
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-        }
-        copyHiddenAttr(source, target);
-    }
-
-    private void copyHiddenAttr(Path source, Path target) {
-        try {
-            if ((Boolean) Files.getAttribute(source, "dos:hidden")) {
-                Files.setAttribute(target, "dos:hidden", true);
-            }
-        } catch (Exception ignored) {}
-    }
-
-    private void deleteDirRecursively(Path dir) throws IOException {
-        if (Files.exists(dir)) {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-                for (Path entry : stream) {
-                    if (Files.isDirectory(entry)) {
-                        deleteDirRecursively(entry);
-                    } else {
-                        Files.delete(entry);
-                    }
-                }
-            }
-            Files.delete(dir);
-        }
-    }
-
     @FXML
     private void onUpdateDbOnly() {
         try {
@@ -416,9 +340,7 @@ public class DocPackageEditController {
                     assemblyUnitsContainer
             );
 
-            if (dto.sborEds().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну сборочную единицу");
-            if (dto.opers().isEmpty()) throw new IllegalStateException("Необходимо указать хотя бы одну операцию");
-            if (dto.opers().stream().anyMatch(o -> o.funcs().isEmpty())) throw new IllegalStateException("Каждая операция должна содержать хотя бы одну функцию");
+            DockPackageDtoValidator.validate(dto);
 
             service.updateFullPackage(dto);
 
