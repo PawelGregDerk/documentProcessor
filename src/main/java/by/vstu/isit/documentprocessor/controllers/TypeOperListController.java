@@ -2,6 +2,7 @@ package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
+import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -35,14 +36,10 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class TypeOperListController implements Initializable {
 
-    private static Consumer<TypeOperDto> pendingAddCallback;
+    private Consumer<TypeOperDto> addCallback;
 
-    public static void setOnAddCallback(Consumer<TypeOperDto> callback) {
-        pendingAddCallback = callback;
-    }
-
-    public static void clearCallback() {
-        pendingAddCallback = null;
+    public void initAddCallback(Consumer<TypeOperDto> callback) {
+        this.addCallback = callback;
     }
 
     @FXML
@@ -110,20 +107,14 @@ public class TypeOperListController implements Initializable {
         confirm.setContentText(typeOper.name());
         confirm.getButtonTypes().setAll(ButtonType.OK, new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE));
         confirm.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK && pendingAddCallback != null) {
-                pendingAddCallback.accept(typeOper);
+            if (r == ButtonType.OK && addCallback != null) {
+                addCallback.accept(typeOper);
             }
         });
     }
 
     private void onEditTypeOper(TypeOperDto typeOper) {
-        TypeOperEditController.prepareForEdit(typeOper);
-        Parent root = fxWeaver.loadView(TypeOperEditController.class);
-        Stage stage = new Stage();
-        stage.setScene(new Scene(root));
-        stage.setTitle("Редактирование типовой операции");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
+        TypeOperWindowHelper.openEdit(fxWeaver, typeOper);
         searchField.clear();
         loadTypeOperations();
     }

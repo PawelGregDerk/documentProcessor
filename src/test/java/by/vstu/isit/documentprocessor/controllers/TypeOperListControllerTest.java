@@ -53,19 +53,19 @@ class TypeOperListControllerTest {
     }
 
     @Test
-    @DisplayName("static callbacks: setOnAddCallback and clearCallback work as expected")
-    void staticCallback_setAndClear_operatesCorrectly() {
+    @DisplayName("initAddCallback: sets and clears add callback")
+    void initAddCallback_setsAndClearsCallback() {
         AtomicReference<TypeOperDto> received = new AtomicReference<>();
-        TypeOperListController.setOnAddCallback(received::set);
+        controller.initAddCallback(received::set);
 
         TypeOperDto dto = new TypeOperDto(1L, "001", "15-01", "M", "T", "Name", "S", "15", List.of());
-        var callback = (java.util.function.Consumer<TypeOperDto>) ReflectionTestUtils.getField(TypeOperListController.class, "pendingAddCallback");
+        var callback = (java.util.function.Consumer<TypeOperDto>) ReflectionTestUtils.getField(controller, "addCallback");
         assertNotNull(callback);
         callback.accept(dto);
         assertEquals(dto, received.get());
 
-        TypeOperListController.clearCallback();
-        assertNull(ReflectionTestUtils.getField(TypeOperListController.class, "pendingAddCallback"));
+        controller.initAddCallback(null);
+        assertNull(ReflectionTestUtils.getField(controller, "addCallback"));
     }
 
     @Test

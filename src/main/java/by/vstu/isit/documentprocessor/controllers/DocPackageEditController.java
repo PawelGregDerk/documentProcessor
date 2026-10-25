@@ -13,6 +13,7 @@ import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
+import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
 import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
 import io.vavr.control.Try;
 import javafx.fxml.FXML;
@@ -117,13 +118,7 @@ public class DocPackageEditController {
 
     @FXML
     private void onCreateTypeOper() {
-        TypeOperEditController.prepareForCreate();
-        Stage stage = new Stage();
-        Parent root = fxWeaver.loadView(TypeOperEditController.class);
-        stage.setScene(new Scene(root));
-        stage.setTitle("Создание типовой операции");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
+        TypeOperWindowHelper.openCreate(fxWeaver);
     }
 
     @FXML
@@ -133,14 +128,8 @@ public class DocPackageEditController {
 
     private void openTypeOperListAt(int index) {
         pendingInsertIndex = index;
-        TypeOperListController.setOnAddCallback(typeOper -> insertOperationAt(pendingInsertIndex, typeOper));
-        Stage stage = new Stage();
-        Parent root = fxWeaver.loadView(TypeOperListController.class);
-        stage.setScene(new Scene(root));
-        stage.setTitle("Типовые операции");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
-        TypeOperListController.clearCallback();
+        TypeOperWindowHelper.openList(fxWeaver,
+                typeOper -> insertOperationAt(pendingInsertIndex, typeOper));
     }
 
     private VBox createEmptyOperationBlock() {

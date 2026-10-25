@@ -73,15 +73,15 @@ class TypeOperEditControllerTest {
     }
 
     @Test
-    @DisplayName("static methods: prepareForEdit sets pendingEditData, prepareForCreate resets it to null")
-    void prepareForEditAndCreate_setsAndClearsPendingData() {
+    @DisplayName("initForEdit/initForCreate: sets and clears edit data")
+    void initForEditAndCreate_setsAndClearsData() {
         TypeOperDto dto = new TypeOperDto(1L, "001", "15-01", "M", "T", "Name", "S", "15", List.of());
 
-        TypeOperEditController.prepareForEdit(dto);
-        assertEquals(dto, ReflectionTestUtils.getField(TypeOperEditController.class, "pendingEditData"));
+        controller.initForEdit(dto);
+        assertEquals(dto, ReflectionTestUtils.getField(controller, "editData"));
 
-        TypeOperEditController.prepareForCreate();
-        assertNull(ReflectionTestUtils.getField(TypeOperEditController.class, "pendingEditData"));
+        controller.initForCreate();
+        assertNull(ReflectionTestUtils.getField(controller, "editData"));
     }
 
     @Test

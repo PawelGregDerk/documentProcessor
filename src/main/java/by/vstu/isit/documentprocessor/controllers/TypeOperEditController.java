@@ -38,14 +38,14 @@ import java.util.ResourceBundle;
 @FxmlView("type-oper-edit-view.fxml")
 public class TypeOperEditController implements Initializable {
 
-    private static TypeOperDto pendingEditData;
+    private TypeOperDto editData;
 
-    public static void prepareForEdit(TypeOperDto dto) {
-        pendingEditData = dto;
+    public void initForEdit(TypeOperDto dto) {
+        this.editData = dto;
     }
 
-    public static void prepareForCreate() {
-        pendingEditData = null;
+    public void initForCreate() {
+        this.editData = null;
     }
 
     private final TypeOperService typeOperService;
@@ -82,9 +82,9 @@ public class TypeOperEditController implements Initializable {
 
         addFunctionHeader();
 
-        if (pendingEditData != null) {
-            populateFromDto(pendingEditData);
-            pendingEditData = null;
+        if (editData != null) {
+            populateFromDto(editData);
+            editData = null;
         } else {
             editId = null;
             addFunctionRow();
