@@ -131,6 +131,38 @@ class RiDocEditorRealDocumentTest {
         }
     }
 
+    @Test
+    @DisplayName("РИ: удаление операции удаляет её файл и метаданные")
+    void edit_removeOperation_deletesDocumentAndMeta() throws Exception {
+        String pattern = pattern();
+        FuncDto firstFunc = DocxTestData.func(201L, "Контроль диаметра", "Ø20±0,1", true, "S");
+        OperDto firstOper = DocxTestData.oper(101L, "005", "Токарная", List.of(firstFunc));
+        FuncDto secondFunc = DocxTestData.func(202L, "Контроль длины", "100±0,5", true, "");
+        OperDto secondOper = DocxTestData.oper(102L, "010", "Фрезерная", List.of(secondFunc));
+        DockPackageDto orig = DocxTestData.dto(List.of(firstOper, secondOper),
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        RiWordGenerator generator = new RiWordGenerator(TEMPLATE, pattern);
+        generator.generate(orig);
+
+        Path firstFile = outputPath(orig);
+        Path secondFile = tempDir.resolve(orig.path()).resolve("ri").resolve("010 Фрезерная.docx");
+        Path secondMeta = secondFile.getParent().resolve(".docproc-meta")
+                .resolve(secondFile.getFileName() + ".hdr.properties");
+        assertThat(firstFile).exists();
+        assertThat(secondFile).exists();
+        assertThat(secondMeta).exists();
+
+        DockPackageDto saved = DocxTestData.dto(firstOper,
+                List.of(DocxTestData.sborEd(301L, "Вал", DocxTestData.PACKAGE_NAME)));
+
+        new RiDocEditor(pattern, TEMPLATE, generator).edit(orig, saved);
+
+        assertThat(firstFile).exists();
+        assertThat(secondFile).doesNotExist();
+        assertThat(secondMeta).doesNotExist();
+    }
+
     private String pattern() {
         return tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/{1}/{2}.docx";
     }

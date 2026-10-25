@@ -41,8 +41,12 @@ public class RiDocEditor extends AbstractDocEditor {
     @Transactional(readOnly = true)
     public void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception {
         Set<String> savedFileNames = new HashSet<>();
+        Set<Long> savedOperIds = new HashSet<>();
         for (OperDto oper : savedDto.opers()) {
             savedFileNames.add(fileName(oper));
+            if (oper.id() != null) {
+                savedOperIds.add(oper.id());
+            }
         }
 
         for (OperDto oper : savedDto.opers()) {
@@ -142,6 +146,40 @@ public class RiDocEditor extends AbstractDocEditor {
                     Files.deleteIfExists(oldFile);
                 }
             }
+        }
+
+        deleteRemovedOperationFiles(dto, savedDto, savedOperIds, savedFileNames);
+    }
+
+    private void deleteRemovedOperationFiles(DockPackageDto original,
+                                             DockPackageDto saved,
+                                             Set<Long> savedOperIds,
+                                             Set<String> savedFileNames) {
+        for (OperDto originalOper : original.opers()) {
+            if (originalOper.id() == null || savedOperIds.contains(originalOper.id())) {
+                continue;
+            }
+            String removedName = fileName(originalOper);
+            if (savedFileNames.contains(removedName)) {
+                continue;
+            }
+            Path removedFile = Path.of(format(destPath, copyFolder(saved.path()), "ri", removedName));
+            try {
+                Files.deleteIfExists(removedFile);
+                deleteMeta(removedFile);
+            } catch (Exception ignored) {
+                // stale RI file must not fail the whole package save
+            }
+        }
+    }
+
+    private void deleteMeta(Path document) {
+        Path meta = document.getParent().resolve(".docproc-meta")
+                .resolve(document.getFileName() + ".hdr.properties");
+        try {
+            Files.deleteIfExists(meta);
+        } catch (Exception ignored) {
+            // metadata is auxiliary
         }
     }
 

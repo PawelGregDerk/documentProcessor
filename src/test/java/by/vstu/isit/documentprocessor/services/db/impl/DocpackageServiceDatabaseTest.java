@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class DocpackageServiceDatabaseTest {
 
     private static final String LOCAL_URL =
-            "jdbc:mysql://localhost:3306/vsep?useSSL=false&serverTimezone=UTC&connectTimeout=3000";
+            "jdbc:mysql://localhost:3306/vsep?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=3000";
 
     @Autowired
     private DocpackageService service;
