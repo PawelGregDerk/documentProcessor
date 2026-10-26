@@ -57,10 +57,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -205,6 +207,8 @@ class PackageUiLifecycleDatabaseTest {
                 new F("Контроль отверстия", "Ø8H7", true, "S"));
 
         FxUiTestSupport.click(FxUiTestSupport.button(createRoot, "Создать пакет на диске и в БД"));
+        await("создание пакета завершено",
+                () -> !alerts.infos.isEmpty() || !alerts.errors.isEmpty());
         assertThat(alerts.errors).isEmpty();
 
         DockPackageDto saved = service.searchByPackageName(packageName).stream()
@@ -242,7 +246,7 @@ class PackageUiLifecycleDatabaseTest {
         VBox firstFuncs = (VBox) firstBlock.getChildren().get(1);
         FxUiTestSupport.setText(firstDataRow(firstFuncs).getChildren().get(0), "Контроль диаметра NEW");
         addFunction(firstBlock, new F("Новый контроль", "NEW", false, ""));
-        clickSave(editRoot);
+        saveAndWait(FxUiTestSupport.node(editRoot, "saveBtn"));
 
         DockPackageDto afterFirst = service.findDtoById(packageId);
         assertThat(afterFirst.opers().get(0).funcs()).hasSize(3);
@@ -253,7 +257,7 @@ class PackageUiLifecycleDatabaseTest {
 
         VBox middleBlock = blockByNum(operations, "010");
         press((Button) ((HBox) middleBlock.getChildren().get(0)).getChildren().get(8));
-        clickSave(editRoot);
+        saveAndWait(FxUiTestSupport.node(editRoot, "saveBtn"));
 
         DockPackageDto afterMiddleRemoval = service.findDtoById(packageId);
         assertThat(afterMiddleRemoval.opers()).hasSize(2);
@@ -276,7 +280,7 @@ class PackageUiLifecycleDatabaseTest {
         VBox addedBlock = lastBlock(operations);
         fillOperation(addedBlock, "020", "Сверлильная", "Т020");
         addFunction(addedBlock, new F("Контроль нового отверстия", "Ø10H7", true, "S"));
-        clickSave(editRoot);
+        saveAndWait(FxUiTestSupport.node(editRoot, "saveBtn"));
 
         DockPackageDto afterThirdEdit = service.findDtoById(packageId);
         assertThat(afterThirdEdit.opers()).hasSize(3);
@@ -288,8 +292,24 @@ class PackageUiLifecycleDatabaseTest {
         assertThat(alerts.errors).isEmpty();
     }
 
-    private void clickSave(Parent root) throws Exception {
-        FxUiTestSupport.click(FxUiTestSupport.node(root, "saveBtn"));
+    private void saveAndWait(Node button) throws Exception {
+        int infosBefore = alerts.infos.size();
+        int errorsBefore = alerts.errors.size();
+        FxUiTestSupport.click(button);
+        await("сохранение завершено",
+                () -> alerts.infos.size() > infosBefore || alerts.errors.size() > errorsBefore);
+        assertThat(alerts.errors).hasSize(errorsBefore);
+    }
+
+    private void await(String description, BooleanSupplier condition) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+        while (System.nanoTime() < deadline) {
+            if (condition.getAsBoolean()) {
+                return;
+            }
+            Thread.sleep(100);
+        }
+        throw new AssertionError("Не дождались: " + description + ". Ошибки: " + alerts.errors);
     }
 
     private void press(Button button) {
@@ -406,7 +426,8 @@ class PackageUiLifecycleDatabaseTest {
     }
 
     private static class SilentAlerts implements AlertService {
-        private final List<String> errors = new ArrayList<>();
+        private final List<String> errors = new CopyOnWriteArrayList<>();
+        private final List<String> infos = new CopyOnWriteArrayList<>();
 
         @Override
         public void showError(String message) {
@@ -415,6 +436,7 @@ class PackageUiLifecycleDatabaseTest {
 
         @Override
         public void showInfo(String message) {
+            infos.add(message);
         }
 
         @Override

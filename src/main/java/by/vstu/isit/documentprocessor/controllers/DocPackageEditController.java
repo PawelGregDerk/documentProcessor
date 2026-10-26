@@ -12,6 +12,7 @@ import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWord
 import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
+import by.vstu.isit.documentprocessor.ui.BackgroundSave;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
 import by.vstu.isit.documentprocessor.ui.OperationListManager;
 import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
@@ -70,6 +71,7 @@ public class DocPackageEditController {
     @Setter
     private Long packageId;
     private OperationListManager operationListManager;
+    private boolean backgroundSaves;
 
     @Value("${out.pu.path}")
     private String outPuPath;
@@ -86,10 +88,17 @@ public class DocPackageEditController {
 
     public void setPath(String path) {
         this.path = path;
-        if (path != null && saveBtn != null) {
+        if (path == null || saveBtn == null) {
+            return;
+        }
+        try {
             boolean folderExists = fileManager.packageDirExists(outPuPath, path);
             saveBtn.setText(folderExists ? "Обновить пакет на диске" : "Создать пакет на диске");
             updateDbOnlyBtn.setDisable(folderExists);
+        } catch (IllegalArgumentException ex) {
+            saveBtn.setText("Создать пакет на диске");
+            updateDbOnlyBtn.setDisable(false);
+            alertService.showError(ex.getMessage());
         }
     }
 
@@ -102,6 +111,8 @@ public class DocPackageEditController {
 
     @FXML
     private void initialize() {
+        operationListManager = null;
+        backgroundSaves = true;
     }
 
 
@@ -181,19 +192,38 @@ public class DocPackageEditController {
                 }
             }
 
-            orchestrator.updatePackage(dto, preview);
+            String successMessage = preview.folderExists()
+                    ? "Документы сохранены в папку " + dto.path()
+                    : "Документ сформирован";
 
-            if (preview.folderExists()) {
-                alertService.showInfo("Документы сохранены в папку " + dto.path());
-            } else {
-                alertService.showInfo("Документ сформирован");
+            if (!backgroundSaves) {
+                orchestrator.updatePackage(dto, preview);
+                alertService.showInfo(successMessage);
+                refreshFromDb();
+                return;
             }
 
-            refreshFromDb();
+            BackgroundSave.run(
+                    saveBtn.getScene().getWindow(),
+                    () -> orchestrator.updatePackage(dto, preview),
+                    () -> {
+                        try {
+                            refreshFromDb();
+                            alertService.showInfo(successMessage);
+                        } catch (Exception ex) {
+                            showSaveError(ex);
+                        }
+                    },
+                    this::showSaveError);
         } catch (Exception ex) {
-            log.error("Ошибка сохранения", ex);
-            alertService.showError("Ошибка сохранения: " + ex.getMessage());
+            showSaveError(ex);
         }
+    }
+
+    private void showSaveError(Throwable error) {
+        log.error("Ошибка сохранения", error);
+        alertService.showError("Ошибка сохранения: "
+                + (error.getMessage() == null ? "неизвестная ошибка" : error.getMessage()));
     }
 
     private void refreshFromDb() {

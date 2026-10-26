@@ -8,6 +8,7 @@ import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
 import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxWeaver;
@@ -19,8 +20,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.contains;
@@ -93,6 +97,49 @@ class DocPackageEditUiTest {
                 FxUiTestSupport.button(root, "Добавить функцию"),
                 () -> funcs.getChildren().size() > funcsBefore);
         assertThat(funcs.getChildren()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("Повторное открытие окна: операции добавляются в новое окно")
+    void reopen_usesNewOperationsContainer() throws Exception {
+        DocPackageEditController shared = new DocPackageEditController(
+                new DockPackageFormMapper(), guiMapper, List.of(), List.of(),
+                service, typeOperService, fxWeaver, alertService, new PackageFileManager());
+        Parent first = FxUiTestSupport.load(
+                "/by/vstu/isit/documentprocessor/controllers/docpackage-edit-view.fxml", shared);
+        Stage firstStage = FxUiTestSupport.show(first);
+        VBox firstOps = FxUiTestSupport.node(first, "operationsContainer");
+        FxUiTestSupport.runOnFx(() -> ReflectionTestUtils.invokeMethod(shared, "onAddOperation"));
+        int firstBlocks = operationBlocks(firstOps);
+
+        Parent second = FxUiTestSupport.load(
+                "/by/vstu/isit/documentprocessor/controllers/docpackage-edit-view.fxml", shared);
+        Stage secondStage = FxUiTestSupport.show(second);
+        VBox secondOps = FxUiTestSupport.node(second, "operationsContainer");
+        FxUiTestSupport.runOnFx(() -> ReflectionTestUtils.invokeMethod(shared, "onAddOperation"));
+
+        assertThat(operationBlocks(secondOps)).isEqualTo(1);
+        assertThat(operationBlocks(firstOps)).isEqualTo(firstBlocks);
+
+        FxUiTestSupport.runOnFx(() -> ReflectionTestUtils.invokeMethod(shared, "rebuildSeparators"));
+        AtomicBoolean hasSeparator = new AtomicBoolean();
+        FxUiTestSupport.runOnFx(() -> hasSeparator.set(secondOps.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .anyMatch(node -> node.lookupAll(".button").stream()
+                        .anyMatch(button -> button instanceof Button btn
+                                && "Добавить операцию".equals(btn.getText())))));
+        assertThat(hasSeparator).isTrue();
+
+        FxUiTestSupport.close(secondStage);
+        FxUiTestSupport.close(firstStage);
+    }
+
+    private static int operationBlocks(VBox container) {
+        AtomicInteger count = new AtomicInteger();
+        FxUiTestSupport.runOnFx(() -> count.set((int) container.getChildren().stream()
+                .filter(node -> node.getStyleClass().contains("operation-block"))
+                .count()));
+        return count.get();
     }
 
     @Test

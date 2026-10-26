@@ -1,5 +1,6 @@
 package by.vstu.isit.documentprocessor.controllers;
 
+import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
@@ -9,6 +10,7 @@ import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWord
 import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
+import by.vstu.isit.documentprocessor.ui.BackgroundSave;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
 import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
 import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
@@ -62,12 +64,14 @@ public class DocPackageCreateController {
     private final List<AbstractWordGenerator> generators;
     private final FxWeaver fxWeaver;
     private final AlertService alertService;
+    private boolean backgroundSaves;
 
     @Value("${out.pu.path}")
     private String outPuPath;
 
     @FXML
     private void initialize() {
+        backgroundSaves = true;
     }
 
     private void addTypeOperationToRegular(TypeOperDto typeOper) {
@@ -100,8 +104,9 @@ public class DocPackageCreateController {
 
     @FXML
     private void onSave() {
+        DockPackageDto dto;
         try {
-            var pckgDto = formMapper.fromGui(
+            dto = formMapper.fromGui(
                     null,
                     packageNameField,
                     packagePathField.getText(),
@@ -114,15 +119,32 @@ public class DocPackageCreateController {
                     operationsContainer,
                     assemblyUnitsContainer
             );
-            DockPackageDtoValidator.validate(pckgDto);
-
-            orchestrator().createPackage(pckgDto);
-
-            alertService.showInfo("Документ сформирован");
+            DockPackageDtoValidator.validate(dto);
         } catch (Exception ex) {
-            log.error("Ошибка генерации", ex);
-            alertService.showError(ex.getMessage());
+            showSaveError(ex);
+            return;
         }
+
+        if (!backgroundSaves) {
+            try {
+                orchestrator().createPackage(dto);
+                alertService.showInfo("Документ сформирован");
+            } catch (Exception ex) {
+                showSaveError(ex);
+            }
+            return;
+        }
+
+        BackgroundSave.run(
+                packageNameField.getScene().getWindow(),
+                () -> orchestrator().createPackage(dto),
+                () -> alertService.showInfo("Документ сформирован"),
+                this::showSaveError);
+    }
+
+    private void showSaveError(Throwable error) {
+        log.error("Ошибка генерации", error);
+        alertService.showError(error.getMessage() == null ? "Ошибка сохранения" : error.getMessage());
     }
 
     @FXML
