@@ -13,19 +13,15 @@ import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
+import by.vstu.isit.documentprocessor.ui.OperationListManager;
 import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
 import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -39,7 +35,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;
 
@@ -74,7 +69,7 @@ public class DocPackageEditController {
     private String path;
     @Setter
     private Long packageId;
-    private int pendingInsertIndex;
+    private OperationListManager operationListManager;
 
     @Value("${out.pu.path}")
     private String outPuPath;
@@ -118,13 +113,12 @@ public class DocPackageEditController {
 
     @FXML
     private void onOpenTypeOperList() {
-        openTypeOperListAt(getOperationBlocks().size());
+        openTypeOperListAt(operationList().blockCount());
     }
 
     private void openTypeOperListAt(int index) {
-        pendingInsertIndex = index;
         TypeOperWindowHelper.openList(fxWeaver,
-                typeOper -> insertOperationAt(pendingInsertIndex, typeOper));
+                typeOper -> operationList().insertAt(index, typeOper));
     }
 
     private VBox createEmptyOperationBlock() {
@@ -137,79 +131,21 @@ public class DocPackageEditController {
 
     @FXML
     private void onAddOperation() {
-        insertOperationAt(getOperationBlocks().size(), null);
+        operationList().addOperation();
     }
 
     /* ========= helpers: operation separators ========= */
 
-    private List<Node> getOperationBlocks() {
-        return operationsContainer.getChildren().stream()
-                .filter(n -> n.getStyleClass().contains("operation-block"))
-                .collect(Collectors.toList());
-    }
-
     void rebuildSeparators() {
-        var blocks = getOperationBlocks();
-        operationsContainer.getChildren().clear();
-        for (int i = 0; i < blocks.size(); i++) {
-            operationsContainer.getChildren().add(createSeparator(i));
-            operationsContainer.getChildren().add(blocks.get(i));
-        }
-    }
-
-    private HBox createSeparator(int insertIndex) {
-        HBox sep = new HBox();
-        sep.setAlignment(Pos.CENTER);
-        sep.setStyle("-fx-border-color: #ddd; -fx-border-width: 1 0 0 0; -fx-padding: 2;");
-
-        Button plusBtn = new Button("Добавить операцию");
-        plusBtn.getStyleClass().addAll("btn-small", "btn-add");
-
-        ContextMenu menu = new ContextMenu();
-        menu.getStyleClass().add("btn-add");
-        MenuItem regularItem = new MenuItem("Обычная операция");
-        regularItem.setOnAction(e -> { menu.hide(); insertOperationAt(insertIndex, null); });
-        MenuItem typeItem = new MenuItem("Типовая операция");
-        typeItem.setOnAction(e -> { menu.hide(); openTypeOperListAt(insertIndex); });
-        menu.getItems().addAll(regularItem, typeItem);
-
-        plusBtn.setOnAction(e -> {
-            double w = plusBtn.getWidth();
-            menu.setStyle("-fx-pref-width: " + w + "px; -fx-min-width: " + w + "px;");
-            menu.show(plusBtn, Side.BOTTOM, 0, 0);
-        });
-
-        sep.getChildren().add(plusBtn);
-        return sep;
-    }
-
-    private void insertOperationAt(int index, TypeOperDto typeOper) {
-        var blocks = getOperationBlocks();
-        VBox newBlock = typeOper != null ? createOperationBlock(typeOper) : createEmptyOperationBlock();
-        blocks.add(index, newBlock);
-        operationsContainer.getChildren().clear();
-        operationsContainer.getChildren().addAll(blocks);
-        rebuildSeparators();
+        operationList().rebuildSeparators();
     }
 
     private void removeOperation(Node block) {
-        operationsContainer.getChildren().remove(block);
-        rebuildSeparators();
+        operationList().remove(block);
     }
 
     void wrapOperationDeleteHandlers() {
-        for (var block : getOperationBlocks()) {
-            VBox vb = (VBox) block;
-            if (vb.getChildren().isEmpty()) continue;
-            Node firstChild = vb.getChildren().get(0);
-            if (!(firstChild instanceof HBox operRow)) continue;
-            for (var child : operRow.getChildren()) {
-                if (child instanceof Button btn && "Удалить".equals(btn.getText())) {
-                    btn.setOnAction(e -> removeOperation(block));
-                    break;
-                }
-            }
-        }
+        operationList().wrapDeleteHandlers();
     }
 
     @FXML
@@ -314,6 +250,13 @@ public class DocPackageEditController {
     void onBack() {
         Stage currentStage = (Stage) packageNameField.getScene().getWindow();
         currentStage.close();
+    }
+
+    private OperationListManager operationList() {
+        if (operationListManager == null) {
+            operationListManager = new OperationListManager(operationsContainer, this::openTypeOperListAt);
+        }
+        return operationListManager;
     }
 
     private DocPackageSaveOrchestrator orchestrator() {
