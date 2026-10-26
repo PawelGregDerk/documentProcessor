@@ -15,7 +15,6 @@ import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
 import by.vstu.isit.documentprocessor.ui.TypeOperWindowHelper;
 import by.vstu.isit.documentprocessor.validation.DockPackageDtoValidator;
-import io.vavr.control.Try;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
@@ -39,9 +38,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,8 +92,7 @@ public class DocPackageEditController {
     public void setPath(String path) {
         this.path = path;
         if (path != null && saveBtn != null) {
-            String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
-            boolean folderExists = new File(base + path).exists();
+            boolean folderExists = fileManager.packageDirExists(outPuPath, path);
             saveBtn.setText(folderExists ? "Обновить пакет на диске" : "Создать пакет на диске");
             updateDbOnlyBtn.setDisable(folderExists);
         }

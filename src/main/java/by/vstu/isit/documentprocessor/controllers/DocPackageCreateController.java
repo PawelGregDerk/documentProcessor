@@ -25,10 +25,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.rgielen.fxweaver.core.FxWeaver;
 import net.rgielen.fxweaver.core.FxmlView;
-import io.vavr.control.Try;
 import org.springframework.stereotype.Controller;
 
-import java.io.File;
 import java.util.List;
 
 import static by.vstu.isit.documentprocessor.utils.GuiHelper.*;

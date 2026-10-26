@@ -7,8 +7,6 @@ import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -33,9 +31,9 @@ public class DocPackageSaveOrchestrator {
     }
 
     public DockPackageDto createPackage(DockPackageDto dto) throws Exception {
-        String base = basePath();
-        if (new File(base + dto.path()).exists()) {
-            throw new IllegalStateException("Папка с оригиналами уже существует: " + base + dto.path());
+        if (fileManager.packageDirExists(outPuPath, dto.path())) {
+            throw new IllegalStateException(
+                    "Папка с оригиналами уже существует: " + fileManager.packageDir(outPuPath, dto.path()));
         }
 
         DockPackageDto saved = service.saveFullPackage(dto);
@@ -45,7 +43,7 @@ public class DocPackageSaveOrchestrator {
 
     public UpdatePreview previewUpdate(DockPackageDto dto, Long packageId, String path) {
         DockPackageDto original = service.findDtoById(packageId);
-        boolean folderExists = Files.exists(packageDir(path));
+        boolean folderExists = fileManager.packageDirExists(outPuPath, path);
         boolean orderChanged = folderExists && checkOrderChanged(dto, original);
         return new UpdatePreview(original, folderExists, orderChanged);
     }
@@ -55,7 +53,7 @@ public class DocPackageSaveOrchestrator {
         var saved = result.dto();
 
         if (preview.folderExists()) {
-            Path packageDir = packageDir(dto.path());
+            Path packageDir = fileManager.packageDir(outPuPath, dto.path());
             String archiveRelPath = dto.path() + "/Предыдущая версия " + preview.original().packageName();
             Path archiveDir = packageDir.resolve("Предыдущая версия " + preview.original().packageName());
 
@@ -99,14 +97,6 @@ public class DocPackageSaveOrchestrator {
             }
         }
         return false;
-    }
-
-    private Path packageDir(String path) {
-        return Path.of(basePath(), path);
-    }
-
-    private String basePath() {
-        return outPuPath.substring(0, outPuPath.indexOf("{0}"));
     }
 
     public record UpdatePreview(DockPackageDto original, boolean folderExists, boolean orderChanged) {

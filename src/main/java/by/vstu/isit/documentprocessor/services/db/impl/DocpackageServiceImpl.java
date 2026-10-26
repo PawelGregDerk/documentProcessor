@@ -3,7 +3,6 @@ package by.vstu.isit.documentprocessor.services.db.impl;
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
 import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.dto.FuncDto;
-import by.vstu.isit.documentprocessor.dto.SborEdDto;
 import by.vstu.isit.documentprocessor.mappers.db.DocpackageMapper;
 import by.vstu.isit.documentprocessor.mappers.db.OperMapper;
 import by.vstu.isit.documentprocessor.mappers.db.FuncMapper;
@@ -25,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -161,8 +158,7 @@ public class DocpackageServiceImpl implements DocpackageService {
             }
         } else {
             // Порядок не изменился — обновление на месте без пересоздания
-            mergeOpers(existing, dto);
-            mergeSborEds(existing, dto);
+            mergeStrategy().merge(existing, dto);
         }
         
         return new DocpackageService.UpdateResult(
@@ -171,98 +167,8 @@ public class DocpackageServiceImpl implements DocpackageService {
         );
     }
 
-    private void mergeOpers(Docpackage existing, DockPackageDto dto) {
-        Set<Long> dtoOperIds = dto.opers() != null
-                ? dto.opers().stream().map(OperDto::id).filter(Objects::nonNull).collect(Collectors.toSet())
-                : Set.of();
-        existing.getOpers().removeIf(o -> !dtoOperIds.contains(o.getId()));
-
-        Map<Long, Oper> operMap = existing.getOpers().stream()
-                .collect(Collectors.toMap(Oper::getId, o -> o));
-
-        if (dto.opers() != null) {
-            for (OperDto odto : dto.opers()) {
-                if (odto.id() != null) {
-                    Oper oper = operMap.get(odto.id());
-                    if (oper != null) {
-                        oper.setNumOper(odto.numOper());
-                        oper.setNomInstr(odto.nomInstr());
-                        oper.setOborud(odto.oborud());
-                        oper.setOstnasInstr(odto.ostnasInstr());
-                        oper.setName(odto.name());
-                        oper.setShifr(odto.shifr());
-                        oper.setNumZech(odto.numZech());
-                        mergeFuncs(oper, odto.funcs());
-                    }
-                } else {
-                    Oper oper = operMapper.toEntity(odto);
-                    oper.setDocpackage(existing);
-                    oper.setFuncs(new ArrayList<>());
-                    if (odto.funcs() != null) {
-                        for (FuncDto fdto : odto.funcs()) {
-                            Func func = funcMapper.toEntity(fdto);
-                            func.setOper(oper);
-                            oper.getFuncs().add(func);
-                        }
-                    }
-                    existing.getOpers().add(oper);
-                }
-            }
-        }
-    }
-
-    private void mergeFuncs(Oper oper, List<FuncDto> funcDtos) {
-        Set<Long> dtoFuncIds = funcDtos != null
-                ? funcDtos.stream().map(FuncDto::id).filter(Objects::nonNull).collect(Collectors.toSet())
-                : Set.of();
-        oper.getFuncs().removeIf(f -> !dtoFuncIds.contains(f.getId()));
-
-        Map<Long, Func> funcMap = oper.getFuncs().stream()
-                .collect(Collectors.toMap(Func::getId, f -> f));
-
-        if (funcDtos != null) {
-            for (FuncDto fdto : funcDtos) {
-                if (fdto.id() != null) {
-                    Func func = funcMap.get(fdto.id());
-                    if (func != null) {
-                        func.setName(fdto.name());
-                        func.setParam(fdto.param());
-                        func.setIsProd(fdto.isProd());
-                        func.setSpecCharakt(fdto.specCharakt());
-                    }
-                } else {
-                    Func func = funcMapper.toEntity(fdto);
-                    func.setOper(oper);
-                    oper.getFuncs().add(func);
-                }
-            }
-        }
-    }
-
-    private void mergeSborEds(Docpackage existing, DockPackageDto dto) {
-        Set<Long> dtoSborEdIds = dto.sborEds() != null
-                ? dto.sborEds().stream().map(SborEdDto::id).filter(Objects::nonNull).collect(Collectors.toSet())
-                : Set.of();
-        existing.getSborEds().removeIf(s -> !dtoSborEdIds.contains(s.getId()));
-
-        Map<Long, SborEd> sborEdMap = existing.getSborEds().stream()
-                .collect(Collectors.toMap(SborEd::getId, s -> s));
-
-        if (dto.sborEds() != null) {
-            for (var sdto : dto.sborEds()) {
-                if (sdto.id() != null) {
-                    SborEd sborEd = sborEdMap.get(sdto.id());
-                    if (sborEd != null) {
-                        sborEd.setNazv(sdto.nazv());
-                        sborEd.setOboznach(sdto.oboznach());
-                    }
-                } else {
-                    SborEd sborEd = sborEdMapper.toEntity(sdto);
-                    sborEd.setDocpackage(existing);
-                    existing.getSborEds().add(sborEd);
-                }
-            }
-        }
+    private PackageMergeStrategy mergeStrategy() {
+        return new PackageMergeStrategy(operMapper, funcMapper, sborEdMapper);
     }
 
     @Override

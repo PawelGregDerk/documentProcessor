@@ -22,6 +22,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,6 +70,8 @@ class DocPackageSaveOrchestratorTest {
     void createPackage_folderExists_throws() throws Exception {
         Files.createDirectories(tempDir.resolve("pkg"));
         DockPackageDto dto = dto("pkg", oper(1L, "005"));
+        when(fileManager.packageDirExists(anyString(), eq("pkg"))).thenReturn(true);
+        when(fileManager.packageDir(anyString(), eq("pkg"))).thenReturn(tempDir.resolve("pkg"));
 
         assertThatThrownBy(() -> orchestrator.createPackage(dto))
                 .isInstanceOf(IllegalStateException.class)
@@ -83,6 +87,7 @@ class DocPackageSaveOrchestratorTest {
         DockPackageDto original = dto("pkg", oper(1L, "005"), oper(2L, "010"));
         DockPackageDto changed = dto("pkg", oper(2L, "010"), oper(1L, "005"));
         when(service.findDtoById(1L)).thenReturn(original);
+        when(fileManager.packageDirExists(anyString(), eq("pkg"))).thenReturn(true);
 
         DocPackageSaveOrchestrator.UpdatePreview preview =
                 orchestrator.previewUpdate(changed, 1L, "pkg");
@@ -100,6 +105,7 @@ class DocPackageSaveOrchestratorTest {
         DockPackageDto dto = dto("pkg", oper(1L, "005"));
         when(service.updateFullPackage(dto))
                 .thenReturn(new DocpackageService.UpdateResult(saved, true));
+        when(fileManager.packageDir(anyString(), eq("pkg"))).thenReturn(tempDir.resolve("pkg"));
 
         orchestrator.updatePackage(dto, new DocPackageSaveOrchestrator.UpdatePreview(original, true, true));
 
@@ -119,6 +125,7 @@ class DocPackageSaveOrchestratorTest {
         DockPackageDto dto = dto("pkg", oper(1L, "005"));
         when(service.updateFullPackage(dto))
                 .thenReturn(new DocpackageService.UpdateResult(saved, false));
+        when(fileManager.packageDir(anyString(), eq("pkg"))).thenReturn(tempDir.resolve("pkg"));
 
         orchestrator.updatePackage(dto, new DocPackageSaveOrchestrator.UpdatePreview(original, true, false));
 

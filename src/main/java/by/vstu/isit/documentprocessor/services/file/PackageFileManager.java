@@ -11,8 +11,16 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class PackageFileManager {
 
-    public void archivePackageDir(Path sourceDir, Path archiveDir) throws IOException {
-        if (Files.exists(archiveDir)) {
+    public Path packageDir(String outPuPath, String path) {
+        String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
+        return Path.of(base, path);
+    }
+
+    public boolean packageDirExists(String outPuPath, String path) {
+        return Files.exists(packageDir(outPuPath, path));
+    }
+
+    public void archivePackageDir(Path sourceDir, Path archiveDir) throws IOException {        if (Files.exists(archiveDir)) {
             deleteDirRecursively(archiveDir);
         }
         Files.createDirectories(archiveDir);

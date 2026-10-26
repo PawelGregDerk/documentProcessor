@@ -17,6 +17,17 @@ class PackageFileManagerTest {
     Path tempDir;
 
     @Test
+    @DisplayName("packageDirExists: проверяет наличие каталога по шаблону")
+    void packageDirExists_checksFolder() throws Exception {
+        String pattern = tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/PU{1}.docx";
+        Files.createDirectories(tempDir.resolve("pkg"));
+
+        assertThat(manager.packageDirExists(pattern, "pkg")).isTrue();
+        assertThat(manager.packageDirExists(pattern, "missing")).isFalse();
+        assertThat(manager.packageDir(pattern, "pkg")).isEqualTo(tempDir.resolve("pkg"));
+    }
+
+    @Test
     @DisplayName("archivePackageDir: копирует содержимое и пропускает предыдущие версии")
     void archivePackageDir_copiesContentsAndSkipsPreviousVersions() throws Exception {
         Path source = Files.createDirectories(tempDir.resolve("source"));
