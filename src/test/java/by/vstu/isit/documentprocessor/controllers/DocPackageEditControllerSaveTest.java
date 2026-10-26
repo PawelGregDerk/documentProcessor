@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
@@ -138,6 +139,41 @@ class DocPackageEditControllerSaveTest {
         verifyNoInteractions(wordGenerator);
         verify(alertService).showInfo(contains("Документы сохранены в папку existing-folder"));
         verify(guiMapper).toGui(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Небезопасный путь: предупреждение и создание вместо обновления")
+    void setPath_unsafe_showsErrorAndEnablesCreate() {
+        controller.setPath("..");
+
+        verify(alertService).showError(contains("внутри базового каталога"));
+        assertThat(controller.getSaveBtn().getText()).isEqualTo("Создать пакет на диске");
+        assertThat(controller.getUpdateDbOnlyBtn().isDisable()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Открытый документ: предупреждение и база не меняется")
+    void onSaveOrCreate_busyDocument_showsErrorAndDoesNotUpdate() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                System.getProperty("os.name").toLowerCase().contains("win"));
+        Path packageDir = Files.createDirectories(tempDir.resolve("existing-folder"));
+        Path locked = packageDir.resolve("old_pu.docx");
+        Files.writeString(locked, "doc");
+        Files.setAttribute(locked, "dos:readonly", true);
+        try {
+            OperDto oper = validOper(1L, "010", List.of(validFunc(1L, 1L)));
+            DockPackageDto dto = validDto("existing-folder", List.of(oper));
+            when(formMapper.fromGui(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+                    .thenReturn(dto);
+            when(service.findDtoById(1L)).thenReturn(dto);
+
+            ReflectionTestUtils.invokeMethod(controller, "onSaveOrCreate");
+
+            verify(service, never()).updateFullPackage(any());
+            verify(alertService).showError(contains("Закройте документы"));
+        } finally {
+            Files.setAttribute(locked, "dos:readonly", false);
+        }
     }
 
     @Test

@@ -6,8 +6,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PackageFileManagerTest {
 
@@ -25,6 +27,58 @@ class PackageFileManagerTest {
         assertThat(manager.packageDirExists(pattern, "pkg")).isTrue();
         assertThat(manager.packageDirExists(pattern, "missing")).isFalse();
         assertThat(manager.packageDir(pattern, "pkg")).isEqualTo(tempDir.resolve("pkg"));
+    }
+
+    @Test
+    @DisplayName("packageDir: запрещает пустой, абсолютный и выходящий за базу путь")
+    void packageDir_rejectsDangerousPaths() {
+        String pattern = tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/PU{1}.docx";
+
+        for (String path : List.of("", ".", "..", "../other", "C:/temp")) {
+            assertThatThrownBy(() -> manager.packageDir(pattern, path))
+                    .as("путь: %s", path)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("packageDir: разрешает точку в имени и вложенную папку")
+    void packageDir_allowsDotInNameAndNestedFolder() {
+        String pattern = tempDir.toAbsolutePath().toString().replace('\\', '/') + "/{0}/PU{1}.docx";
+
+        assertThat(manager.packageDir(pattern, "0360.1"))
+                .isEqualTo(tempDir.resolve("0360.1"));
+        assertThat(manager.packageDir(pattern, "2026/0360"))
+                .isEqualTo(tempDir.resolve("2026/0360"));
+    }
+
+    @Test
+    @DisplayName("findBusyDocuments: обычные документы не считаются занятыми")
+    void findBusyDocuments_normalDocumentsEmpty() throws Exception {
+        Path dir = Files.createDirectories(tempDir.resolve("pkg"));
+        Files.writeString(dir.resolve("PU0360.docx"), "doc");
+        Files.createDirectories(dir.resolve("ri"));
+        Files.writeString(dir.resolve("ri/005 Токарная.docx"), "doc");
+
+        assertThat(manager.findBusyDocuments(dir)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findBusyDocuments: документ без права записи считается занятым")
+    void findBusyDocuments_flagsReadOnlyDocument() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                System.getProperty("os.name").toLowerCase().contains("win"));
+        Path dir = Files.createDirectories(tempDir.resolve("pkg"));
+        Path document = dir.resolve("PU0360.docx");
+        Files.writeString(document, "doc");
+        Files.setAttribute(document, "dos:readonly", true);
+        try {
+            assertThat(manager.findBusyDocuments(dir))
+                    .extracting(path -> path.getFileName().toString())
+                    .containsExactly("PU0360.docx");
+        } finally {
+            Files.setAttribute(document, "dos:readonly", false);
+        }
     }
 
     @Test

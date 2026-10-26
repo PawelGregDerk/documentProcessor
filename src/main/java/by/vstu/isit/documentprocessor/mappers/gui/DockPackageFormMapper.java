@@ -35,7 +35,7 @@ public class DockPackageFormMapper {
         return new DockPackageDto(
                 packageId,
                 FileUtils.sanitize(packageName.getText().trim()),
-                FileUtils.sanitize(packagePath),
+                FileUtils.sanitize(packagePath == null ? null : packagePath.trim()),
                 FileUtils.sanitize(pu.getText()),
                 FileUtils.sanitize(spu.getText()),
                 FileUtils.sanitize(kp.getText()),

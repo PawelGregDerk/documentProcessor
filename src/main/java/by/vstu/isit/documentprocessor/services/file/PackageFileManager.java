@@ -3,17 +3,72 @@ package by.vstu.isit.documentprocessor.services.file;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 @Service
 public class PackageFileManager {
 
     public Path packageDir(String outPuPath, String path) {
         String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
-        return Path.of(base, path);
+        Path baseDir = Path.of(base).toAbsolutePath().normalize();
+        Path candidate;
+        try {
+            candidate = Path.of(base, path == null ? "" : path).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            throw new IllegalArgumentException("Некорректный путь пакета: " + path, e);
+        }
+        if (candidate.equals(baseDir) || !candidate.startsWith(baseDir)) {
+            throw new IllegalArgumentException(
+                    "Путь пакета должен указывать на папку внутри базового каталога: " + path);
+        }
+        return candidate;
+    }
+
+    public List<Path> findBusyDocuments(String outPuPath, String path) {
+        return findBusyDocuments(packageDir(outPuPath, path));
+    }
+
+    public List<Path> findBusyDocuments(Path dir) {
+        if (!Files.isDirectory(dir)) {
+            return List.of();
+        }
+        List<Path> busy = new ArrayList<>();
+        try (Stream<Path> files = Files.walk(dir)) {
+            files.filter(Files::isRegularFile)
+                    .filter(this::isDocumentFile)
+                    .forEach(file -> {
+                        if (isBusy(file)) {
+                            busy.add(file);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Не удалось проверить документы перед сохранением: " + e.getMessage(), e);
+        }
+        return busy;
+    }
+
+    private boolean isDocumentFile(Path file) {
+        String name = file.getFileName().toString();
+        return name.toLowerCase(Locale.ROOT).endsWith(".docx");
+    }
+
+    private boolean isBusy(Path file) {
+        try (FileChannel ignored = FileChannel.open(file, StandardOpenOption.WRITE)) {
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
     }
 
     public boolean packageDirExists(String outPuPath, String path) {

@@ -98,6 +98,21 @@ class DocPackageSaveOrchestratorTest {
     }
 
     @Test
+    @DisplayName("previewUpdate: занятые документы останавливают сохранение")
+    void previewUpdate_busyDocuments_throws() {
+        DockPackageDto original = dto("pkg", oper(1L, "005"));
+        when(service.findDtoById(1L)).thenReturn(original);
+        when(fileManager.packageDirExists(anyString(), eq("pkg"))).thenReturn(true);
+        when(fileManager.findBusyDocuments(anyString(), eq("pkg")))
+                .thenReturn(List.of(tempDir.resolve("pkg/PU.docx")));
+
+        assertThatThrownBy(() -> orchestrator.previewUpdate(original, 1L, "pkg"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Закройте документы")
+                .hasMessageContaining("PU.docx");
+    }
+
+    @Test
     @DisplayName("updatePackage: при смене порядка перегенерирует документы")
     void updatePackage_orderChanged_generates() throws Exception {
         DockPackageDto original = dto("pkg", oper(1L, "005"));

@@ -44,6 +44,18 @@ public class DocPackageSaveOrchestrator {
     public UpdatePreview previewUpdate(DockPackageDto dto, Long packageId, String path) {
         DockPackageDto original = service.findDtoById(packageId);
         boolean folderExists = fileManager.packageDirExists(outPuPath, path);
+        if (folderExists) {
+            var busy = fileManager.findBusyDocuments(outPuPath, path);
+            if (!busy.isEmpty()) {
+                String names = String.join(", ", busy.stream()
+                        .map(file -> file.getFileName().toString())
+                        .distinct()
+                        .sorted()
+                        .toList());
+                throw new IllegalStateException(
+                        "Закройте документы и повторите сохранение. Открыты или недоступны для записи: " + names);
+            }
+        }
         boolean orderChanged = folderExists && checkOrderChanged(dto, original);
         return new UpdatePreview(original, folderExists, orderChanged);
     }
