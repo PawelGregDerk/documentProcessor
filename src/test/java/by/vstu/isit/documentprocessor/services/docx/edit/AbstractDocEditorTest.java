@@ -97,7 +97,8 @@ class AbstractDocEditorTest {
         }
 
         TestDocEditor editor = new TestDocEditor("src/{0}", "dest/{0}");
-        ReflectionTestUtils.setField(editor, "lastResolvedSource", docPath);
+        Object fileManager = ReflectionTestUtils.getField(editor, "fileManager");
+        ReflectionTestUtils.setField(fileManager, "lastResolvedSource", docPath);
 
         Map<String, String> fallback = Map.of("author", "Default Author", "version", "1.0");
         Map<String, String> result = editor.resolveHeaderOldData(fallback);

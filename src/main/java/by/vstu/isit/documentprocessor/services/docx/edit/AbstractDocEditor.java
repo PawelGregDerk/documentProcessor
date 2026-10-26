@@ -10,18 +10,13 @@ import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.io.FileReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.text.MessageFormat.format;
 @Slf4j
@@ -29,17 +24,15 @@ public abstract class AbstractDocEditor {
 
     protected final String srcPath;
     protected final String destPath;
-    private Path lastResolvedSource;
-    private String copyFolderPrefix = "";
-    private String sourceFolderOverride = "";
+    private final DocEditorFileManager fileManager;
     private Map<String, String> lastHeaderData;
 
     public void setSourceFolderOverride(String sourceFolderOverride) {
-        this.sourceFolderOverride = sourceFolderOverride;
+        fileManager.setSourceFolderOverride(sourceFolderOverride);
     }
 
     protected String getSourceFolderOverride() {
-        return sourceFolderOverride;
+        return fileManager.getSourceFolderOverride();
     }
 
     protected AbstractDocEditor(String srcPath, String destPath) {
@@ -48,73 +41,29 @@ public abstract class AbstractDocEditor {
         // This guarantees that "copy_*" updates are generated under the same root as originals
         // configured via application.properties (out.*.path), even if legacy copy.out.* properties exist.
         this.destPath = srcPath;
+        this.fileManager = new DocEditorFileManager(srcPath);
     }
 
     public abstract void edit(DockPackageDto dto, DockPackageDto savedDto) throws Exception;
 
     protected String copyFolder(String folder) {
-        return copyFolderPrefix + folder;
+        return fileManager.copyFolder(folder);
     }
 
     protected Document loadCopy(String folder, String srcName, String destName) throws IOException {
-        String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
-        Path src = Path.of(format(srcPath, srcFolder, srcName));
-        Path altSrc = Path.of(format(srcPath, srcFolder, destName));
-        Path dest = Path.of(format(destPath, copyFolder(folder), destName));
-        Path resolvedSrc = resolveSource(src, altSrc);
-
-        if (resolvedSrc == null) {
-            throw new NoSuchFileException("No source document found in originals. Tried: " + src + ", " + altSrc);
-        }
-
-        Files.createDirectories(dest.getParent());
-        if (!resolvedSrc.equals(dest)) {
-            Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
-        }
-        lastResolvedSource = resolvedSrc;
-
-        Document doc = new Document();
-        doc.loadFromFile(dest.toString());
-        return doc;
+        return fileManager.loadCopy(folder, srcName, destName);
     }
 
     protected Document loadCopy(String folder, String name) throws IOException {
-        return loadCopy(folder, name, name);
+        return fileManager.loadCopy(folder, name);
     }
 
     protected Document loadCopySub(String folder, String sub, String srcName, String destName) throws IOException {
-        String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
-        Path src = Path.of(format(srcPath, srcFolder, sub, srcName));
-        Path altSrc = Path.of(format(srcPath, srcFolder, sub, destName));
-        Path dest = Path.of(format(destPath, copyFolder(folder), sub, destName));
-        Path resolvedSrc = resolveSource(src, altSrc);
-
-        if (resolvedSrc == null) {
-            throw new NoSuchFileException("No source document found in originals. Tried: " + src + ", " + altSrc);
-        }
-
-        Files.createDirectories(dest.getParent());
-        if (!resolvedSrc.equals(dest)) {
-            Files.copy(resolvedSrc, dest, StandardCopyOption.REPLACE_EXISTING);
-        }
-        lastResolvedSource = resolvedSrc;
-
-        Document doc = new Document();
-        doc.loadFromFile(dest.toString());
-        return doc;
-    }
-
-    private Path resolveSource(Path... candidates) {
-        for (Path candidate : candidates) {
-            if (Files.exists(candidate)) {
-                return candidate;
-            }
-        }
-        return null;
+        return fileManager.loadCopySub(folder, sub, srcName, destName);
     }
 
     protected Document loadCopySub(String folder, String sub, String name) throws IOException {
-        return loadCopySub(folder, sub, name, name);
+        return fileManager.loadCopySub(folder, sub, name);
     }
 
     protected Document loadCopyByBookmark(String folder, String srcName, String destName, int tableIndex, String bookmarkName) throws Exception {
@@ -124,13 +73,13 @@ public abstract class AbstractDocEditor {
             if (bookmarkName == null || bookmarkName.isBlank()) {
                 throw ex;
             }
-            String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+            String srcFolder = !getSourceFolderOverride().isEmpty() ? getSourceFolderOverride() : folder;
             Path sourceDir = Path.of(format(srcPath, srcFolder, srcName)).getParent();
             Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
             if (found == null) {
                 throw ex;
             }
-            return loadCopyFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), destName)));
+            return fileManager.loadFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), destName)));
         }
     }
 
@@ -141,56 +90,18 @@ public abstract class AbstractDocEditor {
             if (bookmarkName == null || bookmarkName.isBlank()) {
                 throw ex;
             }
-            String srcFolder = !sourceFolderOverride.isEmpty() ? sourceFolderOverride : folder;
+            String srcFolder = !getSourceFolderOverride().isEmpty() ? getSourceFolderOverride() : folder;
             Path sourceDir = Path.of(format(srcPath, srcFolder, sub, srcName)).getParent();
             Path found = findSourceByBookmark(sourceDir, tableIndex, bookmarkName);
             if (found == null) {
                 throw ex;
             }
-            return loadCopyFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), sub, destName)));
+            return fileManager.loadFromExplicitSource(found, Path.of(format(destPath, copyFolder(folder), sub, destName)));
         }
-    }
-
-    private Document loadCopyFromExplicitSource(Path source, Path dest) throws IOException {
-        Files.createDirectories(dest.getParent());
-        if (!source.equals(dest)) {
-            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        }
-        lastResolvedSource = source;
-        Document doc = new Document();
-        doc.loadFromFile(dest.toString());
-        return doc;
     }
 
     protected Map<String, String> resolveHeaderOldData(Map<String, String> fallback) {
-        if (lastResolvedSource == null) {
-            return fallback;
-        }
-
-        Path meta = metaPathFor(lastResolvedSource);
-        if (!Files.exists(meta)) {
-            return fallback;
-        }
-
-        Properties props = new Properties();
-        try (FileReader reader = new FileReader(meta.toFile())) {
-            props.load(reader);
-        } catch (Exception e) {
-            return fallback;
-        }
-
-        Map<String, String> resolved = new HashMap<>();
-        for (Map.Entry<String, String> entry : fallback.entrySet()) {
-            String key = entry.getKey();
-            String value = props.getProperty(key, entry.getValue());
-            resolved.put(key, value);
-        }
-        return resolved;
-    }
-
-    private Path metaPathFor(Path sourceDoc) {
-        Path metaDir = sourceDoc.getParent().resolve(".docproc-meta");
-        return metaDir.resolve(sourceDoc.getFileName().toString() + ".hdr.properties");
+        return fileManager.resolveHeaderOldData(fallback);
     }
 
     private Path findSourceByBookmark(Path sourceDir, int tableIndex, String bookmarkName) {
@@ -229,45 +140,11 @@ public abstract class AbstractDocEditor {
     }
 
     protected void save(Document doc, String folder, String name) {
-        Path outPath = Path.of(format(destPath, copyFolder(folder), name));
-        doc.saveToFile(outPath.toString(), FileFormat.Docx);
-        doc.close();
-        if (lastHeaderData != null) {
-            saveHeaderMeta(outPath, lastHeaderData);
-        }
+        fileManager.save(doc, folder, name, lastHeaderData);
     }
 
     protected void saveSub(Document doc, String folder, String sub, String name) {
-        Path outPath = Path.of(format(destPath, copyFolder(folder), sub, name));
-        doc.saveToFile(outPath.toString(), FileFormat.Docx);
-        doc.close();
-        if (lastHeaderData != null) {
-            saveHeaderMeta(outPath, lastHeaderData);
-        }
-    }
-
-    private void saveHeaderMeta(Path outDoc, Map<String, String> headerData) {
-        try {
-            Path metaDir = outDoc.getParent().resolve(".docproc-meta");
-            Files.createDirectories(metaDir);
-            setHidden(metaDir);
-            Path meta = metaDir.resolve(outDoc.getFileName() + ".hdr.properties");
-            Properties props = new Properties();
-            headerData.forEach((k, v) -> {
-                if (v != null) props.setProperty(k, v);
-            });
-            try (var writer = Files.newBufferedWriter(meta, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
-                props.store(writer, "Header source values");
-            }
-            setHidden(meta);
-        } catch (Exception e) {
-            log.warn("Failed to save header metadata for {}: {}", outDoc, e.getMessage());
-        }
-    }
-
-    private void setHidden(Path path) {
-        try { Files.setAttribute(path, "dos:hidden", true); } catch (Exception ignored) {}
+        fileManager.saveSub(doc, folder, sub, name, lastHeaderData);
     }
 
     protected TableRow findRowByBookmark(Table table, String bookmarkName) {
