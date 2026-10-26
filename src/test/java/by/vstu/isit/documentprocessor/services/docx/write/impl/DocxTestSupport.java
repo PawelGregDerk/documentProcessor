@@ -169,6 +169,24 @@ public final class DocxTestSupport {
         }
     }
 
+    public static boolean bodyContains(XWPFDocument doc, String text) {
+        for (XWPFParagraph paragraph : doc.getParagraphs()) {
+            if (paragraph.getText().contains(text)) {
+                return true;
+            }
+        }
+        for (XWPFTable table : doc.getTables()) {
+            for (XWPFTableRow row : table.getRows()) {
+                for (XWPFTableCell cell : row.getTableCells()) {
+                    if (cell.getText().contains(text)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private static XWPFTable tableByBookmark(XWPFDocument doc, String bookmark) {
         for (XWPFTable table : doc.getTables()) {
             try {
