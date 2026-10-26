@@ -4,7 +4,9 @@ import by.vstu.isit.documentprocessor.dto.TypeOperDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
+import by.vstu.isit.documentprocessor.services.DocPackageSaveOrchestrator;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
+import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
 import by.vstu.isit.documentprocessor.ui.AlertService;
 import by.vstu.isit.documentprocessor.ui.AssemblyUnitRowFactory;
 import by.vstu.isit.documentprocessor.ui.OperationBlockFactory;
@@ -116,15 +118,8 @@ public class DocPackageCreateController {
             );
             DockPackageDtoValidator.validate(pckgDto);
 
-            String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
-            if (new File(base + pckgDto.path()).exists()) {
-                throw new IllegalStateException("Папка с оригиналами уже существует: " + base + pckgDto.path());
-            }
+            orchestrator().createPackage(pckgDto);
 
-            var dto = service.saveFullPackage(pckgDto);
-            generators.forEach(g -> Try.run(() -> g.generate(dto))
-                    .onFailure(ex -> log.error("Ошибка генерации документа", ex))
-                    .getOrElseThrow(ex -> new RuntimeException(ex)));
             alertService.showInfo("Документ сформирован");
         } catch (Exception ex) {
             log.error("Ошибка генерации", ex);
@@ -157,5 +152,10 @@ public class DocPackageCreateController {
             log.error("Ошибка сохранения в БД", ex);
             alertService.showError(ex.getMessage());
         }
+    }
+
+    private DocPackageSaveOrchestrator orchestrator() {
+        return new DocPackageSaveOrchestrator(
+                service, generators, List.of(), new PackageFileManager(), outPuPath);
     }
 }

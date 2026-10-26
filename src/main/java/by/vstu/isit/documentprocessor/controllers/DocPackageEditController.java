@@ -1,12 +1,12 @@
 package by.vstu.isit.documentprocessor.controllers;
 
 import by.vstu.isit.documentprocessor.dto.DockPackageDto;
-import by.vstu.isit.documentprocessor.dto.OperDto;
 import by.vstu.isit.documentprocessor.dto.TypeOperDto;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageFormMapper;
 import by.vstu.isit.documentprocessor.mappers.gui.DockPackageGuiMapper;
 import by.vstu.isit.documentprocessor.services.db.interfaces.DocpackageService;
 import by.vstu.isit.documentprocessor.services.db.interfaces.TypeOperService;
+import by.vstu.isit.documentprocessor.services.DocPackageSaveOrchestrator;
 import by.vstu.isit.documentprocessor.services.docx.edit.AbstractDocEditor;
 import by.vstu.isit.documentprocessor.services.docx.write.abstracts.AbstractWordGenerator;
 import by.vstu.isit.documentprocessor.services.file.PackageFileManager;
@@ -236,13 +236,10 @@ public class DocPackageEditController {
 
             DockPackageDtoValidator.validate(dto);
 
-            var originalDto = service.findDtoById(packageId);
+            var orchestrator = orchestrator();
+            var preview = orchestrator.previewUpdate(dto, packageId, path);
 
-            String base = outPuPath.substring(0, outPuPath.indexOf("{0}"));
-            Path packageDir = Path.of(base, path);
-            boolean folderExists = Files.exists(packageDir);
-
-            if (folderExists && checkOrderChanged(dto, originalDto)) {
+            if (preview.folderExists() && preview.orderChanged()) {
                 boolean confirmed = alertService.confirm(
                         "Изменение порядка операций",
                         "Последовательность операций изменена",
@@ -253,34 +250,11 @@ public class DocPackageEditController {
                 }
             }
 
-            var result = service.updateFullPackage(dto);
-            var savedDto = result.dto();
+            orchestrator.updatePackage(dto, preview);
 
-            if (folderExists) {
-                String oldPackageName = originalDto.packageName();
-                String archiveRelPath = path + "/Предыдущая версия " + oldPackageName;
-                Path archiveDir = packageDir.resolve("Предыдущая версия " + oldPackageName);
-                fileManager.archivePackageDir(packageDir, archiveDir);
-                fileManager.deleteDirContents(packageDir, archiveDir);
-
-                if (result.orderChanged()) {
-                    generators.forEach(g -> Try.run(() -> g.generate(savedDto))
-                            .onFailure(ex -> log.error("Ошибка генерации документа", ex))
-                            .getOrElseThrow(ex -> new RuntimeException(ex)));
-                } else {
-                    editors.forEach(e -> {
-                        e.setSourceFolderOverride(archiveRelPath);
-                        Try.run(() -> e.edit(originalDto, savedDto))
-                                .onFailure(ex -> log.error("Ошибка редактирования документа", ex))
-                                .getOrElseThrow(ex -> new RuntimeException(ex));
-                    });
-                }
-
+            if (preview.folderExists()) {
                 alertService.showInfo("Документы сохранены в папку " + dto.path());
             } else {
-                generators.forEach(g -> Try.run(() -> g.generate(savedDto))
-                        .onFailure(ex -> log.error("Ошибка генерации документа", ex))
-                        .getOrElseThrow(ex -> new RuntimeException(ex)));
                 alertService.showInfo("Документ сформирован");
             }
 
@@ -347,15 +321,7 @@ public class DocPackageEditController {
         currentStage.close();
     }
 
-    private boolean checkOrderChanged(DockPackageDto dto, DockPackageDto originalDto) {
-        var oldIds = originalDto.opers().stream().map(OperDto::id).toList();
-        for (int i = 0; i < dto.opers().size(); i++) {
-            Long id = dto.opers().get(i).id();
-            if (id != null) {
-                int oldIdx = oldIds.indexOf(id);
-                if (oldIdx != i) return true;
-            }
-        }
-        return false;
+    private DocPackageSaveOrchestrator orchestrator() {
+        return new DocPackageSaveOrchestrator(service, generators, editors, fileManager, outPuPath);
     }
 }
