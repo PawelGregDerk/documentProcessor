@@ -65,25 +65,22 @@ public class RiWordGenerator extends AbstractWordGenerator implements VerticalMe
 
     public void generateOne(OperDto oper, String folder, Map<String, String> headerData) throws Exception {
 
-        var inp = inpPath.getInputStream();
-        var doc = new XWPFDocument(inp);
+        try (var inp = inpPath.getInputStream(); var doc = new XWPFDocument(inp)) {
+            var table = doc.getTables().get(2);
 
-        var table = doc.getTables().get(2);
+            for (var fun : oper.funcs()) {
+                var row = createRow(table, fun);
+                addBookmark(row.getCell(1), "func_" + fun.id() + "_name", fun.name());
+                appendBookmark(row.getCell(1), "func_" + fun.id() + "_param", fun.param());
+                addBookmark(row.getCell(2), "func_" + fun.id() + "_col_2", fun.specCharakt());
+            }
 
-        for (var fun : oper.funcs()) {
-            var row = createRow(table, fun);
-            addBookmark(row.getCell(1), "func_" + fun.id() + "_name", fun.name());
-            appendBookmark(row.getCell(1), "func_" + fun.id() + "_param", fun.param());
-            addBookmark(row.getCell(2), "func_" + fun.id() + "_col_2", fun.specCharakt());
+            int endRow = table.getNumberOfRows() - 1;
+            mergeVertical(table, DATA_START_ROW, endRow, 3);
+
+            String fileName = oper.numOper() + " " + oper.name();
+            postProcess(doc, folder, "ri", fileName, headerData);
         }
-
-        int endRow = table.getNumberOfRows() - 1;
-        mergeVertical(table, DATA_START_ROW, endRow, 3);
-
-        inp.close();
-
-        String fileName = oper.numOper() + " " + oper.name();
-        postProcess(doc, folder, "ri", fileName, headerData);
     }
 
     private void postProcess(XWPFDocument doc, String folder, String sub, String name, Map<String, String> colData) throws Exception {

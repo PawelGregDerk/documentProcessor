@@ -136,6 +136,7 @@ public class Table01DocEditor extends AbstractDocEditor {
     private void updateBookmark(TableCell cell, String name, String text) {
         for (Paragraph para : (Iterable<Paragraph>) cell.getParagraphs()) {
             boolean inside = false;
+            boolean replaced = false;
 
             for (int i = 0; i < para.getChildObjects().getCount(); i++) {
                 var obj = para.getChildObjects().get(i);
@@ -145,10 +146,18 @@ public class Table01DocEditor extends AbstractDocEditor {
                     continue;
                 }
 
-                if (inside && obj instanceof com.spire.doc.fields.TextRange tr) {
-                    tr.setText(text == null ? "" : text);
-                    return;
+                if (inside && obj instanceof com.spire.doc.BookmarkEnd) {
+                    break;
                 }
+
+                if (inside && obj instanceof com.spire.doc.fields.TextRange tr) {
+                    tr.setText(replaced ? "" : (text == null ? "" : text));
+                    replaced = true;
+                }
+            }
+
+            if (replaced) {
+                return;
             }
         }
     }

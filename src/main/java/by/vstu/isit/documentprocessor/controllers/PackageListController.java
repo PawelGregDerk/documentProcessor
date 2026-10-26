@@ -132,8 +132,8 @@ public class PackageListController {
     private void deletePackage(DockPackageDto dto) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Подтверждение удаления");
-        confirmAlert.setHeaderText("Вы уверены?");
-        confirmAlert.setContentText("Удалить пакет документов \"" + dto.packageName() + "\"?");
+        confirmAlert.setHeaderText("Удалить запись о пакете \"" + dto.packageName() + "\"?");
+        confirmAlert.setContentText("Запись будет удалена из базы. Документы на диске останутся.");
 
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
