@@ -70,10 +70,16 @@ class DocPackageEditUiTest {
     @Test
     @DisplayName("Реальные клики: в редактировании создаются сборочная единица, операция и функция")
     void realClicks_createAssemblyOperationAndFunction() throws Exception {
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить описание сборочной единицы"));
+        int assembliesBefore = assemblyUnits.getChildren().size();
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить описание сборочной единицы"),
+                () -> assemblyUnits.getChildren().size() > assembliesBefore);
         assertThat(assemblyUnits.getChildren()).hasSize(1);
 
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить операцию"));
+        int operationsBefore = operations.getChildren().size();
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить операцию"),
+                () -> operations.getChildren().size() > operationsBefore);
         assertThat(operations.getChildren()).hasSize(2);
 
         VBox operationBlock = operations.getChildren().stream()
@@ -81,8 +87,11 @@ class DocPackageEditUiTest {
                 .map(node -> (VBox) node)
                 .findFirst()
                 .orElseThrow();
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить функцию"));
         VBox funcs = (VBox) operationBlock.getChildren().get(1);
+        int funcsBefore = funcs.getChildren().size();
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить функцию"),
+                () -> funcs.getChildren().size() > funcsBefore);
         assertThat(funcs.getChildren()).hasSize(2);
     }
 

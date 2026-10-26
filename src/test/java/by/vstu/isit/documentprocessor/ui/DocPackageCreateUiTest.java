@@ -67,16 +67,22 @@ class DocPackageCreateUiTest {
     @Test
     @DisplayName("Реальные клики: сборочная единица, операция и функция создаются")
     void realClicks_createAssemblyOperationAndFunction() throws Exception {
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить описание сборочной единицы"));
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить описание сборочной единицы"),
+                () -> !assemblyUnits.getChildren().isEmpty());
         assertThat(assemblyUnits.getChildren()).hasSize(1);
 
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить операцию"));
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить операцию"),
+                () -> !operations.getChildren().isEmpty());
         assertThat(operations.getChildren()).hasSize(1);
         VBox operationBlock = (VBox) operations.getChildren().get(0);
         assertThat(operationBlock.getStyleClass()).contains("operation-block");
 
-        FxUiTestSupport.click(FxUiTestSupport.button(root, "Добавить функцию"));
         VBox funcs = (VBox) operationBlock.getChildren().get(1);
+        FxUiTestSupport.clickUntil(
+                FxUiTestSupport.button(root, "Добавить функцию"),
+                () -> funcs.getChildren().size() >= 2);
         assertThat(funcs.getChildren()).hasSize(2);
         assertThat(funcs.getChildren().get(0).getStyleClass()).contains("function-header-row");
         assertThat(funcs.getChildren().get(1).getStyleClass()).contains("function-data-row");

@@ -15,9 +15,12 @@ import javafx.stage.Stage;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 final class FxUiTestSupport {
+
+    private static volatile boolean toolkitStarted;
 
     private FxUiTestSupport() {
     }
@@ -28,10 +31,15 @@ final class FxUiTestSupport {
         } catch (IllegalStateException ignored) {
             // already initialized by another test class
         }
+        toolkitStarted = true;
         runFx(() -> {
             Platform.setImplicitExit(false);
             return null;
         });
+    }
+
+    static boolean isToolkitStarted() {
+        return toolkitStarted;
     }
 
     static Parent load(String resource, Object controller) {
@@ -72,6 +80,9 @@ final class FxUiTestSupport {
             Stage stage = (Stage) node.getScene().getWindow();
             stage.toFront();
             stage.requestFocus();
+            Parent root = node.getScene().getRoot();
+            root.applyCss();
+            root.layout();
             Bounds bounds = node.getBoundsInLocal();
             return node.localToScreen(bounds.getCenterX(), bounds.getCenterY());
         });
@@ -86,6 +97,16 @@ final class FxUiTestSupport {
         // даём JavaFX доставить событие и перестроить layout
         Thread.sleep(500);
         runFx(() -> null);
+    }
+
+    static void clickUntil(Node node, BooleanSupplier condition) throws Exception {
+        for (int attempt = 0; attempt < 3; attempt++) {
+            click(node);
+            if (runFx(condition::getAsBoolean)) {
+                return;
+            }
+        }
+        throw new AssertionError("Клик не дал ожидаемого результата: " + node);
     }
 
     static Parent root(Node node) {
@@ -119,6 +140,26 @@ final class FxUiTestSupport {
                 return null;
             });
         }
+    }
+
+    static void runOnFx(Runnable runnable) {
+        runFx(runnable);
+    }
+
+    static void setText(Node node, String text) {
+        runFx(() -> {
+            if (node instanceof javafx.scene.control.TextInputControl input) {
+                input.setText(text);
+            }
+        });
+    }
+
+    static void setSelected(Node node, boolean selected) {
+        runFx(() -> {
+            if (node instanceof javafx.scene.control.CheckBox checkBox) {
+                checkBox.setSelected(selected);
+            }
+        });
     }
 
     private static <T> T runFx(Supplier<T> supplier) {
