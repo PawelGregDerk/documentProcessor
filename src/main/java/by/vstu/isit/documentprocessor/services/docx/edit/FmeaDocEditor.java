@@ -92,15 +92,9 @@ public class FmeaDocEditor extends AbstractDocEditor {
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
         String origArticle = dto.sborEds().getFirst().nazv() + " " + dto.sborEds().getFirst().oboznach();
 
-        Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origArticle, "n", dto.fmeaName(), "p", dseText(dto.sborEds(), dto.packageName()))
-        );
-
-        updateHeader(doc, oldHeader, Map.of(
-                "d", article,
-                "n", savedDto.fmeaName(),
-                "p", dseText(savedDto.sborEds(), savedDto.packageName())
-        ));
+        HeaderUpdateHelper.update(this, doc,
+                Map.of("d", origArticle, "n", dto.fmeaName(), "p", dseText(dto.sborEds(), dto.packageName())),
+                Map.of("d", article, "n", savedDto.fmeaName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
 
         save(doc, savedDto.path(), savedDto.fmeaName());
     }
@@ -132,24 +126,6 @@ public class FmeaDocEditor extends AbstractDocEditor {
         return func.id() == null ? null : "func_" + func.id() + "_col_17";
     }
 
-    private int rowIndexOf(Table table, TableRow row) {
-        for (int i = 0; i < table.getRows().getCount(); i++) {
-            if (table.getRows().get(i) == row) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private int findOperationBlockEnd(Table table, int startIndex) {
-        for (int i = startIndex + 1; i < table.getRows().getCount(); i++) {
-            if (containsOperStartBookmark(table.getRows().get(i), "oper_")) {
-                return i - 1;
-            }
-        }
-        return table.getRows().getCount() - 1;
-    }
-
     private void rebuildOperationFunctionRows(Table table, int startIdx, int currentEndIdx, int targetFuncCount) {
         int currentRows = currentEndIdx - startIdx + 1;
         int blockEnd = currentEndIdx;
@@ -175,15 +151,6 @@ public class FmeaDocEditor extends AbstractDocEditor {
         if (startIdx < 0 || endIdx < startIdx) return;
         for (int col = 0; col <= 6; col++) {
             table.applyVerticalMerge(col, startIdx, endIdx);
-        }
-    }
-
-    private void clearRowTexts(TableRow row) {
-        for (int j = 0; j < row.getCells().getCount(); j++) {
-            TableCell cell = row.getCells().get(j);
-            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
-                cell.getParagraphs().get(k).setText("");
-            }
         }
     }
 }

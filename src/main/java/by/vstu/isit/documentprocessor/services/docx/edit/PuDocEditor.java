@@ -75,10 +75,9 @@ public class PuDocEditor extends AbstractDocEditor {
         String article = savedDto.sborEds().getFirst().nazv() + " " + designationsAssemblyUnit(savedDto.sborEds());
         String origArticle = dto.sborEds().getFirst().nazv() + " "
                 + dto.sborEds().getFirst().oboznach();
-        Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origArticle, "n", dto.puName(), "p", dseText(dto.sborEds(), dto.packageName()))
-        );
-        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.puName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
+        HeaderUpdateHelper.update(this, doc,
+                Map.of("d", origArticle, "n", dto.puName(), "p", dseText(dto.sborEds(), dto.packageName())),
+                Map.of("d", article, "n", savedDto.puName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
 
         save(doc, savedDto.path(), savedDto.puName());
     }
@@ -168,31 +167,5 @@ public class PuDocEditor extends AbstractDocEditor {
             log.info("Set function bookmarks for func {} at row {}", func.id(), start + i);
         }
     }
-
-    private int rowIndexOf(Table table, TableRow row) {
-        for (int i = 0; i < table.getRows().getCount(); i++) {
-            if (table.getRows().get(i) == row) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private int findOperationBlockEnd(Table table, int startIndex) {
-        for (int i = startIndex + 1; i < table.getRows().getCount(); i++) {
-            if (containsOperStartBookmark(table.getRows().get(i), "oper_")) {
-                return i - 1;
-            }
-        }
-        return table.getRows().getCount() - 1;
-    }
-
-    private void clearRowTexts(TableRow row) {
-        for (int j = 0; j < row.getCells().getCount(); j++) {
-            TableCell cell = row.getCells().get(j);
-            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
-                cell.getParagraphs().get(k).setText("");
-            }
-        }
-    }
 }
+

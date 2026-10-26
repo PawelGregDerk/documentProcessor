@@ -63,10 +63,9 @@ public class KpDocEditor extends AbstractDocEditor {
         String origArticle = dto.sborEds().getFirst().nazv() + " "
                 + dto.sborEds().getFirst().oboznach() + "\u2014"
                 + dto.sborEds().getLast().oboznach();
-        Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origArticle, "n", dto.kpName(), "p", dseText(dto.sborEds(), dto.packageName()))
-        );
-        updateHeader(doc, oldHeader, Map.of("d", article, "n", savedDto.kpName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
+        HeaderUpdateHelper.update(this, doc,
+                Map.of("d", origArticle, "n", dto.kpName(), "p", dseText(dto.sborEds(), dto.packageName())),
+                Map.of("d", article, "n", savedDto.kpName(), "p", dseText(savedDto.sborEds(), savedDto.packageName())));
 
         save(doc, savedDto.path(), savedDto.kpName());
     }

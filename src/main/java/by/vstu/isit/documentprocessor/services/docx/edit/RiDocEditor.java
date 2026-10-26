@@ -113,7 +113,7 @@ public class RiDocEditor extends AbstractDocEditor {
 
             removeDeletedRows(table, processedFuncIds, "func_", "_name");
 
-            Map<String, String> oldHeader = resolveHeaderOldData(Map.of(
+            HeaderUpdateHelper.update(this, doc, Map.of(
                     "d", designationsAssemblyUnit(dto.sborEds()),
                     "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()),
                     "p", dseText(dto.sborEds(), dto.packageName()),
@@ -124,8 +124,7 @@ public class RiDocEditor extends AbstractDocEditor {
                     "oObr", origOper.oborud(),
                     "oOst", origOper.ostnasInstr(),
                     "nZech", oper.numZech()
-            ));
-            updateHeader(doc, oldHeader, Map.of(
+            ), Map.of(
                     "d", designationsAssemblyUnit(savedDto.sborEds()),
                     "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
                     "p", dseText(savedDto.sborEds(), savedDto.packageName()),

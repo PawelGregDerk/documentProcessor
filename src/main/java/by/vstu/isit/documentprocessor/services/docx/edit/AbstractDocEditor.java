@@ -562,6 +562,33 @@ public abstract class AbstractDocEditor {
         }
     }
 
+    protected int rowIndexOf(Table table, TableRow row) {
+        for (int i = 0; i < table.getRows().getCount(); i++) {
+            if (table.getRows().get(i) == row) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    protected int findOperationBlockEnd(Table table, int startIndex) {
+        for (int i = startIndex + 1; i < table.getRows().getCount(); i++) {
+            if (containsOperStartBookmark(table.getRows().get(i), "oper_")) {
+                return i - 1;
+            }
+        }
+        return table.getRows().getCount() - 1;
+    }
+
+    protected void clearRowTexts(TableRow row) {
+        for (int j = 0; j < row.getCells().getCount(); j++) {
+            TableCell cell = row.getCells().get(j);
+            for (int k = 0; k < cell.getParagraphs().getCount(); k++) {
+                cell.getParagraphs().get(k).setText("");
+            }
+        }
+    }
+
     protected String designationsAssemblyUnit(List<SborEdDto> list) {
         return list.size() > 1 ? "согласно таблице 1" : list.getFirst().oboznach();
     }

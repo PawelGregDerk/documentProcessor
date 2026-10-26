@@ -75,17 +75,13 @@ public class SxPuDocEditor extends AbstractDocEditor {
 
             removeDeletedRows(table, processedIds, "func_", "_col_1");
 
-            Map<String, String> oldHeader = resolveHeaderOldData(
-                    Map.of(
-                            "puName", dto.puName(),
-                            "spuName", dto.spuName(),
-                            "nazv", dto.sborEds().getFirst().nazv(),
-                            "oboznach", dto.sborEds().getFirst().oboznach(),
-                            "packageName", dto.packageName()
-                    )
-            );
-
-            updateHeader(doc, oldHeader, Map.of(
+            HeaderUpdateHelper.update(this, doc, Map.of(
+                    "puName", dto.puName(),
+                    "spuName", dto.spuName(),
+                    "nazv", dto.sborEds().getFirst().nazv(),
+                    "oboznach", dto.sborEds().getFirst().oboznach(),
+                    "packageName", dto.packageName()
+            ), Map.of(
                     "puName", savedDto.puName(),
                     "spuName", savedDto.spuName(),
                     "nazv", savedDto.sborEds().getFirst().nazv(),

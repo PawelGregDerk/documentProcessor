@@ -51,15 +51,14 @@ public class WiDocEditor extends AbstractDocEditor {
         removeDeletedRows(table, processedOperIds, "oper_", "_col_0");
 
         String origDesig = dto.sborEds().getFirst().oboznach();
-        Map<String, String> oldHeader = resolveHeaderOldData(
-                Map.of("d", origDesig, "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()), "p", dseText(dto.sborEds(), dto.packageName()), "wi", dto.vedIName())
-        );
-        updateHeader(doc, oldHeader, Map.of(
-                "d", designationsAssemblyUnit(savedDto.sborEds()),
-                "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
-                "p", dseText(savedDto.sborEds(), savedDto.packageName()),
-                "wi", savedDto.vedIName()
-        ));
+        HeaderUpdateHelper.update(this, doc,
+                Map.of("d", origDesig, "d1", dseText(dto.sborEds(), dto.sborEds().getFirst().nazv()), "p", dseText(dto.sborEds(), dto.packageName()), "wi", dto.vedIName()),
+                Map.of(
+                        "d", designationsAssemblyUnit(savedDto.sborEds()),
+                        "d1", dseText(savedDto.sborEds(), savedDto.sborEds().getFirst().nazv()),
+                        "p", dseText(savedDto.sborEds(), savedDto.packageName()),
+                        "wi", savedDto.vedIName()
+                ));
 
         save(doc, savedDto.path(), savedDto.vedIName());
     }
