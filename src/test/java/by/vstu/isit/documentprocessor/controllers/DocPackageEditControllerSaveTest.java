@@ -177,6 +177,22 @@ class DocPackageEditControllerSaveTest {
     }
 
     @Test
+    @DisplayName("Повторяющиеся номера операций: предупреждение и база не меняется")
+    void onSaveOrCreate_duplicateOperationNumbers_showsErrorAndDoesNotUpdate() {
+        OperDto first = validOper(1L, "010", List.of(validFunc(1L, 1L)));
+        OperDto second = validOper(2L, "010", List.of(validFunc(2L, 2L)));
+        DockPackageDto dto = validDto("existing-folder", List.of(first, second));
+        when(formMapper.fromGui(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(dto);
+
+        ReflectionTestUtils.invokeMethod(controller, "onSaveOrCreate");
+
+        verify(alertService).showError(contains("Измените номер операции"));
+        verify(service, never()).findDtoById(any());
+        verify(service, never()).updateFullPackage(any());
+    }
+
+    @Test
     @DisplayName("Сценарий 4: Happy path обновления на диске СО сменой порядка - подтверждение пользователем, вызывает generators")
     void onSaveOrCreate_orderChangedConfirmed_generatesDocs() throws Exception {
         Path packageDir = Files.createDirectories(tempDir.resolve("existing-folder"));

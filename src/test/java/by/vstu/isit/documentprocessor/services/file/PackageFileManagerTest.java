@@ -82,6 +82,24 @@ class PackageFileManagerTest {
     }
 
     @Test
+    @DisplayName("findBusyDocuments: проверяет документы во вложенном архиве")
+    void findBusyDocuments_checksNestedArchive() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                System.getProperty("os.name").toLowerCase().contains("win"));
+        Path archive = Files.createDirectories(tempDir.resolve("pkg/Предыдущая версия old"));
+        Path document = archive.resolve("PU0360.docx");
+        Files.writeString(document, "doc");
+        Files.setAttribute(document, "dos:readonly", true);
+        try {
+            assertThat(manager.findBusyDocuments(tempDir.resolve("pkg")))
+                    .extracting(path -> path.getFileName().toString())
+                    .containsExactly("PU0360.docx");
+        } finally {
+            Files.setAttribute(document, "dos:readonly", false);
+        }
+    }
+
+    @Test
     @DisplayName("archivePackageDir: копирует содержимое и пропускает предыдущие версии")
     void archivePackageDir_copiesContentsAndSkipsPreviousVersions() throws Exception {
         Path source = Files.createDirectories(tempDir.resolve("source"));

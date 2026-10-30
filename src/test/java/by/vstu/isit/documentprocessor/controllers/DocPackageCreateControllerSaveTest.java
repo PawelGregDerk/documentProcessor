@@ -179,6 +179,20 @@ class DocPackageCreateControllerSaveTest {
     }
 
     @Test
+    @DisplayName("Небезопасный путь: предупреждение и пакет не сохраняется")
+    void onSave_unsafePath_showsErrorAndDoesNotSave() {
+        DockPackageDto dto = validDto("..", List.of(validSborEd()),
+                List.of(validOper(1L, List.of(validFunc()))));
+        when(formMapper.fromGui(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(dto);
+
+        ReflectionTestUtils.invokeMethod(controller, "onSave");
+
+        verify(alertService).showError(contains("Путь пакета"));
+        verify(service, never()).saveFullPackage(any());
+    }
+
+    @Test
     @DisplayName("Сценарий 10: Ошибка создания - если папка уже существует, генерируется ошибка и сервис не вызывается")
     void onSave_folderAlreadyExists_showsErrorAlert() throws Exception {
         Files.createDirectories(tempDir.resolve("already-existing"));
